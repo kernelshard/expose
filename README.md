@@ -15,14 +15,14 @@
 
 ```
 # Clone the repository
-git clone https://github.com/yourusername/expose.git
+git clone https://github.com/kernelshard/expose.git
 cd expose
 
 # Build
 go build -o expose cmd/expose/main.go
 
 # Optional: Install globally
-go install github.com/yourusername/expose/cmd/expose@latest
+go install github.com/kernelshard/expose/cmd/expose@latest
 ```
 
 ## 🚀 Quick Start
@@ -81,7 +81,12 @@ expose/
 ├── cmd/expose/          # CLI entry point
 └── internal/
     ├── cli/             # Command implementations
-    └── config/          # Configuration management
+    ├── config/          # Configuration management
+    ├── env/             # Environment handling
+    ├── git/             # Git integration
+    ├── preview/         # Preview functionality
+    ├── state/           # State management
+    └── tunnel/          # Tunnel management
 ```
 
 **Design Principles:**
