@@ -8,7 +8,7 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
-const DefaultConfigFile = "expose.yaml"
+const DefaultConfigFile = ".expose.yml"
 
 // Config represents the structure of the configuration file.
 type Config struct {

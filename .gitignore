@@ -1,7 +1,5 @@
 # Binaries
-# ignore the top-level binary named `expose` (anchor to repo root so we don't
-# accidentally ignore files or directories named `expose` elsewhere, e.g. `cmd/expose`)
-/expose
+expose
 *.exe
 *.so
 *.dylib
@@ -16,6 +14,7 @@ vendor/
 # Config
 .expose/
 .env*
+.expose.yml
 
 # IDEs
 .vscode/
