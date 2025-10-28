@@ -16,6 +16,8 @@ vendor/
 # Config
 .expose/
 .env*
+expose.yaml
+.expose.yml
 
 # IDEs
 .vscode/

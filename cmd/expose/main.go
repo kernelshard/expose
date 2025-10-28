@@ -1,4 +1,4 @@
-package expose
+package main
 
 import (
 	"fmt"
