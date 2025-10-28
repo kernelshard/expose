@@ -1,5 +1,8 @@
 # expose
 
+[![Tests](https://github.com/kernelshard/expose/actions/workflows/test.yml/badge.svg)](https://github.com/kernelshard/expose/actions/workflows/test.yml)
+[![Go Report Card](https://goreportcard.com/badge/github.com/kernelshard/expose)](https://goreportcard.com/report/github.com/kernelshard/expose)
+
 > Expose localhost to the internet. Minimal. Fast. Open Source.
 
 **expose** is a lightweight Golang CLI that makes sharing your local development server effortless.
