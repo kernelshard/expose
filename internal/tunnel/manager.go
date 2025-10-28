@@ -56,11 +56,11 @@ func (m *Manager) Start(ctx context.Context) error {
 	if err != nil {
 		return fmt.Errorf("failed to create listener: %w", err)
 	}
-	m.listener = listener
 
-	// Set the public URL (concurrency-safe)
+	// Set the public URL and listener (concurrency-safe)
 	port := listener.Addr().(*net.TCPAddr).Port
 	m.mu.Lock()
+	m.listener = listener
 	m.publicURL = fmt.Sprintf("http://localhost:%d", port)
 	m.mu.Unlock()
 
@@ -72,9 +72,14 @@ func (m *Manager) Start(ctx context.Context) error {
 	close(m.ready)
 
 	// Create HTTP server to handle incoming requests
-	m.server = &http.Server{
+	server := &http.Server{
 		Handler: http.HandlerFunc(m.proxyHandler),
 	}
+
+	// Set server (concurrency-safe)
+	m.mu.Lock()
+	m.server = server
+	m.mu.Unlock()
 
 	// Auto-close & clean up on context cancellation
 	go func() {
