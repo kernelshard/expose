@@ -1,5 +1,7 @@
 # Binaries
-expose
+# ignore the top-level binary named `expose` (anchor to repo root so we don't
+# accidentally ignore files or directories named `expose` elsewhere, e.g. `cmd/expose`)
+/expose
 *.exe
 *.so
 *.dylib
