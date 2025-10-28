@@ -1,0 +1,24 @@
+# Binaries
+expose
+*.exe
+*.so
+*.dylib
+
+# Test binary
+*.test
+
+# Go
+*.out
+vendor/
+
+# Config
+.expose/
+.env*
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+
+# OS
+.DS_Store
