@@ -1,13 +1,16 @@
 package cli
 
 import (
+	"context"
 	"fmt"
-	"net/http"
-	"net/http/httputil"
-	"net/url"
+	"os"
+	"os/signal"
+	"syscall"
+
+	"github.com/spf13/cobra"
 
 	"github.com/kernelshard/expose/internal/config"
-	"github.com/spf13/cobra"
+	"github.com/kernelshard/expose/internal/tunnel"
 )
 
 // tunnelCmd represents the 'tunnel' command in the CLI application.
@@ -40,14 +43,39 @@ func newTunnelCmd() *cobra.Command {
 // runTunnel sets up a reverse proxy to expose the local server
 // on the specified port.
 func runTunnel(port int) error {
-	fmt.Printf("Exposing localhost:%d\n", port)
-	fmt.Printf("Local URL: http://localhost:8080\n")
-	fmt.Println("\nPress Ctrl+C to stop")
 
-	// Create reverse proxy to forward requests
-	target, _ := url.Parse(fmt.Sprintf("http://localhost:%d", port))
-	proxy := httputil.NewSingleHostReverseProxy(target)
+	// Create manager
+	mgr := tunnel.NewManager(port)
 
-	// Start local server
-	return http.ListenAndServe(":8080", proxy)
+	// context with signal handling
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	// handle Ctrl+C, kill pid etc
+	sigChan := make(chan os.Signal, 1)
+	signal.Notify(sigChan, os.Interrupt, syscall.SIGTERM)
+
+	// waiting to read from channel is blocking ops, so wait in bg.
+	go func() {
+		<-sigChan
+		fmt.Println("\n\nShutting down...")
+		cancel()
+	}()
+
+	// start in background
+	errChan := make(chan error, 1)
+	go func() {
+		errChan <- mgr.Start(ctx)
+	}()
+
+	// wait for ready
+	<-mgr.Ready()
+
+	// Show info
+	fmt.Printf("🚀 Starting tunnel for localhost:%d\n\n", port)
+	fmt.Printf("✓ Public URL:   %s\n", mgr.PublicURL())
+	fmt.Printf("✓ Forwarding to: http://localhost:%d\n\n", port)
+	fmt.Println("Press Ctrl+C to stop")
+
+	return <-errChan
 }
