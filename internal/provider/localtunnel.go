@@ -227,7 +227,7 @@ func (lt *localTunnel) handleConnection(tunnelConn net.Conn) {
 // proxyRequest forwards data between the tunnel connection and the local server.
 func (lt *localTunnel) proxyRequest(tunnelConn net.Conn) error {
 	// connect to local server
-	localAddr := fmt.Sprintf("localhost:%d", lt.localPort)
+	localAddr := fmt.Sprintf("127.0.0.1:%d", lt.localPort)
 	localConn, err := net.DialTimeout("tcp", localAddr, 5*time.Second)
 	if err != nil {
 		return fmt.Errorf("local dial failed: %w", err)

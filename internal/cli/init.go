@@ -3,8 +3,9 @@ package cli
 import (
 	"fmt"
 
-	"github.com/kernelshard/expose/internal/config"
 	"github.com/spf13/cobra"
+
+	"github.com/kernelshard/expose/internal/config"
 )
 
 // newInitCmd creates the 'init' command for initializing configuration.
@@ -20,7 +21,7 @@ func newInitCmd() *cobra.Command {
 
 			fmt.Printf("✓ Created .expose.yml\n")
 			fmt.Printf("✓ Project: %s\n", cfg.Project)
-			fmt.Printf("✓ Port: %d\n", cfg.DefaultPort)
+			fmt.Printf("✓ Port: %d\n", cfg.Port)
 			return nil
 
 		},
