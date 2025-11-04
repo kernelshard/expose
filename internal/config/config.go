@@ -12,8 +12,8 @@ const DefaultConfigFile = ".expose.yml"
 
 // Config represents the structure of the configuration file.
 type Config struct {
-	Project     string `yaml:"project"`
-	DefaultPort int    `yaml:"default_port"`
+	Project string `yaml:"project"`
+	Port    int    `yaml:"port"`
 }
 
 // Load reads the configuration from the specified or default file path.
@@ -50,8 +50,8 @@ func Init() (*Config, error) {
 	projectName := filepath.Base(dir)
 
 	cfg := &Config{
-		Project:     projectName,
-		DefaultPort: 3000,
+		Project: projectName,
+		Port:    3000,
 	}
 
 	// Write config file
