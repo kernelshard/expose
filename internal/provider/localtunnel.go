@@ -7,6 +7,7 @@ import (
 	"io"
 	"net"
 	"net/http"
+	"strconv"
 	"sync"
 	"time"
 
@@ -20,6 +21,11 @@ const (
 	// maximum concurrent connections allowed for us,
 	// override if tunnel api sends their limit
 	clientMaxConn = 10
+
+	httpClientTimeout    = 10 * time.Second
+	tcpDialTimeout       = 10 * time.Second
+	localDialTimeOut     = 4 * time.Second
+	proxyDeadlineTimeOut = 30 * time.Second
 )
 
 // localTunnel implements the Provider interface for localtunnel.me
@@ -55,7 +61,7 @@ type TunnelInfo struct {
 // NewLocalTunnel creates a new localTunnel provider instance.
 func NewLocalTunnel(httpClient *http.Client) tunnel.Provider {
 	if httpClient == nil {
-		httpClient = http.DefaultClient
+		httpClient = &http.Client{Timeout: httpClientTimeout}
 	}
 
 	return &localTunnel{
@@ -172,9 +178,9 @@ func (lt *localTunnel) openConnections() error {
 
 // dialTunnel creates a single TCP connection to the localtunnel server.
 func (lt *localTunnel) dialTunnel() (net.Conn, error) {
-	// TODO: give IPv6 support here using net.JoinHostPort later
-	address := fmt.Sprintf("%s:%d", lt.tunnelHost, lt.tunnelPort)
-	conn, err := net.DialTimeout("tcp", address, 10*time.Second)
+	address := net.JoinHostPort(lt.tunnelHost, strconv.Itoa(lt.tunnelPort)) //IPv6 safe
+	conn, err := net.DialTimeout("tcp", address, localDialTimeOut)
+
 	if err != nil {
 		return nil, err
 	}
@@ -221,7 +227,7 @@ func (lt *localTunnel) handleConnection(tunnelConn net.Conn) {
 // proxyRequest forwards data between the tunnel connection and the local server.
 func (lt *localTunnel) proxyRequest(tunnelConn net.Conn) error {
 	// connect to local server
-	localAddr := fmt.Sprintf("localhost:%d", lt.localPort)
+	localAddr := fmt.Sprintf("127.0.0.1:%d", lt.localPort)
 	localConn, err := net.DialTimeout("tcp", localAddr, 5*time.Second)
 	if err != nil {
 		return fmt.Errorf("local dial failed: %w", err)
@@ -230,8 +236,8 @@ func (lt *localTunnel) proxyRequest(tunnelConn net.Conn) error {
 
 	// Set deadlines, it helps to avoid hanging connections
 	// e.g: if either side doesn't respond in time, the copy will end
-	_ = tunnelConn.SetDeadline(time.Now().Add(30 * time.Second))
-	_ = localConn.SetDeadline(time.Now().Add(30 * time.Second))
+	_ = tunnelConn.SetDeadline(time.Now().Add(proxyDeadlineTimeOut))
+	_ = localConn.SetDeadline(time.Now().Add(proxyDeadlineTimeOut))
 
 	// Start bidirectional copy
 	// mental model: copy(blocking ops) the data from tunnel to local and

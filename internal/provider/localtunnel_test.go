@@ -20,7 +20,7 @@ func Test_NewLocalTunnel(t *testing.T) {
 			t.Fatal("expected default httpClient, got nil")
 		}
 
-		if lt.httpClient.Timeout != http.DefaultClient.Timeout {
+		if lt.httpClient.Timeout != httpClientTimeout {
 			t.Errorf("expected %v timeout, got %v", http.DefaultClient.Timeout, lt.httpClient.Timeout)
 		}
 

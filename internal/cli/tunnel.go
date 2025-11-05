@@ -10,48 +10,66 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/kernelshard/expose/internal/config"
+	"github.com/kernelshard/expose/internal/provider"
 	"github.com/kernelshard/expose/internal/tunnel"
 )
 
-// tunnelCmd represents the 'tunnel' command in the CLI application.
+// tunnelCmd represents the tunnel command
 func newTunnelCmd() *cobra.Command {
-	var port int
-
-	// Define the command structure and behavior
+	//Use:   "tunnel",
+	//Short: "Start a tunnel to expose local server",
+	//RunE:  runTunnelCmd,
 	cmd := &cobra.Command{
 		Use:   "tunnel",
 		Short: "Start a tunnel to expose local server",
-		RunE: func(cmd *cobra.Command, args []string) error {
-			// Load config
-			cfg, err := config.Load("")
-			if err != nil {
-				return fmt.Errorf("run 'expose' init first")
-			}
-
-			if port == 0 {
-				port = cfg.DefaultPort
-			}
-
-			return runTunnel(port)
-		},
+		RunE:  runTunnelCmd,
 	}
 
-	cmd.Flags().IntVarP(&port, "port", "p", 0, "local port to expose")
+	cmd.Flags().IntP("port", "p", 0, "Local port to expose (overrides config)")
 	return cmd
+}
+
+// runTunnelCmd represents the 'tunnel' command in the CLI application.
+func runTunnelCmd(cmd *cobra.Command, args []string) error {
+
+	// Load config
+	cfg, err := config.Load("")
+	if err != nil {
+		return fmt.Errorf("config not found (run 'expose init' first): %w", err)
+	}
+
+	// Get port from flag
+	port, err := cmd.Flags().GetInt("port")
+	if err != nil {
+		return fmt.Errorf("invalid port flag %w", err)
+	}
+
+	// use config port if flag not set
+	if port == 0 {
+		port = cfg.Port
+	}
+
+	if port <= 0 || port > 65535 {
+		return fmt.Errorf("invalid port %d (must be 1-65535)", port)
+	}
+
+	return runTunnel(port)
 }
 
 // runTunnel sets up a reverse proxy to expose the local server
 // on the specified port.
 func runTunnel(port int) error {
+	// - Create LocalTunnel provider
+	lt := provider.NewLocalTunnel(nil)
 
-	// Create manager
-	mgr := tunnel.NewManager(port)
+	// - Wrap in service
+	svc := tunnel.NewService(lt)
 
-	// context with signal handling
+	// Setup ctx & signal handling
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
-	// handle Ctrl+C, kill pid etc
+	// handle Ctrl+C, kill pid etc.
 	sigChan := make(chan os.Signal, 1)
 	signal.Notify(sigChan, os.Interrupt, syscall.SIGTERM)
 
@@ -62,20 +80,37 @@ func runTunnel(port int) error {
 		cancel()
 	}()
 
-	// start in background
+	// - Start  tunnel in background
 	errChan := make(chan error, 1)
 	go func() {
-		errChan <- mgr.Start(ctx)
+		errChan <- svc.Start(ctx, port)
 	}()
 
 	// wait for ready
-	<-mgr.Ready()
+	select {
+	case <-svc.Ready():
+		// Show info
+		fmt.Printf("🚀 Tunnel[%s] started for localhost:%d\n", svc.ProviderName(), port)
+		fmt.Printf("✓ Public URL: %s\n", svc.PublicURL())
+		fmt.Printf("✓ Forwarding to: http://localhost:%d\n", port)
+		fmt.Printf("✓ Provider: %s\n", svc.ProviderName())
+		fmt.Println("Press Ctrl+C to stop")
 
-	// Show info
-	fmt.Printf("🚀 Starting tunnel for localhost:%d\n\n", port)
-	fmt.Printf("✓ Public URL:   %s\n", mgr.PublicURL())
-	fmt.Printf("✓ Forwarding to: http://localhost:%d\n\n", port)
-	fmt.Println("Press Ctrl+C to stop")
+	case err := <-errChan:
+		if err != nil {
+			return err
+		}
 
-	return <-errChan
+	}
+
+	// - Wait for shutdown
+	<-ctx.Done()
+
+	// - Cleanup
+	if err := svc.Close(); err != nil {
+		return fmt.Errorf("close failed %w", err)
+	}
+
+	fmt.Println("✓ Tunnel closed")
+	return nil
 }
