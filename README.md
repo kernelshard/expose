@@ -42,6 +42,15 @@ expose tunnel
 
 ## 📖 Usage
 
+### Version
+
+Check the version of expose:
+
+```
+expose --version
+# expose version v0.1.1 (commit: 4784595, built: 2025-11-07)
+```
+
 ### Initialize Project
 
 Create a `.expose.yml` configuration file:
@@ -128,6 +137,12 @@ Contributions welcome! This project follows:
 - Standard Go conventions
 - Commit message format: `type: description`
 - Clean, tested, documented code
+
+### Contributors
+
+- **Samiul Sk** - Project creator and maintainer
+
+*Want to contribute? See our [contributing guidelines](CONTRIBUTING.md) (coming soon)*
 
 ## 📝 License
 
