@@ -30,7 +30,7 @@ func newTunnelCmd() *cobra.Command {
 }
 
 // runTunnelCmd represents the 'tunnel' command in the CLI application.
-func runTunnelCmd(cmd *cobra.Command, args []string) error {
+func runTunnelCmd(cmd *cobra.Command, _ []string) error {
 
 	// Load config
 	cfg, err := config.Load("")

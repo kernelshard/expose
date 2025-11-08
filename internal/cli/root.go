@@ -18,6 +18,7 @@ func Execute() error {
 	// Add commands
 	rootCmd.AddCommand(newInitCmd())
 	rootCmd.AddCommand(newTunnelCmd())
+	rootCmd.AddCommand(newConfigCmd())
 
 	return rootCmd.Execute()
 }
