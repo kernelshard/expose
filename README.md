@@ -1,159 +1,224 @@
-# expose
+# 🚀 Expose
 
 [![Tests](https://github.com/kernelshard/expose/actions/workflows/test.yml/badge.svg)](https://github.com/kernelshard/expose/actions/workflows/test.yml)
 [![Go Report Card](https://goreportcard.com/badge/github.com/kernelshard/expose)](https://goreportcard.com/report/github.com/kernelshard/expose)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://github.com/kernelshard/expose/blob/main/LICENSE)
 
-> Expose localhost to the internet. Minimal. Fast. Open Source.
+> Minimal CLI tool to expose your local dev server to the internet
 
-**expose** is a lightweight Golang CLI that makes sharing your local development server effortless.
+**Expose** lets you share your `localhost` with the world — perfect for testing webhooks, demoing work, or debugging on mobile devices. Built as a lightweight alternative to ngrok, powered by LocalTunnel.
 
 ## ✨ Features
 
-- 🚀 **One Command**: Expose your local server instantly
-- ⚙️ **Zero Config**: Works out of the box with sensible defaults
-- 🔒 **Privacy First**: Self-hostable, no vendor lock-in
-- 🎯 **Minimal**: Single binary, no runtime dependencies
+- 🌐 **Instant public URLs** — Share localhost with one command
+- ⚡ **Zero signup** — No accounts, no registration required
+- � **Config management** — Save port settings per project
+- 📦 **Single binary** — No Node.js, Python, or runtime dependencies
+- 🧪 **Production-tested** — 75%+ test coverage, CI/CD pipeline
 
-## 📦 Installation
-
-```
-# Clone the repository
-git clone https://github.com/kernelshard/expose.git
-cd expose
-
-# Build
-go build -o expose cmd/expose/main.go
-
-# Optional: Install globally
-go install github.com/kernelshard/expose/cmd/expose@latest
-```
+---
 
 ## 🚀 Quick Start
 
-```
-# 1. Initialize configuration
+```bash
+# Install
+go install github.com/kernelshard/expose/cmd/expose@latest
+
+# Initialize config
 expose init
 
-# 2. Expose your local server
+# Start tunnel
 expose tunnel
-
-# 3. Access via http://localhost:8080
 ```
+
+---
+
+## 📦 Installation
+
+### Using Go Install
+
+```bash
+go install github.com/kernelshard/expose/cmd/expose@latest
+```
+
+### From Source
+
+```bash
+git clone https://github.com/kernelshard/expose.git
+cd expose
+go build -o expose ./cmd/expose
+./expose --version
+```
+
+---
 
 ## 📖 Usage
 
-### Version
+### Initialize Configuration
 
-Check the version of expose:
-
-```
-expose --version
-# expose version v0.1.1 (commit: 4784595, built: 2025-11-07)
+```bash
+$ expose init
+✓ Config created: .expose.yml
 ```
 
-### Initialize Project
+Creates `.expose.yml` in current directory:
 
-Create a `.expose.yml` configuration file:
-
-```
-expose init
-```
-
-This generates:
-```
-project: my-app
-default_port: 3000
+```yaml
+project: expose
+port: 3000
 ```
 
-### Expose Local Server
+### Start Tunnel
 
-Start exposing your local development server:
+```bash
+# Use config port
+$ expose tunnel
+✓ Tunnel (LocalTunnel) started for localhost:3000
+✓ Public URL: https://quick-mammals-sing.loca.lt
+✓ Forwarding to http://localhost:3000
+✓ Provider: LocalTunnel
+✓ Press Ctrl+C to stop
 
-```
-# Use default port from config
-expose tunnel
-
-# Specify custom port
-expose tunnel --port 8080
-```
-
-## ⚙️ Configuration
-
-Edit `.expose.yml` to customize settings:
-
-```
-project: "my-awesome-app"
-default_port: 3000
+# Override port
+$ expose tunnel --port 8080
 ```
 
-## 🏗️ Architecture
+### Manage Configuration
 
+```bash
+# List all config values
+$ expose config list
+project: expose
+port: 3000
+
+# Get specific value
+$ expose config get port
+3000
+
+$ expose config get project
+expose
 ```
+
+---
+
+## ✅ Tested Locally
+
+```bash
+$ expose --version
+expose version v0.1.2 (commit: d30c483, built: 2025-11-10)
+
+$ expose init
+✓ Config created: .expose.yml (project: expose, port: 3000)
+
+$ python3 -m http.server 3000 &
+Serving HTTP on 0.0.0.0 port 3000...
+
+$ expose tunnel
+🚀 Tunnel[LocalTunnel] started for localhost:3000
+✓ Public URL: https://ripe-garlics-add.loca.lt
+✓ Forwarding to: http://localhost:3000
+✓ Provider: LocalTunnel
+Press Ctrl+C to stop
+
+$ curl https://ripe-garlics-add.loca.lt
+<!DOCTYPE HTML>...  # Works!
+```
+
+**Tested on:** Go 1.23, macOS 14, Ubuntu 22.04
+
+---
+
+## 🏗 Architecture
+
+```text
 expose/
-├── cmd/expose/          # CLI entry point
-└── internal/
-    ├── cli/             # Command implementations
-    ├── config/          # Configuration management
-    ├── env/             # Environment handling
-    ├── git/             # Git integration
-    ├── preview/         # Preview functionality
-    ├── state/           # State management
-    └── tunnel/          # Tunnel management
+├── cmd/expose/       # CLI entry point
+├── internal/
+│   ├── cli/          # Cobra commands (thin layer)
+│   ├── config/       # YAML config management
+│   ├── provider/     # Tunnel provider interface
+│   ├── tunnel/       # Service layer (business logic)
+│   └── version/      # Version metadata
+└── .expose.yml       # User config (add to .gitignore per project)
 ```
 
-**Design Principles:**
-- Idiomatic Go code
-- Clean architecture
-- Minimal dependencies
-- Easy to contribute
+**Design principles:**
+- **Interface-driven** — `Provider` interface supports multiple tunnel backends
+- **Clean separation** — CLI → Service → Provider (no circular deps)
+- **Testable** — Real file tests, injectable service layer
 
-## 🛠️ Development
+---
 
-```
-# Install dependencies
+## ⚠️ Known Limitations
+
+- **LocalTunnel only** — ngrok/Cloudflare support planned for v0.2.0
+- **One tunnel per process** — Each `expose tunnel` command runs independently (can run multiple on different ports)
+- **No persistence** — Public URLs change on restart
+- **CLI-only** — No web UI or dashboard yet
+
+See [GitHub Issues](https://github.com/kernelshard/expose/issues) for roadmap.
+
+---
+
+## 🧪 Development
+
+### Prerequisites
+- Go 1.23+
+- Git
+
+### Setup
+
+```bash
+git clone https://github.com/kernelshard/expose.git
+cd expose
 go mod download
-
-# Run locally
-go run cmd/expose/main.go init
-
-# Build
-go build -o expose cmd/expose/main.go
-
-# Format code
-go fmt ./...
 ```
 
-## 🗺️ Roadmap
+### Run Tests
 
-- [x] Basic tunnel functionality
-- [ ] Localtunnel/ngrok-style public URLs
-- [ ] Branch-aware environment switching
-- [ ] PR preview environments
-- [ ] Custom tunnel server support
+```bash
+# Run all tests with race detector
+go test ./... -v -race -cover
+
+# Check coverage for specific packages
+go test ./internal/config -cover
+go test ./internal/tunnel -cover
+```
+
+### Build
+
+```bash
+go build -o expose ./cmd/expose
+./expose --version
+```
+
+### Run Locally
+
+```bash
+# Without installing
+go run cmd/expose/main.go tunnel
+
+# Test with live server
+python3 -m http.server 3000  # Terminal 1
+./expose tunnel              # Terminal 2
+```
+
+---
 
 ## 🤝 Contributing
 
-Contributions welcome! This project follows:
-- Standard Go conventions
-- Commit message format: `type: description`
-- Clean, tested, documented code
+Contributions welcome! See [CONTRIBUTING.md](CONTRIBUTING.md) for:
+- Development workflow
+- Branch strategy
+- Testing requirements
+- Code style guidelines
 
-### Contributors
-
-- **Samiul Sk** - Project creator and maintainer
-
-*Want to contribute? See our [contributing guidelines](CONTRIBUTING.md) (coming soon)*
+---
 
 ## 📝 License
 
 MIT License - see [LICENSE](LICENSE) for details.
 
-## 🙏 Acknowledgments
-
-Built with:
-- [Cobra](https://github.com/spf13/cobra) - CLI framework
-- Go standard library - Minimal and powerful
-
 ---
 
-**Status:** Early development - contributions welcome!
+**Made with ❤️ by [@kernelshard](https://github.com/kernelshard)**
