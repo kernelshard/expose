@@ -207,7 +207,7 @@ python3 -m http.server 3000  # Terminal 1
 
 ## 🤝 Contributing
 
-Contributions welcome! See [CONTRIBUTING.md](CONTRIBUTING.md) for:
+Contributions welcome! See [CONTRIBUTING.md](docs/CONTRIBUTING.md) for:
 - Development workflow
 - Branch strategy
 - Testing requirements
