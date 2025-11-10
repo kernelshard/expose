@@ -67,3 +67,23 @@ func Init() (*Config, error) {
 	return cfg, nil
 
 }
+
+// List returns all configuration values as a map
+func (c *Config) List() map[string]interface{} {
+	return map[string]interface{}{
+		"project": c.Project,
+		"port":    c.Port,
+	}
+}
+
+// Get returns the value of a specific configuration key
+func (c *Config) Get(key string) (interface{}, error) {
+	switch key {
+	case "project":
+		return c.Project, nil
+	case "port":
+		return c.Port, nil
+	default:
+		return nil, fmt.Errorf("unknown config key: %s", key)
+	}
+}
