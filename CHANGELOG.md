@@ -8,11 +8,33 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ---
 
 ## [Unreleased]
+### Planned for v0.2.0
 
 ### Planned for v0.2.0
 - ngrok provider support
 - Custom subdomains
 - HTTPS support
+
+## [v0.2.0] - 2025-11-29
+
+### Added
+- **Cloudflare Tunnel** support (`expose tunnel -P cloudflare`) [#21]
+- `--provider/-P` flag (localtunnel, cloudflare)
+- test coverage for provider + service layers
+
+### Changed
+- Bump version to v0.2.0
+- Update README with providers table + examples
+## [v0.2.0] - 2025-11-29
+
+### Added
+- **Cloudflare Tunnel** support (`expose tunnel -P cloudflare`) [#12]
+- `--provider/-P` flag (localtunnel, cloudflare)
+- Full test coverage for provider + service layers
+
+### Changed
+- Bump version to v0.2.0
+- Update README with providers table + examples
 
 ---
 
@@ -58,6 +80,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
-[0.1.2]: https://github.com/kernelshard/expose/releases/tag/v0.1.2
+[v0.1.2]: https://github.com/kernelshard/expose/compare/v0.2.0...v0.1.2
 [0.1.1]: https://github.com/kernelshard/expose/releases/tag/v0.1.1
 [0.1.0]: https://github.com/kernelshard/expose/releases/tag/v0.1.0

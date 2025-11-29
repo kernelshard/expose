@@ -6,11 +6,10 @@
 
 > Minimal CLI tool to expose your local dev server to the internet
 
-**Expose** lets you share your `localhost` with the world — perfect for testing webhooks, demoing work, or debugging on mobile devices. Built as a lightweight alternative to ngrok, powered by LocalTunnel.
-
+**Expose** lets you share your `localhost` with the world — perfect for testing webhooks, demoing work, or debugging on mobile devices. Supports LocalTunnel and Cloudflare Tunnel.
 ## ✨ Features
 
-- 🌐 **Instant public URLs** — Share localhost with one command
+ 🌐 **Multiple providers** — LocalTunnel + Cloudflare Tunnel
 - ⚡ **Zero signup** — No accounts, no registration required
 - � **Config management** — Save port settings per project
 - 📦 **Single binary** — No Node.js, Python, or runtime dependencies
@@ -31,6 +30,10 @@ expose init
 expose tunnel
 ```
 
++ # Or use Cloudflare Tunnel
+```bash
+expose tunnel -P cloudflare -p 3000
+```
 ---
 
 ## 📦 Installation
@@ -150,8 +153,6 @@ expose/
 ---
 
 ## ⚠️ Known Limitations
-
-- **LocalTunnel only** — ngrok/Cloudflare support planned for v0.2.0
 - **One tunnel per process** — Each `expose tunnel` command runs independently (can run multiple on different ports)
 - **No persistence** — Public URLs change on restart
 - **CLI-only** — No web UI or dashboard yet
@@ -183,6 +184,7 @@ go test ./... -v -race -cover
 # Check coverage for specific packages
 go test ./internal/config -cover
 go test ./internal/tunnel -cover
+go test ./internal/provider -cover
 ```
 
 ### Build
