@@ -27,13 +27,6 @@ func NewCloudFlare() *Cloudflare {
 	}
 }
 
-// NewCloudFlareWithMock creates a Cloudflare provider with a mock requestTunnel function for testing
-func NewCloudFlareWithMock(mockRequestTunnel func(ctx context.Context, port int, timeout time.Duration) (string, *exec.Cmd, error)) *Cloudflare {
-	return &Cloudflare{
-		RequestTunnel: mockRequestTunnel,
-	}
-}
-
 // Connect establishes a Cloudflare Tunnel to the specified local port
 func (c *Cloudflare) Connect(ctx context.Context, localPort int) (string, error) {
 	timeout := 30 * time.Second
@@ -72,6 +65,14 @@ func (c *Cloudflare) PublicURL() string {
 	defer c.mu.RUnlock()
 
 	return c.publicURL
+}
+
+// IsConnected checks if the Cloudflare Tunnel is active
+func (c *Cloudflare) IsConnected() bool {
+	c.mu.RLock()
+	defer c.mu.RUnlock()
+
+	return c.cmd != nil && c.cmd.ProcessState == nil
 }
 
 // Name returns the name of the provider

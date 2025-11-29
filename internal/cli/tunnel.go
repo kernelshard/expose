@@ -21,10 +21,15 @@ func newTunnelCmd() *cobra.Command {
 	//RunE:  runTunnelCmd,
 	cmd := &cobra.Command{
 		Use:   "tunnel",
-		Short: "Start a tunnel to expose local server",
+		Short: "Expose local server via tunnel",
 		RunE:  runTunnelCmd,
 	}
 
+	// Define flags
+	// provider flag to specify provider e.g. expose tunnel --provider cloudflare
+	cmd.Flags().StringP("provider", "P", "localtunnel", "Tunnel provider: localtunnel, cloudflare, etc. defaults to localtunnel")
+
+	// port flag to specify local port e.g. expose tunnel --port 8080
 	cmd.Flags().IntP("port", "p", 0, "Local port to expose (overrides config)")
 	return cmd
 }
@@ -53,17 +58,27 @@ func runTunnelCmd(cmd *cobra.Command, _ []string) error {
 		return fmt.Errorf("invalid port %d (must be 1-65535)", port)
 	}
 
-	return runTunnel(port)
+	// use provider flag shorthand -P to select provider
+	providerName, err := cmd.Flags().GetString("provider")
+	if err != nil {
+		return fmt.Errorf("invalid port %d (must be 1-65535)", port)
+	}
+
+	return runTunnel(port, providerName)
 }
 
 // runTunnel sets up a reverse proxy to expose the local server
 // on the specified port.
-func runTunnel(port int) error {
-	// - Create LocalTunnel provider
-	lt := provider.NewLocalTunnel(nil)
+func runTunnel(port int, providerName string) error {
+	var svc *tunnel.Service
 
-	// - Wrap in service
-	svc := tunnel.NewService(lt)
+	switch providerName {
+	case "cloudflare":
+		svc = tunnel.NewService(provider.NewCloudFlare())
+	default:
+		svc = tunnel.NewService(provider.NewLocalTunnel(nil))
+
+	}
 
 	// Setup ctx & signal handling
 	ctx, cancel := context.WithCancel(context.Background())
