@@ -159,3 +159,12 @@ func TestService_StartTwice(t *testing.T) {
 		t.Error("already started error shall be returned")
 	}
 }
+
+func TestService_Providername(t *testing.T) {
+	mock := &MockProvider{}
+	svc := NewService(mock)
+
+	if got := svc.ProviderName(); got != "MockProvider" {
+		t.Errorf("ProviderName() = %s, want MockProvider", got)
+	}
+}
