@@ -61,6 +61,7 @@ docs: update installation instructions
 test: add tunnel service tests
 ```
 
+
 ### Testing Requirements
 
 - ✅ Write tests for new features
@@ -154,6 +155,15 @@ Before submitting:
 - [ ] Commit messages follow convention
 - [ ] PR description includes issue reference
 - [ ] Branch is up to date with `develop`
+
+---
+
+## 📢 Help us Grow!
+
+We are a small open-source project and we need your help to compete with the giants!
+- ✍️ **Write a blog post** comparing Expose to other tools
+- 🐦 **Tweet about it** and tag `@kernelshard`
+- ⭐ **Star the repo** on GitHub (it really helps!)
 
 ---
 

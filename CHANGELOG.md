@@ -8,35 +8,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ---
 
 ## [Unreleased]
-### Planned for v0.2.0
-
-### Planned for v0.2.0
-- ngrok provider support
-- Custom subdomains
-- HTTPS support
-
-## [v0.2.0] - 2025-11-29
 
 ### Added
-- **Cloudflare Tunnel** support (`expose tunnel -P cloudflare`) [#21]
-- `--provider/-P` flag (localtunnel, cloudflare)
-- test coverage for provider + service layers
+- **Automated Releases**: Binaries for Windows, Linux, and macOS are now automatically built on every tag.
+- **Documentation**: New "Social Preview" banner, Comparison Table, and improved SEO guide.
+- **Community**: Added "Help us Grow" section to Contributing guide.
 
-### Changed
-- Bump version to v0.2.0
-- Update README with providers table + examples
-## [v0.2.0] - 2025-11-29
+---
+
+## [0.2.0] - 2025-11-29
 
 ### Added
-- **Cloudflare Tunnel** support (`expose tunnel -P cloudflare`) [#12]
+- **Cloudflare Tunnel** support (`expose tunnel -P cloudflare`)
 - `--provider/-P` flag (localtunnel, cloudflare)
 - Full test coverage for provider + service layers
 
-### Changed
-- Bump version to v0.2.0
-- Update README with providers table + examples
-
----
 
 ## [0.1.2] - 2025-11-10
 

@@ -1,19 +1,32 @@
 # 🚀 Expose
 
+![Expose Social Preview](docs/social-preview.png)
+
 [![Tests](https://github.com/kernelshard/expose/actions/workflows/test.yml/badge.svg)](https://github.com/kernelshard/expose/actions/workflows/test.yml)
 [![Go Report Card](https://goreportcard.com/badge/github.com/kernelshard/expose)](https://goreportcard.com/report/github.com/kernelshard/expose)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://github.com/kernelshard/expose/blob/main/LICENSE)
 
-> Minimal CLI tool to expose your local dev server to the internet
+> **The open-source, single-binary alternative to ngrok.**
+> Expose your local `localhost` server to the internet with zero config, zero signup, and zero hassle.
 
-**Expose** lets you share your `localhost` with the world — perfect for testing webhooks, demoing work, or debugging on mobile devices. Supports LocalTunnel and Cloudflare Tunnel.
+**Expose** is a modern Go-based tunneling tool that lets you share your local development environment with the world. Perfect for testing webhooks, mobile debugging, or showing off your work on `localtunnel` or `Cloudflare` networks.
+
+## 🆚 Why Expose?
+
+| Feature | 🚀 **Expose** | ngrok | Cloudflare Tunnel | LocalTunnel (Node) |
+| :--- | :---: | :---: | :---: | :---: |
+| **No Signup Required** | ✅ | ❌ | ❌ | ✅ |
+| **Single Binary** | ✅ | ✅ | ✅ | ❌ (requires Node.js) |
+| **Open Source** | ✅ | ❌ | ✅ | ✅ |
+| **Language** | Go | Go | Go | JS |
+| **Free Custom Domains** | 🚧 (Planned) | 💲 Paid | ✅ | ❌ |
+
 ## ✨ Features
 
- 🌐 **Multiple providers** — LocalTunnel + Cloudflare Tunnel
-- ⚡ **Zero signup** — No accounts, no registration required
-- � **Config management** — Save port settings per project
-- 📦 **Single binary** — No Node.js, Python, or runtime dependencies
-- 🧪 **Production-tested** — 75%+ test coverage, CI/CD pipeline
+- 🌐 **Multiple Providers**: Switch between LocalTunnel and Cloudflare Tunnel instantly.
+- ⚡ **Zero Friction**: No accounts, no auth tokens, just run and go.
+- 📦 **Lightweight**: A single <10MB binary with no external dependencies.
+- 🔧 **Developer Friendly**: Written in pure Go, easy to contribute to or self-host.
 
 ---
 
@@ -26,19 +39,23 @@ go install github.com/kernelshard/expose/cmd/expose@latest
 # Initialize config
 expose init
 
-# Start tunnel
+# Start tunnel (defaults to port 3000)
 expose tunnel
 ```
 
-+ # Or use Cloudflare Tunnel
+### Or use Cloudflare limits
 ```bash
-expose tunnel -P cloudflare -p 3000
+expose tunnel -P cloudflare -p 8080
 ```
 ---
 
-## 📦 Installation
+### 📦 Installation
 
-### Using Go Install
+#### 1. Download Binary (Recommended)
+Download the latest binary for your OS (Windows, macOS, Linux) from the [Releases Page](https://github.com/kernelshard/expose/releases).
+Unzip it and add it to your PATH.
+
+#### 2. Using Go Install
 
 ```bash
 go install github.com/kernelshard/expose/cmd/expose@latest
