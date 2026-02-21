@@ -55,6 +55,8 @@ func (s *Server) Start(ctx context.Context) error {
 			return
 		}
 	}()
+
+	// wait for either error or ctx to be done
 	select {
 	case err := <-errChan:
 		return err
@@ -65,7 +67,7 @@ func (s *Server) Start(ctx context.Context) error {
 
 // startControlPlane listens for incoming tunnel connections from clients.
 func (s *Server) startControlPlane() error {
-	addr := fmt.Sprintf("%d", s.controlPort)
+	addr := fmt.Sprintf(":%d", s.controlPort)
 	ln, err := net.Listen("tcp", addr)
 	if err != nil {
 		return err
