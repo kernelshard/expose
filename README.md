@@ -18,15 +18,17 @@
 | **No Signup Required** | ✅ | ❌ | ❌ | ✅ |
 | **Single Binary** | ✅ | ✅ | ✅ | ❌ (requires Node.js) |
 | **Open Source** | ✅ | ❌ | ✅ | ✅ |
+| **Self-Hosted Server** | ✅ | ❌ | ❌ | ❌ |
 | **Language** | Go | Go | Go | JS |
 | **Free Custom Domains** | 🚧 (Planned) | 💲 Paid | ✅ | ❌ |
 
 ## ✨ Features
 
-- 🌐 **Multiple Providers**: Switch between LocalTunnel and Cloudflare Tunnel instantly.
+- 🌐 **Multiple Providers**: LocalTunnel, Cloudflare, or your own **self-hosted server**.
+- 🏠 **Self-Hosted**: Run `expose server` on any $5 VPS — full control, no third parties.
 - ⚡ **Zero Friction**: No accounts, no auth tokens, just run and go.
 - 📦 **Lightweight**: A single <10MB binary with no external dependencies.
-- 🔧 **Developer Friendly**: Written in pure Go, easy to contribute to or self-host.
+- 🔧 **Developer Friendly**: Written in pure Go, easy to contribute to.
 
 ---
 
@@ -43,10 +45,20 @@ expose init
 expose tunnel
 ```
 
-### Or use Cloudflare limits
+### Or use Cloudflare
 ```bash
 expose tunnel -P cloudflare -p 8080
 ```
+
+### Or use your own self-hosted server
+```bash
+# On your VPS — one-time setup
+expose server --domain=tunnel.mysite.com --control-port=7890 --public-port=8080
+
+# On your laptop — just works
+expose tunnel --server=tunnel.mysite.com:7890
+```
+
 ---
 
 ### 📦 Installation
@@ -156,7 +168,8 @@ expose/
 ├── internal/
 │   ├── cli/          # Cobra commands (thin layer)
 │   ├── config/       # YAML config management
-│   ├── provider/     # Tunnel provider interface
+│   ├── provider/     # Tunnel provider implementations
+│   ├── server/       # Self-hosted tunnel server
 │   ├── tunnel/       # Service layer (business logic)
 │   └── version/      # Version metadata
 └── .expose.yml       # User config (add to .gitignore per project)
