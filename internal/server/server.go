@@ -35,36 +35,6 @@ func NewServer(domain string, controlPort, publicPort int) *Server {
 	}
 }
 
-// Start runs the server. It blocks until ctx is cancelled.
-func (s *Server) Start(ctx context.Context) error {
-	// 1. Setyp error channel to catch startup errors
-	errChan := make(chan error, 1)
-
-	// start control plane
-	go func() {
-		if err := s.startControlPlane(); err != nil {
-			errChan <- err
-			return
-		}
-	}()
-
-	// start public server
-	go func() {
-		if err := s.startPublicServer(); err != nil {
-			errChan <- err
-			return
-		}
-	}()
-
-	// wait for either error or ctx to be done
-	select {
-	case err := <-errChan:
-		return err
-	case <-ctx.Done():
-		return s.Stop()
-	}
-}
-
 // startControlPlane listens for incoming tunnel connections from clients.
 func (s *Server) startControlPlane() error {
 	addr := fmt.Sprintf(":%d", s.controlPort)
@@ -156,6 +126,36 @@ func (s *Server) handleControlConnection(conn net.Conn) {
 
 }
 
+// Start runs the server. It blocks until ctx is cancelled.
+func (s *Server) Start(ctx context.Context) error {
+	// 1. Setyp error channel to catch startup errors
+	errChan := make(chan error, 1)
+
+	// start control plane
+	go func() {
+		if err := s.startControlPlane(); err != nil {
+			errChan <- err
+			return
+		}
+	}()
+
+	// start public server
+	go func() {
+		if err := s.startPublicServer(); err != nil {
+			errChan <- err
+			return
+		}
+	}()
+
+	// wait for either error or ctx to be done
+	select {
+	case err := <-errChan:
+		return err
+	case <-ctx.Done():
+		return s.Stop()
+	}
+}
+
 func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	_, err := fmt.Fprintf(w, "Tunnel proxy coming soon!")
 	if err != nil {
@@ -173,4 +173,12 @@ func (s *Server) Stop() error {
 		s.publicListener.Close()
 	}
 	return nil
+}
+
+// ControlAddr returns the address of the control plane.
+func (s *Server) ControlAddr() string {
+	if s.controlListener == nil {
+		return ""
+	}
+	return s.controlListener.Addr().String()
 }

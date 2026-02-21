@@ -19,6 +19,7 @@ type SelfHosted struct {
 
 // NewSelfHosted creates a new self-hosted provider.
 // publicURL and connected will be set after the first connection.
+// serverAddr is the address of the control plane. eg. localhost:7890
 func NewSelfHosted(serverAddr string) *SelfHosted {
 	return &SelfHosted{
 		serverAddr: serverAddr,
