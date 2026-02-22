@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"io"
 	"net"
 	"net/http"
 	"sync"
@@ -14,10 +15,13 @@ import (
 // Server manages the self-hosted tunnel server.
 // holds the state of the server and handles incoming connections.
 type Server struct {
-	domain          string
-	controlPort     int // port for client connections
-	publicPort      int // port for public http connections
-	tunnels         sync.Map
+	domain      string
+	controlPort int // port for client connections
+	publicPort  int // port for public http connections
+	tunnels     sync.Map
+
+	// TODO: use sync.Map;for v1 we are keeping it simple, single connection
+	dataConns       chan net.Conn
 	controlListener net.Listener
 	publicListener  net.Listener
 }
@@ -32,11 +36,13 @@ func NewServer(domain string, controlPort, publicPort int) *Server {
 		domain:      domain, // e.g. localtunnel.me
 		controlPort: controlPort,
 		publicPort:  publicPort,
+		dataConns:   make(chan net.Conn, 10),
 	}
 }
 
 // startControlPlane listens for incoming tunnel connections from clients.
 func (s *Server) startControlPlane() error {
+	// listen on control port, it will be used for client connections
 	addr := fmt.Sprintf(":%d", s.controlPort)
 	ln, err := net.Listen("tcp", addr)
 	if err != nil {
@@ -83,11 +89,20 @@ func (s *Server) isClosed(err error) bool {
 func (s *Server) handleControlConnection(conn net.Conn) {
 	// 1. Read Request
 	var req protocol.TunnelRequest
+	// here we are reading the request from the client
 	if err := json.NewDecoder(conn).Decode(&req); err != nil {
 		// Failed to read JSON
 		conn.Close()
 		return
 	}
+
+	// for data connections, we are just storing the connection in a channel
+	// and returning immediately
+	if req.Type == protocol.TypeData {
+		s.dataConns <- conn
+		return
+	}
+
 	// 2. Assign Subdomain
 	subdomain := req.Subdomain
 	if subdomain == "" {
@@ -157,11 +172,66 @@ func (s *Server) Start(ctx context.Context) error {
 }
 
 func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	_, err := fmt.Fprintf(w, "Tunnel proxy coming soon!")
-	if err != nil {
-		fmt.Println("Error writing to response writer", err)
+	// Grab the first available data connection
+	dataConn := <-s.dataConns
+	defer dataConn.Close()
+
+	// Hijack the underlying TCP connection from net/http.
+	//
+	// Normally, net/http owns the connection lifecycle and expects us
+	// to write an HTTP response using ResponseWriter.
+	//
+	// By calling Hijack(), we are telling net/http:
+	// "Stop managing this connection. Give me the raw TCP socket.
+	//  I will handle all reads/writes manually from now on."
+	//
+	// After this call:
+	// - We are no longer in HTTP abstraction land.
+	// - We must handle the raw TCP stream ourselves.
+	// - net/http will NOT send headers or manage keep-alive.
+	//
+	// Hijack only works for HTTP/1.x.
+	// It does NOT work for HTTP/2.
+	hj, ok := w.(http.Hijacker)
+	if !ok {
+		// we will send internal error to client with code and hide the details
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		return
 	}
 
+	// Hijack returns:
+	// 1) The raw TCP connection
+	// 2) The buffered reader/writer (we don't use it)
+	// 3) The error
+	//
+	// We immediately forward the request to the client connection
+	clientConn, _, err := hj.Hijack()
+	if err != nil {
+		return
+	}
+
+	defer clientConn.Close()
+
+	// Write the incoming HTTP request to the tunnel client
+	//
+	// r.Write() serializes the request back in to HTTP format:
+	// METHOD /path HTTP/1.1
+	// Headers: ...
+	// Body: ...
+	//
+	// r.Write(dataConn) sends the request to the tunnel client
+	// - This re-encodes the parsed request into bytes.
+	// - If this fails, the tunnel client will not receive anything.
+	// - At this point we are manually forwarding HTTP as raw bytes.
+	if err := r.Write(dataConn); err != nil {
+		return
+	}
+
+	// Forward the response from the tunnel client to the client
+	// - This copies the raw bytes from the tunnel client to the client
+	// - If this fails, the client will not receive anything
+	go io.Copy(clientConn, dataConn)
+	io.Copy(dataConn, clientConn)
 }
 
 // Stop gracefully shuts down the server.
