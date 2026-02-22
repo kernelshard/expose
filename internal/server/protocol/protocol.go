@@ -1,13 +1,20 @@
 package protocol
 
-// RegisterRequest is sent by the client to register a tunnel.
-type RegisterRequest struct {
+const (
+	TypeControl = "control"
+	TypeData    = "data"
+)
+
+// TunnelRequest is sent by the client when connecting to the server.
+// Type determines the purpose: TypeControl for registration, TypeData for proxying.
+type TunnelRequest struct {
 	// Subdomain is the desired subdomain. If empty, server will assign a random one.
 	Subdomain string `json:"subdomain,omitempty"`
+	Type      string `json:"type,omitempty"` // "control" or "data"
 }
 
-// RegisterResponse is sent by the server after registration.
-type RegisterResponse struct {
+// TunnelResponse is sent by the server after registration.
+type TunnelResponse struct {
 	// Subdomain is the assigned subdomain.
 	Subdomain string `json:"subdomain"`
 	// PublicURL is the full URL to access the tunnel.

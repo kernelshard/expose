@@ -82,7 +82,7 @@ func (s *Server) isClosed(err error) bool {
 // TODO: implement
 func (s *Server) handleControlConnection(conn net.Conn) {
 	// 1. Read Request
-	var req protocol.RegisterRequest
+	var req protocol.TunnelRequest
 	if err := json.NewDecoder(conn).Decode(&req); err != nil {
 		// Failed to read JSON
 		conn.Close()
@@ -107,7 +107,7 @@ func (s *Server) handleControlConnection(conn net.Conn) {
 
 	// 4. Send Response
 	publicURL := fmt.Sprintf("http://%s.%s:%d", subdomain, s.domain, s.publicPort)
-	resp := protocol.RegisterResponse{
+	resp := protocol.TunnelResponse{
 		Subdomain: subdomain,
 		PublicURL: publicURL,
 	}
