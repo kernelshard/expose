@@ -3,7 +3,6 @@ package provider
 import (
 	"context"
 	"testing"
-	"time"
 
 	"github.com/kernelshard/expose/internal/server"
 )
@@ -20,9 +19,7 @@ func TestSelfHosted_Connect(t *testing.T) {
 			t.Errorf("server error: %v", err)
 		}
 	}()
-
-	time.Sleep(200 * time.Millisecond) // wait for listeners
-
+	<-srv.Ready()
 	// 2. Get the control address from the server
 	controlAddr := srv.ControlAddr()
 

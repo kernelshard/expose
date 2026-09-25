@@ -24,37 +24,34 @@ type Server struct {
 	dataConns       chan net.Conn
 	controlListener net.Listener
 	publicListener  net.Listener
+	ready           chan struct{}
 }
 
+// ClientConnection represents a connected client
 type ClientConnection struct {
 	conn      net.Conn
 	subdomain string
 }
 
+// NewServer creates a new server.
 func NewServer(domain string, controlPort, publicPort int) *Server {
 	return &Server{
 		domain:      domain, // e.g. localtunnel.me
 		controlPort: controlPort,
 		publicPort:  publicPort,
 		dataConns:   make(chan net.Conn, 10),
+		ready:       make(chan struct{}), // Used by Listeners to signal readiness.
 	}
 }
 
 // startControlPlane listens for incoming tunnel connections from clients.
 func (s *Server) startControlPlane() error {
 	// listen on control port, it will be used for client connections
-	addr := fmt.Sprintf(":%d", s.controlPort)
-	ln, err := net.Listen("tcp", addr)
-	if err != nil {
-		return err
-	}
-	s.controlListener = ln
-
-	fmt.Printf("Control plane listening on %s\n", addr)
+	fmt.Printf("Control plane listening on %s\n", s.controlListener.Addr().String())
 
 	// accept incoming connections on the listener
 	for {
-		conn, err := ln.Accept()
+		conn, err := s.controlListener.Accept()
 		if err != nil {
 			// check if error is due to shutdown(listener close)
 			if s.isClosed(err) {
@@ -68,17 +65,10 @@ func (s *Server) startControlPlane() error {
 
 // startPublicServer listens for incoming public http connections from clients.
 func (s *Server) startPublicServer() error {
-	addr := fmt.Sprintf(":%d", s.publicPort)
-	ln, err := net.Listen("tcp", addr)
-	if err != nil {
-		return err
-	}
-
-	s.publicListener = ln
-	fmt.Println("Public server listening on :", addr)
+	fmt.Printf("Public server listening on %s\n", s.publicListener.Addr().String())
 
 	// Use Go HTTP server
-	return http.Serve(ln, s)
+	return http.Serve(s.publicListener, s)
 }
 
 func (s *Server) isClosed(err error) bool {
@@ -143,14 +133,36 @@ func (s *Server) handleControlConnection(conn net.Conn) {
 
 // Start runs the server. It blocks until ctx is cancelled.
 func (s *Server) Start(ctx context.Context) error {
-	// 1. Setyp error channel to catch startup errors
-	errChan := make(chan error, 1)
+
+	// 1. Bind the control listener
+	ctrlAddr := fmt.Sprintf(":%d", s.controlPort)
+	ctrlLn, err := net.Listen("tcp", ctrlAddr)
+	if err != nil {
+		return fmt.Errorf("failed to bind control server to port %d: %w", s.controlPort, err)
+	}
+	s.controlListener = ctrlLn
+
+	// 2. Bind public listener
+	pubAddr := fmt.Sprintf(":%d", s.publicPort)
+	pubLn, err := net.Listen("tcp", pubAddr)
+
+	if err != nil {
+		s.controlListener.Close()
+		return fmt.Errorf("failed to bind public server to port %d: %w", s.publicPort, err)
+	}
+	s.publicListener = pubLn
+
+	// 3. Signal ready
+	close(s.ready)
+
+	// 4. Setup error channel to catch startup/runtime errors
+	errChan := make(chan error, 2)
 
 	// start control plane
 	go func() {
+
 		if err := s.startControlPlane(); err != nil {
 			errChan <- err
-			return
 		}
 	}()
 
@@ -158,13 +170,13 @@ func (s *Server) Start(ctx context.Context) error {
 	go func() {
 		if err := s.startPublicServer(); err != nil {
 			errChan <- err
-			return
 		}
 	}()
 
-	// wait for either error or ctx to be done
+	// Wait for either error or ctx to be done
 	select {
 	case err := <-errChan:
+		_ = s.Stop()
 		return err
 	case <-ctx.Done():
 		return s.Stop()
@@ -232,6 +244,11 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	// - If this fails, the client will not receive anything
 	go io.Copy(clientConn, dataConn)
 	io.Copy(dataConn, clientConn)
+}
+
+// Ready returns a channel that is closed when the server is ready.
+func (s *Server) Ready() <-chan struct{} {
+	return s.ready
 }
 
 // Stop gracefully shuts down the server.

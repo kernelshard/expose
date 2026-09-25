@@ -21,15 +21,15 @@ func TestServerLifeCycle(t *testing.T) {
 	}()
 
 	// wait for listener to bind
-	time.Sleep(600 * time.Millisecond)
-
-	// Verify listeners exist
-	if srv.controlListener == nil {
-		t.Fatalf("Control listener not started")
+	select {
+	case <-srv.Ready():
+		// ready to accept connections
+	case <-time.After(1 * time.Second):
+		t.Fatal("Timeout waiting for server to be ready")
 	}
 
 	// Connect to control plane
-	controlAddr := srv.controlListener.Addr().String()
+	controlAddr := srv.ControlAddr()
 	conn, err := net.Dial("tcp", controlAddr)
 	if err != nil {
 		t.Fatalf("Failed to connect: %v", err)
