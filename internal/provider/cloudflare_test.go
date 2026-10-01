@@ -82,3 +82,41 @@ func TestCloudflare_ConnectTimeout(t *testing.T) {
 		t.Fatal("Expected timeout error, got nil")
 	}
 }
+
+// TestCloudflare_IsConnectedAndProcessKill tests IsConnected state and process cleanup on Close
+func TestCloudflare_IsConnected_ProcessKill(t *testing.T) {
+	cf := NewCloudFlare()
+
+	if cf.IsConnected() {
+		t.Errorf("expected IsConnected to be false before connect, got true")
+	}
+
+	// 2. Mock RequestTunnel returning a real dummy process
+	cf.RequestTunnel = func(ctx context.Context, port int, timeout time.Duration) (string, *exec.Cmd, error) {
+		cmd := exec.Command("sleep", "5") // Mock a long-running process
+		if err := cmd.Start(); err != nil {
+			return "", nil, err
+		}
+		return "https://test-tunnel.trycloudflare.com", cmd, nil
+	}
+
+	_, err := cf.Connect(context.Background(), 3000)
+	if err != nil {
+		t.Fatalf("Connect() failed: %v", err)
+	}
+
+	// 3. it's running, so should return true
+	if !cf.IsConnected() {
+		t.Errorf("expected IsConnected to be true after connect, got false")
+	}
+
+	// 4. Close should kill the process and reset state
+	if err := cf.Close(); err != nil {
+		t.Errorf("expected no error from Close, got %v", err)
+	}
+
+	if cf.IsConnected(){
+		t.Errorf("expected IsConnected to be false after Close, got true")
+	}
+
+}
