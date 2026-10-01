@@ -19,7 +19,7 @@ builds:
     main: ./cmd/expose
     binary: expose
     ldflags:
-      - -s -w -X main.version={{.Version}} -X main.commit={{.Commit}} -X main.date={{.Date}}
+      - -s -w -X github.com/kernelshard/expose/internal/version.Version={{.Version}} -X github.com/kernelshard/expose/internal/version.GitCommit={{.Commit}} -X github.com/kernelshard/expose/internal/version.BuildDate={{.Date}}
 
 archives:
   - format: tar.gz

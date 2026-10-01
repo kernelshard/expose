@@ -7,7 +7,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+
 ## [Unreleased]
+
+## [0.4.0] - 2026-10-01
+
+### Added
+- **Awesome-Go Quality Readiness**: Achieved $\ge$ 80% statement test coverage across all core packages (`internal/server` 91.7%, `internal/provider` 80.5%, `internal/config` 91.9%, `internal/tunnel` 85.1%).
+- **Server Tests**: End-to-end HTTP hijacking, data piping, and startup collision tests.
+- **Provider Tests**: Comprehensive unit tests for `selfhosted`, `localtunnel`, and `cloudflare` providers.
+
+### Fixed
+- **Server Listener Race Condition**: Eliminated concurrent background listener binding and added `Server.Ready()` channel synchronization for deterministic, zero-race startup.
+- **Test Flakiness**: Replaced non-deterministic `time.Sleep` calls with channel primitives.
+
+---
+
+## [0.3.0] - 2026-02-01
 
 ### Added
 - **Automated Releases**: Binaries for Windows, Linux, and macOS are now automatically built on every tag.
