@@ -297,3 +297,198 @@ func TestLocalTunnel_Close(t *testing.T) {
 	}
 
 }
+
+func TestLocalTunnel_ProxyRequest(t *testing.T) {
+	// 1. Start a dummy local app
+	localApp := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusOK)
+		w.Write([]byte("hello localtunnel"))
+	}))
+	defer localApp.Close()
+
+	localPort := localApp.Listener.Addr().(*net.TCPAddr).Port
+
+	// 2. Create in-memory pipe simulating the tunnel
+	tunnelClient, tunnelServer := net.Pipe()
+	defer tunnelClient.Close()
+
+	lt := &localTunnel{localPort: localPort}
+
+	// 3. Run proxyRequest in the background
+	go lt.proxyRequest(tunnelServer)
+
+	// 4. Send HTTP request
+	req := "GET / HTTP/1.1\r\nHost: localhost\r\n\r\n"
+	if _, err := tunnelClient.Write([]byte(req)); err != nil {
+		t.Fatalf("failed to write request: %v", err)
+	}
+
+	// 5. Read response
+	buf := make([]byte, 1024)
+	n, err := tunnelClient.Read(buf)
+	if err != nil {
+		t.Fatalf("failed to read response: %v", err)
+	}
+	if !strings.Contains(string(buf[:n]), "hello localtunnel") {
+		t.Errorf("expected response containing 'hello localtunnel', got: %s", string(buf[:n]))
+	}
+
+	// 6. Test failure when local port is closed
+	dummyClient, dummyServer := net.Pipe()
+	defer dummyClient.Close()
+	ltClosed := &localTunnel{localPort: 0}
+	if err := ltClosed.proxyRequest(dummyServer); err == nil {
+		t.Errorf("expected error when localPort is closed, got nil")
+	}
+}
+
+func TestLocalTunnel_DialTunnel(t *testing.T) {
+	// 1. Success: Start a test listener
+	ln, err := net.Listen("tcp", "127.0.0.1:0")
+	if err != nil {
+		t.Fatalf("failed to listen: %v", err)
+	}
+	defer ln.Close()
+
+	port := ln.Addr().(*net.TCPAddr).Port
+	lt := &localTunnel{
+		tunnelHost: "127.0.0.1",
+		tunnelPort: port,
+	}
+
+	conn, err := lt.dialTunnel()
+	if err != nil {
+		t.Fatalf("dialTunnel failed: %v", err)
+	}
+	conn.Close()
+
+	// 2. Failure: Dialing an unreachable port (port 0)
+	ltFail := &localTunnel{
+		tunnelHost: "127.0.0.1",
+		tunnelPort: 0,
+	}
+	_, err = ltFail.dialTunnel()
+	if err == nil {
+		t.Errorf("expected error dialing port 0, got nil")
+	}
+}
+
+func TestLocalTunnel_OpenConnections(t *testing.T) {
+	// 1. Success: Start a test TCP server that accepts connections
+	ln, err := net.Listen("tcp", "127.0.0.1:0")
+	if err != nil {
+		t.Fatalf("failed to listen: %v", err)
+	}
+	defer ln.Close()
+
+	go func() {
+		for {
+			conn, err := ln.Accept()
+			if err != nil {
+				return
+			}
+			defer conn.Close()
+		}
+	}()
+
+	ctx := t.Context()
+
+	port := ln.Addr().(*net.TCPAddr).Port
+	lt := &localTunnel{
+		tunnelHost:     "127.0.0.1",
+		tunnelPort:     port,
+		maxConnections: 2,
+		ctx:            ctx,
+	}
+
+	if err := lt.openConnections(); err != nil {
+		t.Fatalf("openConnections failed: %v", err)
+	}
+
+	if len(lt.connections) != 2 {
+		t.Errorf("expected 2 connections in pool, got %d", len(lt.connections))
+	}
+	lt.closeAllConnections()
+
+	// 2. Failure: When tunnel port is unreachable
+	ltFail := &localTunnel{
+		tunnelHost:     "127.0.0.1",
+		tunnelPort:     0,
+		maxConnections: 1,
+	}
+	if err := ltFail.openConnections(); err == nil {
+		t.Errorf("expected error when dialing unreachable port, got nil")
+	}
+}
+
+func TestLocalTunnel_Connect_RequestTunnelError(t *testing.T) {
+	// 1. Mock server that returns a 500 error
+	mockServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		http.Error(w, "server error", http.StatusInternalServerError)
+	}))
+	defer mockServer.Close()
+
+	provider := NewLocalTunnel(mockServer.Client())
+	lt := provider.(*localTunnel)
+	lt.serverAPIEndpoint = mockServer.URL
+
+	// 2. Calling Connect should fail with an error from requestTunnel
+	_, err := lt.Connect(t.Context(), 3000)
+	if err == nil || !strings.Contains(err.Error(), "failed to request tunnel") {
+		t.Errorf("expected 'failed to request tunnel' error, got: %v", err)
+	}
+}
+
+func TestLocalTunnel_Connect_Success(t *testing.T) {
+	// 1. Mock TCP server for the data connections
+	ln, err := net.Listen("tcp", "127.0.0.1:0")
+	if err != nil {
+		t.Fatalf("failed to listen: %v", err)
+	}
+	defer ln.Close()
+
+	go func() {
+		for {
+			conn, err := ln.Accept()
+			if err != nil {
+				return
+			}
+			defer conn.Close()
+		}
+	}()
+
+	tcpPort := ln.Addr().(*net.TCPAddr).Port
+
+	// 2. Mock HTTP server for requestTunnel
+	mockHTTPServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		resp := TunnelInfo{
+			ID:      "test-id",
+			URL:     "https://test.localtunnel.me",
+			Port:    tcpPort,
+			MaxConn: 2,
+		}
+		w.WriteHeader(http.StatusOK)
+		_ = json.NewEncoder(w).Encode(resp)
+	}))
+	defer mockHTTPServer.Close()
+
+	// 3. Connect using our local test endpoints
+	provider := NewLocalTunnel(mockHTTPServer.Client())
+	lt := provider.(*localTunnel)
+	lt.serverAPIEndpoint = mockHTTPServer.URL
+	lt.tunnelHost = "127.0.0.1"
+
+	url, err := lt.Connect(t.Context(), 3000)
+	if err != nil {
+		t.Fatalf("Connect failed: %v", err)
+	}
+
+	if url != "https://test.localtunnel.me" {
+		t.Errorf("expected URL https://test.localtunnel.me, got: %s", url)
+	}
+	if !lt.IsConnected() {
+		t.Errorf("expected IsConnected to be true")
+	}
+
+	_ = lt.Close()
+}

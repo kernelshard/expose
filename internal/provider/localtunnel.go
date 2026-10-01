@@ -68,6 +68,7 @@ func NewLocalTunnel(httpClient *http.Client) tunnel.Provider {
 		connections:       make([]net.Conn, 0, clientMaxConn),
 		httpClient:        httpClient,
 		serverAPIEndpoint: localtunnelAPI,
+		tunnelHost:        localTunnelTCPHost,
 	}
 }
 
@@ -87,7 +88,6 @@ func (lt *localTunnel) Connect(ctx context.Context, localPort int) (string, erro
 	lt.mu.Lock()
 	lt.publicURL = info.URL
 	lt.tunnelPort = info.Port
-	lt.tunnelHost = localTunnelTCPHost
 
 	// set maxConnections allowed to open
 	if info.MaxConn > 0 {
