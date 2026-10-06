@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"io"
 	"net"
 	"net/http"
@@ -244,5 +245,70 @@ func TestServer_Start_PortAlreadyInUse(t *testing.T) {
 	err = srv.Start(context.Background())
 	if err == nil {
 		t.Errorf("expected error when port is already in use, got nil")
+	}
+}
+
+func TestServer_IsClosed(t *testing.T) {
+	srv := NewServer("localhost", 0, 0)
+
+	if srv.isClosed(nil) {
+		t.Errorf("expected isClosed(nil) to be false")
+	}
+
+	if srv.isClosed(errors.New("unexpected network timeout")) {
+		t.Errorf("expected isClosed(network error) to be false")
+	}
+
+	if !srv.isClosed(net.ErrClosed) {
+		t.Errorf("expected isClosed(net.ErrClosed) to be true")
+	}
+
+	if !srv.isClosed(fmt.Errorf("test: %w", net.ErrClosed)) {
+		t.Errorf("expected isClosed(wrapped net.ErrClosed) to be true")
+	}
+}
+
+func TestSever_HandleControl_SubdomainAlreadyTaken(t *testing.T) {
+	srv := NewServer("tunnel.example.com", 7890, 8080)
+
+	// Client 1 claims "my-testapp"
+	c1, s1 := net.Pipe()
+	defer c1.Close()
+
+	go srv.handleControlConnection(s1)
+
+	req := protocol.TunnelRequest{
+		Type: protocol.TypeControl, Subdomain: "my-testapp",
+	}
+	if err := json.NewEncoder(c1).Encode(req); err != nil {
+		t.Fatalf("c1 encode error: %v", err)
+	}
+
+	var resp1 protocol.TunnelResponse
+	if err := json.NewDecoder(c1).Decode(&resp1); err != nil {
+		t.Fatalf("c1 decode error: %v", err)
+	}
+
+	// Client 2 claims the same subdomain and expects an error
+	c2, s2 := net.Pipe()
+	defer c2.Close()
+
+	go srv.handleControlConnection(s2)
+
+	if err := json.NewEncoder(c2).Encode(req); err != nil {
+		t.Fatalf("c2 encode error: %v", err)
+	}
+
+	var resp2 protocol.TunnelResponse
+	if err := json.NewDecoder(c2).Decode(&resp2); err != nil {
+		t.Fatalf("c2 decode error: %v", err)
+	}
+
+	if resp2.Error == "" {
+		t.Fatalf("expected colision error for client 2, got empty error")
+	}
+
+	if resp2.PublicURL != "" {
+		t.Fatalf("expected no public URL for client 2 collision, got %q", resp2.PublicURL)
 	}
 }

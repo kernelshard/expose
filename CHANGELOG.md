@@ -10,6 +10,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+- **Server Shutdown Detection**: Use `net.ErrClosed` for accurate listener shutdown detection, preventing swallowed network errors.
+- **Subdomain Collision Protection**: Atomically check and reject duplicate subdomain registrations using `sync.Map.LoadOrStore`.
+
 ## [0.4.0] - 2026-10-01
 
 ### Added

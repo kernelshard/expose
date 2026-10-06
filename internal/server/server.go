@@ -3,6 +3,7 @@ package server
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"net"
@@ -71,11 +72,38 @@ func (s *Server) startPublicServer() error {
 	return http.Serve(s.publicListener, s)
 }
 
+// isClosed checks if the error is due to listener being closed.
 func (s *Server) isClosed(err error) bool {
-	return err != nil && err.Error() != ""
+	return errors.Is(err, net.ErrClosed)
 }
 
-// TODO: implement
+// registerSubdomain automatically researves a custom or random subdomain.
+// it stores the connection in the tunnels map and returns the subdomain in response
+func (s *Server) registerSubdomain(conn net.Conn, requested string) (string, error) {
+	subdomain := requested
+	if subdomain != "" {
+		client := ClientConnection{conn: conn, subdomain: requested}
+		if _, loaded := s.tunnels.LoadOrStore(requested, client); loaded {
+			return "", fmt.Errorf("subdomain '%s' is already in use", requested)
+		}
+		return requested, nil
+	}
+
+	// generate random subdomain, retry 5 times in case of collision
+	for range 5 {
+		sub, err := GenerateRandomSubdomain()
+		if err != nil {
+			return "", err
+		}
+		client := ClientConnection{conn: conn, subdomain: sub}
+		if _, loaded := s.tunnels.LoadOrStore(sub, client); !loaded {
+			return sub, nil
+		}
+	}
+
+	return "", fmt.Errorf("failed to generate unique subdomain")
+}
+
 func (s *Server) handleControlConnection(conn net.Conn) {
 	// 1. Read Request
 	var req protocol.TunnelRequest
@@ -93,21 +121,14 @@ func (s *Server) handleControlConnection(conn net.Conn) {
 		return
 	}
 
-	// 2. Assign Subdomain
-	subdomain := req.Subdomain
-	if subdomain == "" {
-		subdomain, _ = GenerateRandomSubdomain()
+	// 2. Register/assign Subdomain
+	subdomain, err := s.registerSubdomain(conn, req.Subdomain)
+	if err != nil {
+		_ = json.NewEncoder(conn).Encode(protocol.TunnelResponse{Error: err.Error()})
+		conn.Close()
+		return
 	}
 
-	// TODO: verify if subdomain is taken! for now let's assume it's not
-
-	// 3. Register the subdomain with the connection
-	client := ClientConnection{
-		conn:      conn,
-		subdomain: subdomain,
-	}
-
-	s.tunnels.Store(subdomain, client)
 	defer s.tunnels.Delete(subdomain) // cleanup when connection closes/done
 
 	// 4. Send Response
