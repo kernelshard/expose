@@ -1,0 +1,44 @@
+version: "2"
+linters:
+  settings:
+    errcheck:
+      exclude-functions:
+        - (io.Closer).Close
+        - (*io.Closer).Close
+        - (io.ReadCloser).Close
+        - (*io.ReadCloser).Close
+        - (net.Conn).Close
+        - (*net.Conn).Close
+        - (*net.TCPConn).Close
+        - (net.Listener).Close
+        - (*net.Listener).Close
+        - os.Remove
+        - (*os.File).Close
+        - (net/http.ResponseWriter).Write
+        - (net/http.ResponseWriter).WriteHeader
+        - fmt.Fprintf
+        - fmt.Fprintln
+        - fmt.Fprint
+        - io.Copy
+  exclusions:
+    generated: lax
+    presets:
+      - comments
+      - common-false-positives
+      - legacy
+      - std-error-handling
+    rules:
+      - path: _test\.go
+        linters:
+          - errcheck
+    paths:
+      - third_party$
+      - builtin$
+      - examples$
+formatters:
+  exclusions:
+    generated: lax
+    paths:
+      - third_party$
+      - builtin$
+      - examples$
