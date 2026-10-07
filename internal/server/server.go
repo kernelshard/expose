@@ -204,6 +204,8 @@ func (s *Server) Start(ctx context.Context) error {
 	}
 }
 
+// ServeHTTP enables the http package to serve the tunnels. It is called by the http.Serve
+// and is responsible for forwarding the request to the client connection.
 func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	// Grab the first available data connection
 	dataConn := <-s.dataConns

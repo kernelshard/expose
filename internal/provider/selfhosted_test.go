@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"strings"
+	"sync"
 	"testing"
 
 	"github.com/kernelshard/expose/internal/server"
@@ -136,7 +137,7 @@ func TestSelfHosted_ProxyRequest(t *testing.T) {
 	p := NewSelfHosted("localhost:0")
 
 	// 3. start proxying in the bg
-	go p.proxyRequest(tunnelServer, localPort)
+	go p.proxyRequest(t.Context(), tunnelServer, localPort)
 
 	//4.  Send and http Get request to the tunnel
 	req := "GET / HTTP/1.1\r\nHost: localhost\r\n\r\n"
@@ -153,4 +154,54 @@ func TestSelfHosted_ProxyRequest(t *testing.T) {
 	if !strings.Contains(string(buf[:n]), "hello from local app") {
 		t.Errorf("expected response containing 'hello from local app', got: %s", string(buf[:n]))
 	}
+}
+
+func TestSelfHosted_ProxyRequest_LocalOffline(t *testing.T) {
+	tunnelClient, tunnelServer := net.Pipe()
+	defer tunnelClient.Close()
+
+	p := NewSelfHosted("localhost:0")
+
+	// Proxy to an unused port where no server is listening
+	go p.proxyRequest(t.Context(), tunnelServer, 59999)
+
+	buf := make([]byte, 1024)
+	n, err := tunnelClient.Read(buf)
+	if err != nil {
+		t.Fatalf("failed to read response: %v", err)
+	}
+	if !strings.Contains(string(buf[:n]), "502 Bad Gateway") {
+		t.Errorf("expected response containing '502 Bad Gateway', got: %s", string(buf[:n]))
+	}
+}
+
+func TestSelfHosted_ConcurrentCloseAndGetters(t *testing.T) {
+	c1, c2 := net.Pipe()
+	defer c2.Close()
+
+	p := NewSelfHosted("localhost:7890")
+	p.conn = c1
+	p.connected = true
+	p.publicURL = "http://test.example.com"
+
+	var wg sync.WaitGroup
+	wg.Add(2)
+
+	// Goroutine 1: Concurrent reader polling status
+	go func() {
+		defer wg.Done()
+		for range 500 {
+			_ = p.IsConnected()
+			_ = p.PublicURL()
+		}
+	}()
+
+	// Goroutine 2: Concurrent writter shutting down
+	go func() {
+		defer wg.Done()
+		_ = p.Close()
+	}()
+
+	wg.Wait()
+
 }
