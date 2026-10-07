@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io"
 	"net"
+	"sync"
 	"time"
 
 	"github.com/kernelshard/expose/internal/server/protocol"
@@ -18,6 +19,7 @@ type SelfHosted struct {
 	conn       net.Conn
 	publicURL  string
 	connected  bool
+	mu         sync.RWMutex
 	// TODO: support concurrent requests like LocalTunnel (pre-open multiple data connections)
 }
 
@@ -64,10 +66,12 @@ func (s *SelfHosted) Connect(ctx context.Context, localPort int) (string, error)
 	}
 
 	// 4. Store state
+	s.mu.Lock()
 	s.publicURL = resp.PublicURL
 	s.subdomain = resp.Subdomain
 	s.connected = true
 	s.conn = conn
+	s.mu.Unlock()
 
 	// 5. Open data connections
 	go s.openDataConnections(ctx, localPort)
@@ -78,20 +82,28 @@ func (s *SelfHosted) Connect(ctx context.Context, localPort int) (string, error)
 
 // IsConnected returns true if the provider is connected to the server.
 func (s *SelfHosted) IsConnected() bool {
+	s.mu.RLock()
+	defer s.mu.RUnlock()
 	return s.connected
 }
 
 // PublicURL returns the public URL of the tunnel. e.g format: http://subdomain.domain.com:port
 func (s *SelfHosted) PublicURL() string {
+	s.mu.RLock()
+	defer s.mu.RUnlock()
 	return s.publicURL
 }
 
 // Close disconnects the tunnel and cleans up resources.
 func (s *SelfHosted) Close() error {
+	s.mu.Lock()
 	s.connected = false
 	s.publicURL = ""
-	if s.conn != nil {
-		return s.conn.Close()
+	conn := s.conn
+	s.conn = nil
+	s.mu.Unlock()
+	if conn != nil {
+		return conn.Close()
 	}
 	return nil
 }
@@ -100,38 +112,78 @@ func (s *SelfHosted) Close() error {
 // Each connection will handle incoming requests.
 // TODO: for now we only open one connection, but we should open multiple connections to handle concurrent requests
 func (s *SelfHosted) openDataConnections(ctx context.Context, localPort int) {
+	var dialer net.Dialer
+	const initialBackoff = 50 * time.Millisecond
+	backoff := initialBackoff
+	s.mu.RLock()
+	subdomain := s.subdomain
+	s.mu.RUnlock()
+
+	// keep trying to open data connections
 	for {
-		select {
-		case <-ctx.Done():
-			return
-		default:
-		}
-		conn, err := net.Dial("tcp", s.serverAddr)
+		conn, err := dialer.DialContext(ctx, "tcp", s.serverAddr)
 		if err != nil {
+			t := time.NewTimer(backoff)
+			select {
+			case <-ctx.Done():
+				t.Stop()
+				return
+			case <-t.C:
+				// timeout, try again with exponential backoff
+			}
+			backoff = min(backoff*2, time.Second) // 1 second max
 			continue
 		}
-		json.NewEncoder(conn).Encode(protocol.TunnelRequest{
-			Type:      protocol.TypeData,
-			Subdomain: s.subdomain,
-		})
+		backoff = initialBackoff
 
-		go s.proxyRequest(conn, localPort)
+		// send data request
+		req := protocol.TunnelRequest{Type: protocol.TypeData, Subdomain: subdomain}
+		if err := json.NewEncoder(conn).Encode(req); err != nil {
+			conn.Close()
+			continue
+		}
+
+		go s.proxyRequest(ctx, conn, localPort)
 	}
 }
 
-// proxyRequest proxies traffic from the tunnel connection to the local server and vice versa.
-func (s *SelfHosted) proxyRequest(tunnelConn net.Conn, localPort int) {
+// proxyRequest proxies traffic bidirectionally between the tunnel and the local server.
+func (s *SelfHosted) proxyRequest(ctx context.Context, tunnelConn net.Conn, localPort int) {
 	defer tunnelConn.Close()
 
 	localAddr := fmt.Sprintf("localhost:%d", localPort)
-	localConn, err := net.DialTimeout("tcp", localAddr, 5*time.Second)
+	var dialer net.Dialer
+	localConn, err := dialer.DialContext(ctx, "tcp", localAddr)
 	if err != nil {
+		if ctx.Err() == nil {
+			fmt.Printf("[selfhosted] failed to connect to localhost:%d: %v\n", localPort, err)
+			resp := fmt.Sprintf(
+				"HTTP/1.1 502 Bad Gateway\r\n"+
+					"Content-Type: text/html\r\n"+
+					"Connection: close\r\n\r\n"+
+					"<html><body><h2>502 Bad Gateway</h2><p>Failed to connect to localhost:%d - is your server running?</p></body></html>\n",
+				localPort,
+			)
+			_, _ = tunnelConn.Write([]byte(resp))
+		}
 		return
 	}
 	defer localConn.Close()
 
-	// a. Start a background goroutine to pump data FROM local TO tunnel
-	go io.Copy(localConn, tunnelConn)
-	// b. Block the main thread pumping data FROM tunnel TO local
-	io.Copy(tunnelConn, localConn)
+	var wg sync.WaitGroup
+
+	// Forward request: stays open until tunnel closes or response completes
+	wg.Go(func() {
+		_, _ = io.Copy(localConn, tunnelConn)
+		localConn.Close()
+	})
+
+	// Forward response: when local server finishes (EOF), closing tunnelConn
+	// intentionally unblocks the reader above
+	wg.Go(func() {
+		_, _ = io.Copy(tunnelConn, localConn)
+		tunnelConn.Close()
+	})
+
+	wg.Wait()
 }
