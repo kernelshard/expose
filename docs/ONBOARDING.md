@@ -1,18 +1,11 @@
-# 👋 Onboarding Guide for Contributors
+---
+title: Contributor Onboarding
+description: Set up a local Expose development environment and make your first contribution.
+---
 
-Welcome to the Expose project! This guide will help you get up to speed and make your first contribution.
+# Contributor Onboarding
 
-## Table of Contents
-
-- [Welcome](#welcome)
-- [Prerequisites](#prerequisites)
-- [Development Setup](#development-setup)
-- [Understanding the Codebase](#understanding-the-codebase)
-- [Making Your First Change](#making-your-first-change)
-- [Testing](#testing)
-- [Code Style & Standards](#code-style--standards)
-- [Pull Request Process](#pull-request-process)
-- [Getting Help](#getting-help)
+Welcome! This guide gets you from zero to first PR as fast as possible.
 
 ---
 
@@ -693,7 +686,7 @@ Before submitting:
 1. **Documentation**
    - [Getting Started](GETTING_STARTED.md)
    - [Architecture Guide](ARCHITECTURE.md)
-   - [Contributing Guide](../CONTRIBUTING.md)
+   - [Contributing Guide](CONTRIBUTING.md)
 
 2. **Code Examples**
    - Look at existing tests for examples

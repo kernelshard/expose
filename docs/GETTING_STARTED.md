@@ -1,43 +1,40 @@
-# 🚀 Getting Started with Expose
-
-Welcome to **Expose**! This guide will help you get up and running in minutes.
-
-## Table of Contents
-
-- [What is Expose?](#what-is-expose)
-- [Installation](#installation)
-- [Your First Tunnel](#your-first-tunnel)
-- [Common Use Cases](#common-use-cases)
-- [Next Steps](#next-steps)
-
+---
+title: Getting Started
+description: Install Expose and run your first tunnel in under 2 minutes.
 ---
 
-## What is Expose?
+# Getting Started
 
-**Expose** is a lightweight CLI tool that creates secure tunnels to expose your local development server to the internet. It's perfect for:
-
-- 🔗 **Testing webhooks** from services like GitHub, Stripe, or Twilio
-- 📱 **Mobile testing** your localhost on real devices
-- 🎨 **Demoing projects** to clients or teammates without deployment
-- 🔍 **Debugging** remote services that need to reach your local environment
-
-Unlike other tunneling tools, Expose:
-- ✅ Requires **zero signup or authentication**
-- ✅ Works with **multiple providers** (LocalTunnel, Cloudflare)
-- ✅ Is a **single binary** with no runtime dependencies
-- ✅ Supports **project-based configuration** for easy reuse
+**Expose** is a lightweight CLI tool that creates secure tunnels so your `localhost` is reachable from the internet — perfect for webhook testing, mobile debugging, or sharing work-in-progress.
 
 ---
 
 ## Installation
 
-### Option 1: Using Go Install (Recommended)
+=== "Go Install (Recommended)"
+    Requires **Go 1.21+**. This installs the latest release directly into your `$GOPATH/bin`:
+    ```bash
+    go install github.com/kernelshard/expose/cmd/expose@latest
+    ```
 
-If you have Go installed (1.21+):
+=== "Pre-built Binary"
+    Download the binary for your OS from the [Releases page](https://github.com/kernelshard/expose/releases):
+    ```bash
+    # macOS / Linux — make executable and move to PATH
+    chmod +x expose-linux-amd64
+    sudo mv expose-linux-amd64 /usr/local/bin/expose
+    ```
+    Windows users: add the `.exe` file to a directory in `%PATH%`.
 
-```bash
-go install github.com/kernelshard/expose/cmd/expose@latest
-```
+=== "Build from Source"
+    ```bash
+    git clone https://github.com/kernelshard/expose.git
+    cd expose
+    go build -o expose ./cmd/expose
+
+    # Optional: move to PATH
+    sudo mv expose /usr/local/bin/
+    ```
 
 Verify the installation:
 
@@ -45,50 +42,23 @@ Verify the installation:
 expose --version
 ```
 
-### Option 2: Build from Source
-
-```bash
-# Clone the repository
-git clone https://github.com/kernelshard/expose.git
-cd expose
-
-# Build the binary
-go build -o expose ./cmd/expose
-
-# Move to your PATH (optional)
-sudo mv expose /usr/local/bin/
-
-# Verify
-expose --version
-```
-
-### Option 3: Download Pre-built Binary
-
-Visit the [releases page](https://github.com/kernelshard/expose/releases) and download the appropriate binary for your system.
-
 ---
 
 ## Your First Tunnel
 
-Let's expose a local server in 3 simple steps:
+### Step 1 — Start a local server
 
-### Step 1: Start Your Local Server
-
-First, make sure you have a local server running. For example:
+You need something running on localhost. Any of these work:
 
 ```bash
-# Python
-python -m http.server 3000
-
-# Node.js
-npx http-server -p 3000
-
-# Or any framework on port 3000
+python -m http.server 3000   # Python 3
+npx http-server -p 3000      # Node.js
+npm run dev                  # Any framework
 ```
 
-### Step 2: Initialize Configuration
+### Step 2 — Initialize project config
 
-In your project directory, run:
+In your project directory:
 
 ```bash
 expose init
@@ -101,31 +71,30 @@ project: my-project
 port: 3000
 ```
 
-**Pro tip**: Add `.expose.yml` to your git repository so your team can use the same settings!
+!!! tip "Commit `.expose.yml` to git"
+    Share your tunnel settings with your team — everyone gets the same port and project name automatically.
 
-### Step 3: Start the Tunnel
+### Step 3 — Start the tunnel
 
 ```bash
 expose tunnel
 ```
 
-You'll see output like:
+Output:
 
-```
-🚀 Tunnel[LocalTunnel] started for localhost:3000
+```text
+✓ Tunnel (LocalTunnel) started for localhost:3000
 ✓ Public URL: https://quick-mammals-sing.loca.lt
 ✓ Forwarding to: http://localhost:3000
 ✓ Provider: LocalTunnel
-Press Ctrl+C to stop
+  Press Ctrl+C to stop
 ```
 
-**That's it!** 🎉 Your local server is now accessible at the public URL.
+**That's it.** Your local server is now publicly accessible. :tada:
 
-### Stopping the Tunnel
+Press ++ctrl+c++ to stop the tunnel:
 
-Press `Ctrl+C` in the terminal to stop the tunnel:
-
-```
+```text
 ^C
 Shutting down...
 ✓ Tunnel closed
@@ -137,200 +106,162 @@ Shutting down...
 
 ### Testing Webhooks
 
-Many services like GitHub, Stripe, or Twilio need to send HTTP requests to your server. Use Expose to give them a public URL:
+Services like GitHub, Stripe, and Twilio need to reach your local handler via HTTP. Use Expose to give them a public URL:
 
 ```bash
-# Start your webhook receiver on port 4000
-node webhook-server.js
+# Start your webhook receiver
+node webhook-server.js        # e.g. listening on port 4000
 
-# In another terminal, expose it
-expose tunnel --port 4000
+# In another terminal
+expose tunnel -p 4000
 
-# Use the public URL in your webhook configuration
-# Example: https://your-tunnel.loca.lt/webhook
+# Use the public URL in your service's webhook settings
+# e.g. https://your-tunnel.loca.lt/webhook
 ```
 
 ### Mobile Device Testing
 
-Test your responsive design on real devices:
+Test responsive design on real devices without deploying:
 
 ```bash
-# Start your dev server
-npm run dev  # or whatever starts your local server
-
-# Expose it
 expose tunnel
-
-# Open the public URL on your phone/tablet
-# Example: https://brave-lions-jump.loca.lt
+# Open the public URL on your phone or tablet
 ```
 
-### Demo to Client
+### Client Demo
 
-Share your work-in-progress without deploying:
-
-```bash
-# Start your app
-npm start
-
-# Create tunnel with specific port
-expose tunnel --port 3000
-
-# Share the URL with your client
-```
-
-### Using Different Providers
-
-Expose supports multiple tunnel providers:
-
-#### LocalTunnel (Default)
-- No installation required
-- No signup needed
-- Good for quick testing
+Share work-in-progress without a staging environment:
 
 ```bash
-expose tunnel --provider localtunnel
-```
-
-#### Cloudflare Tunnel
-- More reliable for production demos
-- Requires `cloudflared` binary installed
-- Better performance
-
-```bash
-# Install cloudflared first
-# macOS: brew install cloudflare/cloudflare/cloudflared
-# Linux: https://developers.cloudflare.com/cloudflare-one/connections/connect-apps/install-and-setup/installation
-
-# Use Cloudflare provider
-expose tunnel --provider cloudflare
+# Use Cloudflare for a more reliable connection during demos
+expose tunnel -P cloudflare -p 3000
 ```
 
 ---
 
-## Configuration Tips
+## Provider Options
 
-### Override Port
+### LocalTunnel (default)
 
-You can override the config file port with a flag:
+No dependencies, no signup — just works. Great for quick webhook tests.
 
 ```bash
-expose tunnel --port 8080
+expose tunnel
+# same as: expose tunnel --provider localtunnel
 ```
 
-### Per-Project Configuration
+**Limitations**: shared infrastructure, occasional connection drops on long sessions.
 
-Create `.expose.yml` in each project:
+### Cloudflare Tunnel
+
+More reliable for demos and longer sessions. Requires `cloudflared` to be installed:
+
+=== "macOS"
+    ```bash
+    brew install cloudflare/cloudflare/cloudflared
+    ```
+
+=== "Linux"
+    ```bash
+    wget -q https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-amd64
+    sudo mv cloudflared-linux-amd64 /usr/local/bin/cloudflared
+    sudo chmod +x /usr/local/bin/cloudflared
+    ```
+
+Then:
+
+```bash
+expose tunnel --provider cloudflare
+# short form: expose tunnel -P cloudflare
+```
+
+---
+
+## Configuration Reference
+
+### View config
+
+```bash
+expose config list        # all settings
+expose config get port    # a specific key
+```
+
+### Override port on the fly
+
+The `-p` / `--port` flag overrides whatever is set in `.expose.yml`:
+
+```bash
+expose tunnel -p 8080
+```
+
+### Per-project configs
+
+Each project directory can have its own `.expose.yml`:
 
 ```yaml
-# Frontend project
-project: my-frontend
+# ~/projects/frontend/.expose.yml
+project: frontend
 port: 3000
 ```
 
 ```yaml
-# Backend API
-project: my-api
+# ~/projects/api/.expose.yml
+project: api
 port: 4000
 ```
 
-### View Configuration
-
-Check your current config:
-
-```bash
-expose config list
-```
-
-Get a specific value:
-
-```bash
-expose config get port
-```
+Switch between them by `cd`-ing into the right directory before running `expose tunnel`.
 
 ---
 
 ## Troubleshooting
 
-### "Config not found" Error
+### `Error: config not found`
 
-```bash
+```text
 Error: config not found (run 'expose init' first)
 ```
 
-**Solution**: Run `expose init` in your project directory first.
+**Fix**: Run `expose init` in your project directory.
 
-### "Port already in use" Error
-
-**Solution**: Either stop the process using that port or choose a different port:
+### Port already in use
 
 ```bash
-expose tunnel --port 8080
+# Find what's using the port
+lsof -i :3000
+
+# Kill it or pick a different port
+expose tunnel -p 8080
 ```
 
-### Tunnel Connection Fails
+### Tunnel disconnects frequently
 
-**Solution**: Try a different provider:
+LocalTunnel can be unstable. Switch to Cloudflare:
 
 ```bash
-# If LocalTunnel fails, try Cloudflare
-expose tunnel --provider cloudflare
+expose tunnel -P cloudflare
 ```
 
-### Cloudflare Provider Not Working
+### `cloudflared: command not found`
 
-**Solution**: Make sure `cloudflared` is installed:
-
-```bash
-# macOS
-brew install cloudflare/cloudflare/cloudflared
-
-# Linux
-wget https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-amd64
-chmod +x cloudflared-linux-amd64
-sudo mv cloudflared-linux-amd64 /usr/local/bin/cloudflared
-```
-
----
-
-## Next Steps
-
-Now that you're familiar with the basics:
-
-1. 📖 **[Architecture Guide](ARCHITECTURE.md)** - Understand how Expose works under the hood
-2. 🛠️ **[Developer Guide](CONTRIBUTING.md)** - Contribute to the project
-3. 🎯 **[Advanced Usage](ADVANCED_USAGE.md)** - Learn advanced features and tips
-4. 🐛 **[Troubleshooting](TROUBLESHOOTING.md)** - Common issues and solutions
+See [Cloudflare Tunnel](#cloudflare-tunnel) installation steps above.
 
 ---
 
 ## Quick Reference
 
 ```bash
-# Initialize project config
-expose init
-
-# Start tunnel (uses config)
-expose tunnel
-
-# Start tunnel with specific port
-expose tunnel --port 8080
-
-# Use Cloudflare provider
-expose tunnel --provider cloudflare
-
-# Short flags
-expose tunnel -P cloudflare -p 3000
-
-# View config
-expose config list
-expose config get port
-
-# Help
-expose --help
+expose init                          # Create .expose.yml in current directory
+expose tunnel                        # Start tunnel (uses config)
+expose tunnel -p 8080                # Override port
+expose tunnel -P cloudflare          # Use Cloudflare provider
+expose tunnel -P cloudflare -p 3000  # Cloudflare on a specific port
+expose config list                   # Show current config
+expose config get port               # Get a single config value
+expose --help                        # Help for any command
 expose tunnel --help
 ```
 
 ---
 
-**Need help?** Open an issue on [GitHub](https://github.com/kernelshard/expose/issues) or check the [FAQ](FAQ.md).
+**Need help?** [Open an issue on GitHub](https://github.com/kernelshard/expose/issues) — we're happy to help.
