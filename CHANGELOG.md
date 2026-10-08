@@ -9,6 +9,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- **Documentation Site**: Dedicated documentation website powered by Material for MkDocs hosted at `https://kernelshard.github.io/expose/` ([#40](https://github.com/kernelshard/expose/issues/40), [#41](https://github.com/kernelshard/expose/pull/41)).
+- **Self-Hosted Deployment Guide**: Comprehensive end-to-end documentation covering architecture, server CLI flags, systemd service configuration, reverse proxy setup (Caddy and Nginx), and firewall security.
+- **Theme & Design**: Custom indigo/cyan palette, modern hero section, feature grid, dark/light mode toggle, and responsive typography using Inter and JetBrains Mono.
+- **Automated Docs CI/CD**: GitHub Actions workflow deploying the documentation site to GitHub Pages on pushes to `main` and releases.
+
+---
+
 ## [0.4.1] - 2026-10-08
 
 ### Fixed
