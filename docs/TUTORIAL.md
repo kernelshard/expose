@@ -1,65 +1,57 @@
-# 📚 Complete Tutorial: Building a Tunnel CLI from Scratch
+---
+title: How Tunnels Work
+description: Understand the protocol behind Expose by building a simplified tunnel client from scratch in Go.
+---
 
-This tutorial will walk you through understanding Expose by building a simplified version from scratch. You'll learn the core concepts and implementation patterns used in the project.
+# How Tunnels Work
 
-## Table of Contents
+This guide explains how reverse-proxy tunnels work by walking you through building a simplified version of Expose from scratch. By the end you'll understand every moving part of the real codebase.
 
-- [Part 1: Understanding Tunnels](#part-1-understanding-tunnels)
-- [Part 2: Building a Basic Tunnel](#part-2-building-a-basic-tunnel)
-- [Part 3: Adding Provider Abstraction](#part-3-adding-provider-abstraction)
-- [Part 4: Building the CLI](#part-4-building-the-cli)
-- [Part 5: Advanced Features](#part-5-advanced-features)
+!!! note "Who this is for"
+    This is for developers who want to understand how tunneling works under the hood — whether to contribute to Expose or just to satisfy curiosity. For daily usage, see [Getting Started](GETTING_STARTED.md).
 
 ---
 
-## Part 1: Understanding Tunnels
+## Part 1 — What Is a Tunnel?
 
-### What is a Tunnel?
-
-A tunnel exposes your local server to the internet by:
-
-1. **Creating a connection** to a public server
-2. **Forwarding requests** from public URL to localhost
-3. **Returning responses** back through the tunnel
+A tunnel solves one problem: **your localhost is not reachable from the internet** (NAT, firewall). A public server acts as a relay:
 
 ```
-Internet → Public Server → Tunnel → localhost:3000
+Internet user
+     │
+     ▼
+Public server (e.g. localtunnel.me)
+     │  TCP connection maintained by your tunnel client
+     ▼
+Your machine (localhost:3000)
 ```
 
-### How LocalTunnel Works
+The flow for every request:
+
+1. User hits `https://xyz.loca.lt`
+2. Public server forwards request down the open TCP connection to your client
+3. Your client proxies it to `localhost:3000`
+4. Response travels back the same path
+
+### LocalTunnel Protocol
 
 ```
-1. Your App:     localhost:3000
-                      ↑
-2. Tunnel Client:     | (Your code)
-                      |
-3. TCP Connection: ───┴──→ localtunnel.me:PORT
-                      
-4. Public URL:    https://xyz.loca.lt → Your App
-```
+1. Register    POST https://localtunnel.me/?new
+               ← { id, url, port }
 
-### The Flow
+2. Connect     net.Dial("tcp", "localtunnel.me:PORT")
 
-```go
-// 1. Request a tunnel
-POST localtunnel.me/?new
-Response: {id, url, port}
-
-// 2. Open TCP connection
-conn = net.Dial("tcp", "localtunnel.me:PORT")
-
-// 3. For each request:
-request  → [tunnel conn] → dial localhost:3000 → local server
-response ← [tunnel conn] ← read response ← local server
+3. Per request  request  → [TCP conn] → dial localhost:3000
+                response ← [TCP conn] ← local server
 ```
 
 ---
 
-## Part 2: Building a Basic Tunnel
+## Part 2 — Basic Tunnel Client
 
-Let's build a minimal tunnel client step by step.
+Let's build a minimal, working tunnel client step by step.
 
-### Step 1: Request a Tunnel
+### Register a tunnel
 
 ```go
 package main
@@ -81,129 +73,95 @@ func requestTunnel() (*TunnelInfo, error) {
         return nil, err
     }
     defer resp.Body.Close()
-    
+
     var info TunnelInfo
     if err := json.NewDecoder(resp.Body).Decode(&info); err != nil {
         return nil, err
     }
-    
-    fmt.Printf("Got tunnel: %s (port %d)\n", info.URL, info.Port)
+
+    fmt.Printf("Tunnel assigned: %s (relay port %d)\n", info.URL, info.Port)
     return &info, nil
 }
 ```
 
-### Step 2: Connect to Tunnel Server
+### Connect to the relay server
 
 ```go
 import "net"
 
 func connectTunnel(info *TunnelInfo) (net.Conn, error) {
     address := fmt.Sprintf("localtunnel.me:%d", info.Port)
-    conn, err := net.Dial("tcp", address)
-    if err != nil {
-        return nil, err
-    }
-    
-    fmt.Println("Connected to tunnel server")
-    return conn, nil
+    return net.Dial("tcp", address)
 }
 ```
 
-### Step 3: Proxy Requests
+### Proxy a single request
 
 ```go
 import "io"
 
 func proxyRequest(tunnelConn net.Conn, localPort int) error {
-    // Connect to local server
     localConn, err := net.Dial("tcp", fmt.Sprintf("localhost:%d", localPort))
     if err != nil {
         return err
     }
     defer localConn.Close()
-    
-    // Copy data bidirectionally
+
     done := make(chan error, 2)
-    
-    // Tunnel → Local
-    go func() {
-        _, err := io.Copy(localConn, tunnelConn)
-        done <- err
-    }()
-    
-    // Local → Tunnel
-    go func() {
-        _, err := io.Copy(tunnelConn, localConn)
-        done <- err
-    }()
-    
-    // Wait for one to finish
-    return <-done
+
+    go func() { _, err := io.Copy(localConn, tunnelConn); done <- err }()
+    go func() { _, err := io.Copy(tunnelConn, localConn); done <- err }()
+
+    return <-done // return when either direction closes
 }
 ```
 
-### Step 4: Put It Together
+### Wire it together
 
 ```go
 func main() {
     localPort := 3000
-    
-    // 1. Request tunnel
+
     info, err := requestTunnel()
     if err != nil {
         panic(err)
     }
-    
-    fmt.Printf("Public URL: %s\n", info.URL)
-    fmt.Printf("Forwarding to: localhost:%d\n", localPort)
-    
-    // 2. Connect to tunnel
+
+    fmt.Printf("Public URL:     %s\n", info.URL)
+    fmt.Printf("Forwarding to:  localhost:%d\n", localPort)
+
     conn, err := connectTunnel(info)
     if err != nil {
         panic(err)
     }
     defer conn.Close()
-    
-    // 3. Handle requests forever
+
     for {
         if err := proxyRequest(conn, localPort); err != nil {
-            fmt.Printf("Error: %v\n", err)
+            fmt.Printf("error: %v\n", err)
             break
         }
     }
 }
 ```
 
-### Try It!
+Try it:
 
 ```bash
-# Start a local server
-python -m http.server 3000
-
-# In another terminal, run your tunnel
-go run basic-tunnel.go
+python -m http.server 3000   # local server
+go run basic-tunnel.go       # your tunnel client
 ```
-
-You should see:
-```
-Got tunnel: https://xyz.loca.lt (port 12345)
-Public URL: https://xyz.loca.lt
-Forwarding to: localhost:3000
-Connected to tunnel server
-```
-
-Visit the public URL in your browser!
 
 ---
 
-## Part 3: Adding Provider Abstraction
+## Part 3 — Provider Abstraction
 
-Now let's make it extensible with interfaces.
+The real Expose supports multiple providers (LocalTunnel, Cloudflare, self-hosted). We use Go interfaces to make switching seamless.
 
-### Step 1: Define Provider Interface
+### The Provider interface
 
 ```go
-// provider.go
+// internal/tunnel/provider.go
 package tunnel
 
 import "context"
@@ -217,22 +175,12 @@ type Provider interface {
 }
 ```
 
-### Step 2: Implement LocalTunnel Provider
+Any struct implementing these five methods can be a provider — no other changes needed in the CLI or service layer.
+
+### LocalTunnel implementation
 
 ```go
-// localtunnel.go
-package tunnel
-
-import (
-    "context"
-    "encoding/json"
-    "fmt"
-    "io"
-    "net"
-    "net/http"
-    "sync"
-)
-
+// internal/provider/localtunnel.go
 type LocalTunnel struct {
     publicURL string
     localPort int
@@ -240,139 +188,38 @@ type LocalTunnel struct {
     mu        sync.RWMutex
 }
 
-func NewLocalTunnel() *LocalTunnel {
-    return &LocalTunnel{}
-}
-
 func (lt *LocalTunnel) Connect(ctx context.Context, localPort int) (string, error) {
     lt.mu.Lock()
     lt.localPort = localPort
     lt.mu.Unlock()
-    
-    // Request tunnel
+
     info, err := lt.requestTunnel()
     if err != nil {
         return "", err
     }
-    
-    lt.mu.Lock()
-    lt.publicURL = info.URL
-    lt.mu.Unlock()
-    
-    // Connect to tunnel server
-    conn, err := lt.dialTunnel(info.Port)
+
+    conn, err := net.Dial("tcp", fmt.Sprintf("localtunnel.me:%d", info.Port))
     if err != nil {
         return "", err
     }
-    
+
     lt.mu.Lock()
     lt.conn = conn
+    lt.publicURL = info.URL
     lt.mu.Unlock()
-    
-    // Start handling requests
-    go lt.handleConnection()
-    
+
+    go lt.handleConnections()
     return info.URL, nil
-}
-
-func (lt *LocalTunnel) requestTunnel() (*TunnelInfo, error) {
-    resp, err := http.Get("https://localtunnel.me/?new")
-    if err != nil {
-        return nil, err
-    }
-    defer resp.Body.Close()
-    
-    var info TunnelInfo
-    if err := json.NewDecoder(resp.Body).Decode(&info); err != nil {
-        return nil, err
-    }
-    return &info, nil
-}
-
-func (lt *LocalTunnel) dialTunnel(port int) (net.Conn, error) {
-    address := fmt.Sprintf("localtunnel.me:%d", port)
-    return net.Dial("tcp", address)
-}
-
-func (lt *LocalTunnel) handleConnection() {
-    defer lt.conn.Close()
-    
-    for {
-        if err := lt.proxyRequest(); err != nil {
-            fmt.Printf("Error: %v\n", err)
-            return
-        }
-    }
-}
-
-func (lt *LocalTunnel) proxyRequest() error {
-    lt.mu.RLock()
-    localPort := lt.localPort
-    tunnelConn := lt.conn
-    lt.mu.RUnlock()
-    
-    localConn, err := net.Dial("tcp", fmt.Sprintf("localhost:%d", localPort))
-    if err != nil {
-        return err
-    }
-    defer localConn.Close()
-    
-    var wg sync.WaitGroup
-    wg.Add(2)
-    
-    go func() {
-        defer wg.Done()
-        io.Copy(localConn, tunnelConn)
-    }()
-    
-    go func() {
-        defer wg.Done()
-        io.Copy(tunnelConn, localConn)
-    }()
-    
-    wg.Wait()
-    return nil
-}
-
-func (lt *LocalTunnel) Close() error {
-    lt.mu.Lock()
-    defer lt.mu.Unlock()
-    
-    if lt.conn != nil {
-        return lt.conn.Close()
-    }
-    return nil
-}
-
-func (lt *LocalTunnel) IsConnected() bool {
-    lt.mu.RLock()
-    defer lt.mu.RUnlock()
-    return lt.conn != nil
-}
-
-func (lt *LocalTunnel) PublicURL() string {
-    lt.mu.RLock()
-    defer lt.mu.RUnlock()
-    return lt.publicURL
-}
-
-func (lt *LocalTunnel) Name() string {
-    return "LocalTunnel"
 }
 ```
 
-### Step 3: Create Service Wrapper
+!!! info "Why `sync.RWMutex`?"
+    The tunnel connection is accessed from multiple goroutines (the handler loop and the CLI layer reading the URL). A `RWMutex` allows concurrent reads while serializing writes — the standard Go pattern for shared state.
+
+### Service wrapper
 
 ```go
-// service.go
-package tunnel
-
-import (
-    "context"
-    "fmt"
-    "sync"
-)
-
+// internal/tunnel/service.go
 type Service struct {
     provider Provider
     ready    chan struct{}
@@ -395,324 +242,155 @@ func (s *Service) Start(ctx context.Context, localPort int) error {
     }
     s.started = true
     s.mu.Unlock()
-    
-    _, err := s.provider.Connect(ctx, localPort)
-    if err != nil {
+
+    if _, err := s.provider.Connect(ctx, localPort); err != nil {
         return err
     }
-    
-    close(s.ready)
+
+    close(s.ready) // signal readiness to callers
     return nil
 }
 
-func (s *Service) Ready() <-chan struct{} {
-    return s.ready
-}
-
-func (s *Service) PublicURL() string {
-    return s.provider.PublicURL()
-}
-
-func (s *Service) ProviderName() string {
-    return s.provider.Name()
-}
-
-func (s *Service) Close() error {
-    return s.provider.Close()
-}
+func (s *Service) Ready() <-chan struct{} { return s.ready }
+func (s *Service) PublicURL() string     { return s.provider.PublicURL() }
+func (s *Service) ProviderName() string  { return s.provider.Name() }
+func (s *Service) Close() error          { return s.provider.Close() }
 ```
 
-### Step 4: Use It
+Usage:
 
 ```go
-func main() {
-    ctx := context.Background()
-    
-    // Create provider
-    provider := NewLocalTunnel()
-    
-    // Wrap in service
-    svc := NewService(provider)
-    
-    // Start in background
-    go svc.Start(ctx, 3000)
-    
-    // Wait for ready
-    <-svc.Ready()
-    
-    fmt.Printf("Tunnel ready!\n")
-    fmt.Printf("Provider: %s\n", svc.ProviderName())
-    fmt.Printf("Public URL: %s\n", svc.PublicURL())
-    
-    // Keep running
-    select {}
-}
+provider := NewLocalTunnel()
+svc := NewService(provider)
+
+go svc.Start(ctx, 3000)
+
+<-svc.Ready()
+fmt.Println("Tunnel ready:", svc.PublicURL())
 ```
 
 ---
 
-## Part 4: Building the CLI
+## Part 4 — Building the CLI
 
-Let's add a proper CLI with Cobra.
+Expose uses [Cobra](https://github.com/spf13/cobra) for the CLI layer.
 
-### Step 1: Install Cobra
-
-```bash
-go get github.com/spf13/cobra
-```
-
-### Step 2: Create Root Command
+### Root command
 
 ```go
-// cmd/root.go
-package cmd
-
-import (
-    "github.com/spf13/cobra"
-)
-
+// internal/cli/root.go
 var rootCmd = &cobra.Command{
-    Use:   "tunnel",
+    Use:   "expose",
     Short: "Expose localhost to the internet",
 }
 
 func Execute() error {
     return rootCmd.Execute()
 }
-
-func init() {
-    rootCmd.AddCommand(startCmd)
-}
 ```
 
-### Step 3: Create Start Command
+### Tunnel command
 
 ```go
-// cmd/start.go
-package cmd
-
-import (
-    "context"
-    "fmt"
-    "os"
-    "os/signal"
-    "syscall"
-    
-    "github.com/spf13/cobra"
-    "your-module/tunnel"
-)
-
-var startCmd = &cobra.Command{
-    Use:   "start",
-    Short: "Start tunnel",
-    RunE:  runStart,
+// internal/cli/tunnel.go
+var tunnelCmd = &cobra.Command{
+    Use:   "tunnel",
+    Short: "Start a tunnel to localhost",
+    RunE:  runTunnel,
 }
-
-var (
-    port     int
-    provider string
-)
 
 func init() {
-    startCmd.Flags().IntVarP(&port, "port", "p", 3000, "Local port")
-    startCmd.Flags().StringVarP(&provider, "provider", "P", "localtunnel", "Provider")
+    tunnelCmd.Flags().IntVarP(&port, "port", "p", 0, "Local port (overrides config)")
+    tunnelCmd.Flags().StringVarP(&providerName, "provider", "P", "localtunnel", "Provider")
+    rootCmd.AddCommand(tunnelCmd)
 }
 
-func runStart(cmd *cobra.Command, args []string) error {
+func runTunnel(cmd *cobra.Command, _ []string) error {
     ctx, cancel := context.WithCancel(context.Background())
     defer cancel()
-    
-    // Handle Ctrl+C
-    sigChan := make(chan os.Signal, 1)
-    signal.Notify(sigChan, os.Interrupt, syscall.SIGTERM)
+
+    // Graceful shutdown on Ctrl+C
     go func() {
-        <-sigChan
+        sig := make(chan os.Signal, 1)
+        signal.Notify(sig, os.Interrupt, syscall.SIGTERM)
+        <-sig
         fmt.Println("\nShutting down...")
         cancel()
     }()
-    
-    // Create provider
-    var p tunnel.Provider
-    switch provider {
-    case "localtunnel":
-        p = tunnel.NewLocalTunnel()
-    default:
-        return fmt.Errorf("unknown provider: %s", provider)
+
+    cfg, _ := config.Load("")
+    if port == 0 {
+        port = cfg.Port
     }
-    
-    // Create service
-    svc := tunnel.NewService(p)
-    
-    // Start in background
-    errChan := make(chan error, 1)
-    go func() {
-        errChan <- svc.Start(ctx, port)
-    }()
-    
-    // Wait for ready
+
+    svc := tunnel.NewService(providerForName(providerName))
+
+    errCh := make(chan error, 1)
+    go func() { errCh <- svc.Start(ctx, port) }()
+
     select {
     case <-svc.Ready():
-        fmt.Printf("✓ Tunnel started\n")
-        fmt.Printf("✓ Public URL: %s\n", svc.PublicURL())
-        fmt.Printf("✓ Forwarding to: http://localhost:%d\n", port)
-    case err := <-errChan:
+        fmt.Printf("✓ Public URL:      %s\n", svc.PublicURL())
+        fmt.Printf("✓ Forwarding to:   http://localhost:%d\n", port)
+        fmt.Printf("✓ Provider:        %s\n", svc.ProviderName())
+        fmt.Println("  Press Ctrl+C to stop")
+    case err := <-errCh:
         return err
     }
-    
-    // Wait for shutdown
+
     <-ctx.Done()
-    
-    // Cleanup
     return svc.Close()
 }
 ```
 
-### Step 4: Main Entry Point
-
-```go
-// main.go
-package main
-
-import (
-    "fmt"
-    "os"
-    
-    "your-module/cmd"
-)
-
-func main() {
-    if err := cmd.Execute(); err != nil {
-        fmt.Fprintf(os.Stderr, "Error: %v\n", err)
-        os.Exit(1)
-    }
-}
-```
-
-### Step 5: Build and Run
-
-```bash
-# Build
-go build -o tunnel .
-
-# Run
-./tunnel start --port 3000
-```
-
 ---
 
-## Part 5: Advanced Features
+## Part 5 — Advanced Patterns
 
-### Feature 1: Connection Pooling
+### Connection pooling
 
-Instead of one connection, maintain a pool:
+LocalTunnel maintains 10 concurrent TCP connections so multiple requests can be handled in parallel without waiting for each connection to finish:
 
 ```go
-type LocalTunnel struct {
-    // ...
-    connections []net.Conn
-    maxConns    int
-}
-
-func (lt *LocalTunnel) Connect(ctx context.Context, localPort int) (string, error) {
-    // ... request tunnel ...
-    
-    // Open connection pool
-    for i := 0; i < lt.maxConns; i++ {
-        conn, err := lt.dialTunnel(info.Port)
+func (lt *LocalTunnel) openPool(port int) error {
+    for i := 0; i < 10; i++ {
+        conn, err := net.Dial("tcp", fmt.Sprintf("localtunnel.me:%d", port))
         if err != nil {
-            return "", err
+            return err
         }
-        lt.connections = append(lt.connections, conn)
-        
-        // Start handler for each
-        go lt.handleConnection(conn)
+        go lt.handleConn(conn)
     }
-    
-    return info.URL, nil
-}
-```
-
-### Feature 2: Timeout Management
-
-Set deadlines to prevent hung connections:
-
-```go
-func (lt *LocalTunnel) proxyRequest(tunnelConn net.Conn) error {
-    // Set deadline
-    deadline := time.Now().Add(30 * time.Second)
-    tunnelConn.SetDeadline(deadline)
-    localConn.SetDeadline(deadline)
-    
-    // ... proxy ...
-    
-    // Clear deadline for reuse
-    tunnelConn.SetDeadline(time.Time{})
-    
     return nil
 }
 ```
 
-### Feature 3: Configuration Files
+### Cloudflare provider — subprocess wrapping
 
-Add YAML config support:
-
-```go
-// config.go
-type Config struct {
-    Port     int    `yaml:"port"`
-    Provider string `yaml:"provider"`
-}
-
-func Load(path string) (*Config, error) {
-    data, err := os.ReadFile(path)
-    if err != nil {
-        return nil, err
-    }
-    
-    var cfg Config
-    if err := yaml.Unmarshal(data, &cfg); err != nil {
-        return nil, err
-    }
-    
-    return &cfg, nil
-}
-```
-
-### Feature 4: Multiple Providers
-
-Add Cloudflare support:
+The Cloudflare provider doesn't open raw TCP connections. Instead it shells out to the `cloudflared` binary and parses the public URL from its stderr:
 
 ```go
-// cloudflare.go
-type Cloudflare struct {
-    cmd       *exec.Cmd
-    publicURL string
-}
-
 func (c *Cloudflare) Connect(ctx context.Context, localPort int) (string, error) {
-    // Start cloudflared process
-    cmd := exec.CommandContext(
-        ctx,
-        "cloudflared",
-        "tunnel",
+    cmd := exec.CommandContext(ctx, "cloudflared", "tunnel",
         "--url", fmt.Sprintf("http://localhost:%d", localPort),
+        "--no-autoupdate",
     )
-    
-    // Capture output to extract URL
+
     stderr, _ := cmd.StderrPipe()
-    cmd.Start()
-    
-    // Parse URL from output
+    if err := cmd.Start(); err != nil {
+        return "", fmt.Errorf("cloudflared not found: %w", err)
+    }
+
+    // Parse the public URL from output like:
+    // "Your quick Tunnel has been created! Visit it at: https://..."
     scanner := bufio.NewScanner(stderr)
     for scanner.Scan() {
-        line := scanner.Text()
-        if match := urlRegex.FindString(line); match != "" {
+        if match := urlPattern.FindString(scanner.Text()); match != "" {
             c.publicURL = match
             return match, nil
         }
     }
-    
-    return "", fmt.Errorf("failed to get URL")
+
+    return "", fmt.Errorf("failed to get tunnel URL from cloudflared")
 }
 ```
 
@@ -720,29 +398,21 @@ func (c *Cloudflare) Connect(ctx context.Context, localPort int) (string, error)
 
 ## Summary
 
-You've learned:
+| Concept | Where in Expose |
+|---|---|
+| `Provider` interface | `internal/tunnel/provider.go` |
+| `Service` lifecycle | `internal/tunnel/service.go` |
+| LocalTunnel TCP pool | `internal/provider/localtunnel.go` |
+| Cloudflare subprocess | `internal/provider/cloudflare.go` |
+| CLI commands (Cobra) | `internal/cli/` |
+| Config file (YAML) | `internal/config/config.go` |
 
-1. ✅ How tunneling works at a protocol level
-2. ✅ How to build a basic tunnel client
-3. ✅ How to use interfaces for extensibility
-4. ✅ How to build a CLI with Cobra
-5. ✅ Advanced features like connection pooling and timeouts
+**Next steps:**
 
-### Next Steps
-
-- Study the full Expose codebase
-- Add your own provider implementation
-- Contribute to the project!
-
----
-
-## Additional Resources
-
-- [Expose GitHub](https://github.com/kernelshard/expose)
-- [LocalTunnel Protocol](https://github.com/localtunnel/localtunnel)
-- [Cloudflare Tunnel Docs](https://developers.cloudflare.com/cloudflare-one/connections/connect-apps/)
-- [Go Networking](https://go.dev/doc/effective_go#concurrency)
+- Read [Architecture](ARCHITECTURE.md) for the full concurrency model
+- Set up a dev environment via [Onboarding](ONBOARDING.md)
+- Add your own provider by implementing the `Provider` interface
 
 ---
 
-**Questions?** Open an issue or discussion on GitHub!
+**Questions?** [Open a discussion on GitHub](https://github.com/kernelshard/expose/discussions).

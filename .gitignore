@@ -21,5 +21,8 @@ vendor/
 .idea/
 *.swp
 
+# Documentation build
+site/
+
 # OS
 .DS_Store

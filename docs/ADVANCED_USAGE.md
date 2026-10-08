@@ -1,454 +1,283 @@
-# 🔧 Advanced Usage Guide
+---
+title: Advanced Usage
+description: Multi-project setups, provider selection, performance, security, and integration examples for Expose.
+---
 
-Master advanced features and techniques for using Expose effectively.
+# Advanced Usage
 
-## Table of Contents
-
-- [Configuration Management](#configuration-management)
-- [Provider Selection](#provider-selection)
-- [Performance Tuning](#performance-tuning)
-- [Security Considerations](#security-considerations)
-- [Troubleshooting](#troubleshooting)
-- [Integration Examples](#integration-examples)
-- [Tips & Tricks](#tips--tricks)
+This guide covers power-user features, real-world integrations, and best practices for getting the most out of Expose.
 
 ---
 
 ## Configuration Management
 
-### Multiple Projects
+### Multiple projects
 
-Manage different configurations for different projects:
+Each project keeps its own `.expose.yml` — just `cd` into the project and run `expose tunnel`:
 
 ```bash
-# Frontend project
-cd ~/projects/my-frontend
-expose init
-# Edit .expose.yml: port: 3000
+cd ~/projects/frontend
+expose init    # creates .expose.yml with port: 3000
 
-# Backend project
-cd ~/projects/my-api
-expose init
-# Edit .expose.yml: port: 4000
+cd ~/projects/api
+expose init    # creates .expose.yml with port: 4000
 ```
 
-Each project remembers its settings!
-
-### Environment-Specific Configs
-
-Create different configs for different environments:
+### View and inspect config
 
 ```bash
-# Development
-cp .expose.yml .expose.dev.yml
-# Staging
-cp .expose.yml .expose.staging.yml
-
-# Use specific config (future feature)
-expose tunnel --config .expose.staging.yml
+expose config list        # print all settings
+expose config get port    # get a single key
 ```
 
-### Viewing Configuration
+### Override at runtime
+
+Any flag overrides the config file for that run only:
 
 ```bash
-# List all settings
-expose config list
-
-# Get specific value
-expose config get port
-expose config get project
+expose tunnel -p 8080            # different port
+expose tunnel -P cloudflare      # different provider
 ```
 
 ---
 
 ## Provider Selection
 
-### Choosing the Right Provider
-
-| Provider | Best For | Pros | Cons |
-|----------|----------|------|------|
-| LocalTunnel | Quick testing, webhooks | No signup, fast setup | Less reliable |
-| Cloudflare | Demos, production | Very reliable, fast | Requires cloudflared |
+| Provider | Best For | Requires |
+|----------|----------|----------|
+| **LocalTunnel** | Quick webhook tests, short sessions | Nothing |
+| **Cloudflare** | Client demos, longer sessions | `cloudflared` binary |
+| **Self-Hosted** | Full control, no rate limits | Your own VPS |
 
 ### LocalTunnel
 
-**Use when:**
-- Testing webhooks quickly
-- No installation preferences
-- Short-lived tunnels
-
 ```bash
-expose tunnel --provider localtunnel
-# or just
-expose tunnel
+expose tunnel               # default
+expose tunnel -P localtunnel  # explicit
 ```
 
-**Limitations:**
-- Occasional connection drops
-- May require reconnection
-- Shared infrastructure
+!!! warning "Stability"
+    LocalTunnel's shared infrastructure can drop connections during long sessions. If you need reliability, use Cloudflare.
 
 ### Cloudflare Tunnel
 
-**Use when:**
-- Demoing to clients
-- Need reliability
-- Longer tunnel sessions
+=== "macOS"
+    ```bash
+    brew install cloudflare/cloudflare/cloudflared
+    ```
+
+=== "Linux"
+    ```bash
+    wget -q https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-amd64
+    sudo mv cloudflared-linux-amd64 /usr/local/bin/cloudflared
+    sudo chmod +x /usr/local/bin/cloudflared
+    cloudflared --version
+    ```
+
+Then start the tunnel:
 
 ```bash
-# Install cloudflared first
-# macOS
-brew install cloudflare/cloudflare/cloudflared
-
-# Linux
-wget -q https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-amd64
-sudo mv cloudflared-linux-amd64 /usr/local/bin/cloudflared
-sudo chmod +x /usr/local/bin/cloudflared
-
-# Use it
-expose tunnel --provider cloudflare
+expose tunnel -P cloudflare -p 3000
 ```
 
-**Benefits:**
-- Cloudflare's global network
-- Better performance
-- More reliable connections
+### Self-Hosted Server
+
+Run the Expose server component on any VPS (a $5/mo instance is plenty):
+
+```bash
+# On your VPS — one-time setup
+expose server \
+  --domain=tunnel.mysite.com \
+  --control-port=7890 \
+  --public-port=8080
+```
+
+Then connect from your local machine:
+
+```bash
+expose tunnel --server=tunnel.mysite.com:7890 -p 3000
+```
+
+!!! tip "Advantages of self-hosting"
+    - No rate limits
+    - Traffic stays on your infrastructure
+    - Custom domain support
+    - No third-party ToS restrictions
 
 ---
 
-## Performance Tuning
+## Performance
 
-### Connection Pooling (LocalTunnel)
+### Latency benchmarks
 
-LocalTunnel maintains 10 concurrent connections by default. This is optimal for most use cases.
+Typical tunnel overhead for a simple HTTP request:
 
-### Reducing Latency
+| Provider | Added Latency |
+|----------|---------------|
+| Cloudflare | ~20–80 ms |
+| LocalTunnel | ~50–150 ms |
+| Self-Hosted (same region) | ~5–30 ms |
 
-1. **Choose nearby provider**:
-   - LocalTunnel routes through nearest server
-   - Cloudflare uses global network
+### Connection pooling
 
-2. **Optimize local server**:
-   ```bash
-   # Use production mode
-   NODE_ENV=production npm start
-   
-   # Enable compression
-   # Check your framework docs
-   ```
+LocalTunnel maintains **10 concurrent connections** by default. This means up to 10 requests can be proxied in parallel without queuing.
 
-3. **Monitor performance**:
-   ```bash
-   # Check connection
-   curl -w "@curl-format.txt" -o /dev/null -s https://your-tunnel.loca.lt
-   ```
+### Reduce latency
 
-### Memory Usage
+1. **Choose the closest provider**: Cloudflare's anycast routes to the nearest PoP.
+2. **Optimize your local server**: enable compression, minimize response sizes.
+3. **Self-host in the same region** as your users for the lowest round-trip time.
 
-Expose is lightweight:
-- Base memory: ~10MB
-- Per connection: ~1MB
-- Total typical: 20-30MB
+### Memory footprint
+
+```
+Base:            ~10 MB
+Per connection:  ~1 MB
+Typical total:   20–30 MB
+```
 
 ---
 
-## Security Considerations
+## Security
 
-### Important: Expose is for Development Only
+!!! danger "Expose is for development only"
+    `expose tunnel` creates a **public URL** that routes directly to your `localhost`. Never expose production services, databases, or admin interfaces this way.
 
-⚠️ **Warning**: Expose creates a public URL to your localhost. Use only for development and testing.
-
-### Best Practices
-
-1. **Never expose sensitive data**:
-   ```bash
-   # ❌ Don't expose production databases
-   # ❌ Don't expose admin panels
-   # ❌ Don't expose internal tools
-   ```
-
-2. **Use authentication in your app**:
-   ```javascript
-   // Add auth to your local app
-   app.use((req, res, next) => {
-       const token = req.headers['x-api-token'];
-       if (token !== process.env.DEV_TOKEN) {
-           return res.status(401).send('Unauthorized');
-       }
-       next();
-   });
-   ```
-
-3. **Use short-lived tunnels**:
-   ```bash
-   # Start tunnel
-   expose tunnel
-   
-   # Stop when done (Ctrl+C)
-   ```
-
-4. **Monitor access**:
-   ```javascript
-   // Log all requests
-   app.use((req, res, next) => {
-       console.log(`${req.method} ${req.url} from ${req.ip}`);
-       next();
-   });
-   ```
-
-### Network Security
+### What you should never expose
 
 ```bash
-# Expose only specific port
-expose tunnel --port 3000
-
-# Don't expose:
-# - Port 22 (SSH)
-# - Port 5432 (PostgreSQL)
-# - Port 27017 (MongoDB)
-# - Any database port
+# ❌ DO NOT expose
+expose tunnel -p 5432   # PostgreSQL
+expose tunnel -p 27017  # MongoDB
+expose tunnel -p 6379   # Redis
+expose tunnel -p 22     # SSH
 ```
+
+### Add authentication to your local app
+
+Even in development, protect your tunnel with a simple token check:
+
+```javascript
+// Express middleware example
+app.use((req, res, next) => {
+    const token = req.headers['x-dev-token'];
+    if (token !== process.env.DEV_TOKEN) {
+        return res.status(401).json({ error: 'Unauthorized' });
+    }
+    next();
+});
+```
+
+### Log all tunnel traffic
+
+```javascript
+app.use((req, res, next) => {
+    console.log(`[${new Date().toISOString()}] ${req.method} ${req.url} — ${req.ip}`);
+    next();
+});
+```
+
+### Stop tunnels when done
+
+Always press ++ctrl+c++ when you're finished. Don't leave tunnels running overnight or over the weekend.
 
 ---
 
 ## Troubleshooting
 
-### Common Issues
+### `Connection refused`
 
-#### 1. "Connection refused"
+Your local server isn't running.
 
-**Problem**: Local server not running
-
-**Solution**:
 ```bash
-# Start your local server first
-npm start  # or your framework's command
-
-# Then start tunnel
-expose tunnel
+# Start your server first, then run expose tunnel
+npm start
 ```
 
-#### 2. "Port already in use"
+### `Port already in use`
 
-**Problem**: Another process using the port
-
-**Solution**:
 ```bash
-# Find process
+# Find the process
 lsof -i :3000
 # or
 netstat -tuln | grep 3000
 
-# Kill it
+# Kill it or switch ports
 kill -9 <PID>
-
-# Or use different port
-expose tunnel --port 8080
+expose tunnel -p 8080
 ```
 
-#### 3. Tunnel disconnects frequently
+### Tunnel disconnects frequently
 
-**Problem**: LocalTunnel instability
-
-**Solution**:
-```bash
-# Try Cloudflare instead
-expose tunnel --provider cloudflare
-
-# Or restart tunnel
-# Press Ctrl+C, then restart
-expose tunnel
-```
-
-#### 4. "cloudflared not found"
-
-**Problem**: Cloudflare provider requires cloudflared
-
-**Solution**:
-```bash
-# macOS
-brew install cloudflare/cloudflare/cloudflared
-
-# Linux
-wget https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-amd64
-sudo mv cloudflared-linux-amd64 /usr/local/bin/cloudflared
-sudo chmod +x /usr/local/bin/cloudflared
-
-# Verify
-cloudflared --version
-```
-
-#### 5. Slow response times
-
-**Causes**:
-- Network latency
-- Local server slow
-- Heavy request load
-
-**Solutions**:
-```bash
-# 1. Check local server performance
-curl -w "@curl-format.txt" -o /dev/null -s http://localhost:3000
-
-# 2. Try different provider
-expose tunnel --provider cloudflare
-
-# 3. Optimize your local app
-# Enable caching, optimize database queries, etc.
-```
-
-### Debug Mode
-
-Currently not available, but you can:
+LocalTunnel can be unstable. Switch to Cloudflare:
 
 ```bash
-# Monitor requests in your app
-app.use((req, res, next) => {
-    console.log(`[${new Date().toISOString()}] ${req.method} ${req.url}`);
-    next();
-});
-
-# Watch expose output
-expose tunnel 2>&1 | tee expose.log
+expose tunnel -P cloudflare
 ```
+
+### `cloudflared: command not found`
+
+See [Cloudflare Tunnel](#cloudflare-tunnel) installation above.
+
+### Slow responses
+
+1. Check your local server first: `curl -o /dev/null -s -w "%{time_total}s" http://localhost:3000`
+2. Try Cloudflare: `expose tunnel -P cloudflare`
+3. Self-host closer to your users.
 
 ---
 
 ## Integration Examples
 
-### Webhook Testing
-
-#### GitHub Webhooks
+### GitHub Webhooks
 
 ```bash
-# 1. Start your webhook receiver
-node webhook-server.js
+# 1. Start your handler
+node webhook-server.js    # listens on port 4000
 
 # 2. Start tunnel
-expose tunnel --port 4000
+expose tunnel -p 4000
 
-# 3. Copy the public URL
-# Example: https://brave-lions-jump.loca.lt
-
-# 4. Add to GitHub
+# 3. Add the public URL in GitHub:
 # Settings → Webhooks → Add webhook
 # URL: https://brave-lions-jump.loca.lt/webhook
 # Content type: application/json
 ```
 
-#### Stripe Webhooks
+### Stripe Webhooks
 
 ```bash
-# 1. Start your Stripe webhook handler
-npm start
+expose tunnel -p 3000
 
-# 2. Start tunnel
-expose tunnel --port 3000
-
-# 3. Add to Stripe Dashboard
-# Developers → Webhooks → Add endpoint
+# Stripe Dashboard → Developers → Webhooks → Add endpoint
 # URL: https://quick-birds-sing.loca.lt/stripe/webhook
 ```
 
-### Mobile Testing
+### Slack App Development
 
 ```bash
-# 1. Start your dev server
-npm run dev
+python bot.py             # start your bot on port 5000
+expose tunnel -p 5000
 
-# 2. Start tunnel
-expose tunnel
-
-# 3. Open URL on your phone
-# Example: https://happy-cats-run.loca.lt
-
-# 4. Test responsive design
-# Check different screen sizes, orientations, etc.
-```
-
-### API Development
-
-```bash
-# 1. Start your API
-go run main.go
-
-# 2. Expose it
-expose tunnel --port 8080
-
-# 3. Share with frontend team
-# They can point to: https://your-tunnel.loca.lt/api
-```
-
-### Slack Bot Development
-
-```bash
-# 1. Start your Slack bot
-python bot.py
-
-# 2. Expose webhook endpoint
-expose tunnel --port 5000
-
-# 3. Configure in Slack App settings
-# Event Subscriptions → Request URL
+# Slack App config → Event Subscriptions → Request URL:
 # https://smart-dogs-play.loca.lt/slack/events
 ```
 
----
-
-## Tips & Tricks
-
-### 1. Quick Testing
+### Docker Containers
 
 ```bash
-# One-liner to expose Python server
-python -m http.server 8000 & expose tunnel --port 8000
-
-# Stop with: kill %1
+docker run -p 3000:80 my-app
+expose tunnel -p 3000
 ```
 
-### 2. Multiple Tunnels
+### Automation Script
 
-```bash
-# Terminal 1
-cd ~/frontend
-expose tunnel --port 3000
-
-# Terminal 2
-cd ~/backend
-expose tunnel --port 4000
-```
-
-### 3. Share with Team
-
-```bash
-# Start tunnel
-expose tunnel
-
-# Share the URL in Slack/email
-# Team members can access your local work!
-```
-
-### 4. Test from Different Locations
-
-```bash
-# Start tunnel
-expose tunnel
-
-# Open URL on:
-# - Your phone
-# - Colleague's computer
-# - Different browser
-# All see your local server!
-```
-
-### 5. Automate with Scripts
-
-```bash
-# start-dev.sh
-#!/bin/bash
+```bash title="start-dev.sh"
+#!/usr/bin/env bash
+set -e
 npm start &
 sleep 2
-expose tunnel --port 3000
+expose tunnel -p 3000
 ```
 
 ```bash
@@ -456,100 +285,30 @@ chmod +x start-dev.sh
 ./start-dev.sh
 ```
 
-### 6. Use with Docker
+### Multiple Tunnels at Once
+
+Run multiple terminal sessions:
 
 ```bash
-# Start Docker container
-docker run -p 3000:80 my-app
+# Terminal 1
+cd ~/projects/frontend && expose tunnel   # port 3000
 
-# Expose it
-expose tunnel --port 3000
-```
-
-### 7. Test Payment Flows
-
-```bash
-# Start checkout page
-npm start
-
-# Expose
-expose tunnel
-
-# Use URL in payment provider testing
-# Stripe, PayPal, etc. can send webhooks to it
-```
-
-### 8. Browser DevTools
-
-```bash
-# Start tunnel
-expose tunnel
-
-# Open in browser with DevTools
-# Network tab shows all requests
-# Console shows errors
+# Terminal 2
+cd ~/projects/api && expose tunnel        # port 4000
 ```
 
 ---
 
-## Comparison with Alternatives
+## Best Practices
 
-| Feature | Expose | ngrok | localtunnel (CLI) |
-|---------|--------|-------|-------------------|
-| Signup | ❌ None | ✅ Required | ❌ None |
-| Cost | Free | Free tier limited | Free |
-| Providers | 2+ | 1 | 1 |
-| Config files | ✅ Yes | ✅ Yes | ❌ No |
-| Binary | Single | Single | Node.js required |
-| Custom domains | ❌ No | ✅ Yes (paid) | ❌ No |
-
----
-
-## Performance Benchmarks
-
-Typical latency overhead:
-
-```
-LocalTunnel:    50-150ms
-Cloudflare:     20-80ms
-Direct access:  0ms (baseline)
-```
-
-Connection capacity:
-
-```
-LocalTunnel:    ~10 concurrent connections
-Cloudflare:     ~100+ concurrent connections
-```
+| ✅ Do | ❌ Don't |
+|-------|---------|
+| Use for development and testing only | Expose production services |
+| Stop the tunnel when done | Leave tunnels running indefinitely |
+| Add auth to your local app | Expose unprotected admin UIs |
+| Use Cloudflare for important demos | Use LocalTunnel for critical demos |
+| Monitor your access logs | Trust unknown incoming traffic |
 
 ---
 
-## Best Practices Summary
-
-✅ **Do:**
-- Use for development and testing
-- Stop tunnel when done
-- Add authentication to your app
-- Use Cloudflare for important demos
-- Monitor access logs
-
-❌ **Don't:**
-- Expose production services
-- Leave tunnels running indefinitely
-- Expose sensitive data
-- Share tunnel URLs publicly
-- Use for production traffic
-
----
-
-## Next Level
-
-Want to contribute or extend Expose?
-
-- Read the [Architecture Guide](ARCHITECTURE.md)
-- Check the [Contributing Guide](../CONTRIBUTING.md)
-- Join discussions on GitHub
-
----
-
-**Need help?** Open an issue on [GitHub](https://github.com/kernelshard/expose/issues).
+**Need more help?** [Open an issue on GitHub](https://github.com/kernelshard/expose/issues).

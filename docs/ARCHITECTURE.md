@@ -1,19 +1,11 @@
-# 🏗️ Architecture Guide
+---
+title: Architecture
+description: Comprehensive overview of Expose's architecture, design patterns, and Go implementation details.
+---
 
-This document provides a comprehensive overview of the Expose architecture, design patterns, and implementation details.
+# Architecture
 
-## Table of Contents
-
-- [Overview](#overview)
-- [Architecture Diagram](#architecture-diagram)
-- [Project Structure](#project-structure)
-- [Core Components](#core-components)
-- [Data Flow](#data-flow)
-- [Design Patterns](#design-patterns)
-- [Provider Implementation](#provider-implementation)
-- [Concurrency Model](#concurrency-model)
-- [Error Handling](#error-handling)
-- [Testing Strategy](#testing-strategy)
+A comprehensive overview of Expose's architecture, design patterns, and implementation details.
 
 ---
 
@@ -767,11 +759,11 @@ Typical: 50-200ms overhead
 
 ## References
 
-- [Provider Interface](../internal/tunnel/provider.go)
-- [LocalTunnel Implementation](../internal/provider/localtunnel.go)
-- [Cloudflare Implementation](../internal/provider/cloudflare.go)
-- [Service Layer](../internal/tunnel/service.go)
-- [Contributing Guide](../CONTRIBUTING.md)
+- [Provider Interface](https://github.com/kernelshard/expose/blob/main/internal/provider/provider.go)
+- [LocalTunnel Implementation](https://github.com/kernelshard/expose/blob/main/internal/provider/localtunnel.go)
+- [Cloudflare Implementation](https://github.com/kernelshard/expose/blob/main/internal/provider/cloudflare.go)
+- [Service Layer](https://github.com/kernelshard/expose/blob/main/internal/tunnel/service.go)
+- [Contributing Guide](CONTRIBUTING.md)
 
 ---
 
