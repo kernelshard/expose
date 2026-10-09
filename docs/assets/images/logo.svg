@@ -1,0 +1,121 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="100%" height="100%">
+  <defs>
+    <!-- Background Radial Gradient -->
+    <radialGradient id="bgGlow" cx="50%" cy="50%" r="65%">
+      <stop offset="0%" stop-color="#0e172a" />
+      <stop offset="70%" stop-color="#070a12" />
+      <stop offset="100%" stop-color="#020408" />
+    </radialGradient>
+
+    <!-- Squircle Border Glow -->
+    <linearGradient id="rimGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#38bdf8" stop-opacity="0.9" />
+      <stop offset="50%" stop-color="#6366f1" stop-opacity="0.3" />
+      <stop offset="100%" stop-color="#0284c7" stop-opacity="0.8" />
+    </linearGradient>
+
+    <!-- Metallic Charcoal Gradients -->
+    <linearGradient id="metalFront" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#2d3748" />
+      <stop offset="40%" stop-color="#1f2633" />
+      <stop offset="100%" stop-color="#11141c" />
+    </linearGradient>
+
+    <linearGradient id="metalTopLedge" x1="0%" y1="100%" x2="0%" y2="0%">
+      <stop offset="0%" stop-color="#2e3846" />
+      <stop offset="100%" stop-color="#4a5568" />
+    </linearGradient>
+
+    <linearGradient id="metalBottomLedge" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#1a202c" />
+      <stop offset="100%" stop-color="#0d1117" />
+    </linearGradient>
+
+    <!-- Laser Light Beam Gradients -->
+    <linearGradient id="beamCore" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#ffffff" />
+      <stop offset="25%" stop-color="#e0f2fe" />
+      <stop offset="65%" stop-color="#38bdf8" />
+      <stop offset="100%" stop-color="#0284c7" stop-opacity="0" />
+    </linearGradient>
+
+    <linearGradient id="beamAura" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#38bdf8" stop-opacity="0.85" />
+      <stop offset="45%" stop-color="#0284c7" stop-opacity="0.5" />
+      <stop offset="100%" stop-color="#0369a1" stop-opacity="0" />
+    </linearGradient>
+
+    <filter id="neonGlow" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="6" result="blur" />
+      <feMerge>
+        <feMergeNode in="blur" />
+        <feMergeNode in="SourceGraphic" />
+      </feMerge>
+    </filter>
+  </defs>
+
+  <!-- Squircle Base Frame -->
+  <rect x="20" y="20" width="472" height="472" rx="108" fill="url(#bgGlow)" stroke="url(#rimGrad)" stroke-width="4" />
+
+  <!-- Backlight Glow from inside the aperture -->
+  <circle cx="280" cy="256" r="130" fill="#0284c7" opacity="0.18" filter="url(#neonGlow)" />
+
+  <!-- 3D ISOMETRIC "E" TUNNEL APERTURE -->
+  
+  <!-- Outer Main Metallic "E" Face -->
+  <path d="M 144 140
+           C 144 116, 164 104, 188 104
+           L 364 104
+           C 378 104, 388 114, 388 128
+           L 388 144
+           C 388 158, 378 168, 364 168
+           L 248 168
+           L 248 224
+           L 324 224
+           C 336 224, 344 232, 344 244
+           L 344 268
+           C 344 280, 336 288, 324 288
+           L 248 288
+           L 248 344
+           L 364 344
+           C 378 344, 388 354, 388 368
+           L 388 384
+           C 388 398, 378 408, 364 408
+           L 188 408
+           C 164 408, 144 396, 144 372
+           Z"
+        fill="url(#metalFront)"
+        stroke="#0b0e14"
+        stroke-width="3" />
+
+  <!-- Perspective Top Chamber Bevel -->
+  <polygon points="188,104 216,132 364,132 364,104" fill="url(#metalTopLedge)" opacity="0.75" />
+
+  <!-- Perspective Bottom Chamber Bevel -->
+  <polygon points="188,408 216,380 364,380 364,408" fill="url(#metalBottomLedge)" opacity="0.65" />
+
+  <!-- Inner Perspective Corridors (Ceiling, Floor, Recessed Back Wall) -->
+  <polygon points="248,168 316,204 316,224 248,224" fill="#08101e" />
+  <polygon points="248,288 316,288 316,308 248,344" fill="#050a14" />
+  <rect x="226" y="218" width="24" height="76" fill="#02050a" />
+
+  <!-- Glowing Neon Inset Lining along Inner Chamber Walls -->
+  <path d="M 248 168 L 248 224 L 324 224" fill="none" stroke="#38bdf8" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round" filter="url(#neonGlow)" />
+  <path d="M 248 288 L 248 344 L 364 344" fill="none" stroke="#38bdf8" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round" filter="url(#neonGlow)" />
+  <path d="M 248 168 L 364 168" fill="none" stroke="#38bdf8" stroke-width="3.5" stroke-linecap="round" filter="url(#neonGlow)" />
+
+  <!-- TUNNEL DATA BEAM PROJECTING FORWARD (EXPOSING OUTWARD) -->
+  <!-- Broad Diffuse Glow Aura -->
+  <polygon points="230,238 488,206 488,306 230,274" fill="url(#beamAura)" />
+
+  <!-- High-Intensity Laser Core -->
+  <polygon points="236,248 492,242 492,270 236,264" fill="url(#beamCore)" filter="url(#neonGlow)" />
+  <line x1="228" y1="256" x2="492" y2="256" stroke="#ffffff" stroke-width="5" stroke-linecap="round" />
+
+  <!-- Emitted Network Data Packets -->
+  <rect x="348" y="218" width="18" height="5" rx="2.5" fill="#38bdf8" opacity="0.95" />
+  <rect x="390" y="208" width="26" height="5" rx="2.5" fill="#38bdf8" opacity="0.85" />
+  <rect x="366" y="284" width="20" height="5" rx="2.5" fill="#38bdf8" opacity="0.85" />
+  <rect x="416" y="276" width="30" height="6" rx="3" fill="#38bdf8" opacity="0.95" />
+  <rect x="444" y="232" width="16" height="4" rx="2" fill="#bae6fd" opacity="0.9" />
+</svg>

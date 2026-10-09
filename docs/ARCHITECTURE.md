@@ -7,6 +7,10 @@ description: Comprehensive overview of Expose's architecture, design patterns, a
 
 A comprehensive overview of Expose's architecture, design patterns, and implementation details.
 
+<p align="center">
+  <img src="assets/images/architecture.svg" alt="Expose Architecture" width="560" />
+</p>
+
 ---
 
 ## Overview

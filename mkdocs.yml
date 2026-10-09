@@ -30,11 +30,11 @@ theme:
   font:
     text: Inter
     code: JetBrains Mono
+  logo: assets/images/logo.svg
+  favicon: assets/images/favicon.png
   icon:
-    logo: material/transit-connection-variant
     repo: fontawesome/brands/github
     edit: material/pencil
-  favicon: https://raw.githubusercontent.com/google/material-design-icons/master/src/places/wifi_tethering/materialicons/24px.svg
   features:
     - navigation.tabs
     - navigation.tabs.sticky
