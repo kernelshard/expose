@@ -2,9 +2,11 @@ package cli
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"os"
 	"os/signal"
+	"strconv"
 	"syscall"
 
 	"github.com/spf13/cobra"
@@ -20,8 +22,9 @@ func newTunnelCmd() *cobra.Command {
 	//Short: "Start a tunnel to expose local server",
 	//RunE:  runTunnelCmd,
 	cmd := &cobra.Command{
-		Use:   "tunnel",
+		Use:   "tunnel [port]",
 		Short: "Expose local server via tunnel",
+		Args:  cobra.MaximumNArgs(1),
 		RunE:  runTunnelCmd,
 	}
 
@@ -38,28 +41,53 @@ func newTunnelCmd() *cobra.Command {
 	return cmd
 }
 
-// runTunnelCmd represents the 'tunnel' command in the CLI application.
-func runTunnelCmd(cmd *cobra.Command, _ []string) error {
+// resolvePort determines the local port from flags, positional arguments, or configuration.
+func resolvePort(cmd *cobra.Command, args []string) (int, error) {
+	var port int
 
-	// Load config
+	// 1. Try to load config if .expose.yml exists
 	cfg, err := config.Load("")
-	if err != nil {
-		return fmt.Errorf("config not found (run 'expose init' first): %w", err)
-	}
-
-	// Get port from flag
-	port, err := cmd.Flags().GetInt("port")
-	if err != nil {
-		return fmt.Errorf("invalid port flag %w", err)
-	}
-
-	// use config port if flag not set
-	if port == 0 {
+	if err == nil {
 		port = cfg.Port
+	} else if !errors.Is(err, os.ErrNotExist) {
+		return 0, fmt.Errorf("error loading config: %w", err)
+	}
+
+	// 2. Override with positional argument if provided (e.g. "expose tunnel 8080")
+	if len(args) > 0 {
+		posPort, err := strconv.Atoi(args[0])
+		if err != nil {
+			return 0, fmt.Errorf("invalid port argument %q: must be a number", args[0])
+		}
+		port = posPort
+	}
+
+	// 3. Override with flag if provided (e.g. "-p 9000")
+	flagPort, err := cmd.Flags().GetInt("port")
+	if err != nil {
+		return 0, fmt.Errorf("invalid port flag: %w", err)
+	}
+	if flagPort != 0 {
+		port = flagPort
+	}
+
+	// 4. Fallback default if still not set
+	if port == 0 {
+		port = 3000
 	}
 
 	if port <= 0 || port > 65535 {
-		return fmt.Errorf("invalid port %d (must be 1-65535)", port)
+		return 0, fmt.Errorf("invalid port %d (must be 1-65535)", port)
+	}
+
+	return port, nil
+}
+
+// runTunnelCmd represents the 'tunnel' command in the CLI application.
+func runTunnelCmd(cmd *cobra.Command, args []string) error {
+	port, err := resolvePort(cmd, args)
+	if err != nil {
+		return err
 	}
 
 	// use provider flag shorthand -P to select provider
