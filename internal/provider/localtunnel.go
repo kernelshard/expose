@@ -22,10 +22,8 @@ const (
 	// override if tunnel api sends their limit
 	clientMaxConn = 10
 
-	httpClientTimeout    = 10 * time.Second
-	tcpDialTimeout       = 10 * time.Second
-	localDialTimeOut     = 4 * time.Second
-	proxyDeadlineTimeOut = 30 * time.Second
+	httpClientTimeout = 10 * time.Second
+	tcpDialTimeout    = 10 * time.Second
 )
 
 // localTunnel implements the Provider interface for localtunnel.me
@@ -39,7 +37,6 @@ type localTunnel struct {
 	tunnelHost     string
 	connected      bool
 	mu             sync.RWMutex
-	connections    []net.Conn // connection pool
 	maxConnections int
 	ctx            context.Context
 	cancel         context.CancelFunc
@@ -65,7 +62,6 @@ func NewLocalTunnel(httpClient *http.Client) tunnel.Provider {
 	}
 
 	return &localTunnel{
-		connections:       make([]net.Conn, 0, clientMaxConn),
 		httpClient:        httpClient,
 		serverAPIEndpoint: localtunnelAPI,
 		tunnelHost:        localTunnelTCPHost,
@@ -157,103 +153,75 @@ func (lt *localTunnel) openConnections() error {
 	defer lt.mu.Unlock()
 
 	for i := 0; i < lt.maxConnections; i++ {
-		// create tunnel connection to the upstream server & store in pool
-		// each connection will handle incoming requests
-		conn, err := lt.dialTunnel()
-		if err != nil {
-			// Close any connections we already opened
-			// TODO: can do retry here instead of failing immediately
-			lt.closeAllConnections()
-			return fmt.Errorf("connection %d failed: %w", i, err)
-		}
-		// it used to close connections later
-		lt.connections = append(lt.connections, conn)
-
 		// Start handling this connection
-		go lt.handleConnection(conn)
+		go lt.handleConnection(lt.ctx)
 	}
 
 	return nil
 }
 
 // dialTunnel creates a single TCP connection to the localtunnel server.
-func (lt *localTunnel) dialTunnel() (net.Conn, error) {
+func (lt *localTunnel) dialTunnel(ctx context.Context) (net.Conn, error) {
 	address := net.JoinHostPort(lt.tunnelHost, strconv.Itoa(lt.tunnelPort)) //IPv6 safe
-	conn, err := net.DialTimeout("tcp", address, localDialTimeOut)
 
+	var dialer net.Dialer
+	conn, err := dialer.DialContext(ctx, "tcp", address)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("local dial failed: %w", err)
 	}
 	return conn, nil
 }
 
-// closeAllConnections closes all existing TCP connections
-func (lt *localTunnel) closeAllConnections() {
-	for _, conn := range lt.connections {
-		if conn != nil {
-			_ = conn.Close()
-		}
-	}
-
-	lt.connections = lt.connections[:0]
-}
-
 // handleConnection processes traffic from one tunnel connection
-func (lt *localTunnel) handleConnection(tunnelConn net.Conn) {
-	defer tunnelConn.Close()
+func (lt *localTunnel) handleConnection(ctx context.Context) {
 
 	for {
-		select {
-		// run until context is done means user does Ctrl+C or Close() is called
-		case <-lt.ctx.Done():
+		if ctx.Err() != nil {
 			return
-		default:
-			// Read request from tunnel
-			// Forward to localhost
-			// Write response back
-			// TODO: Use connection pool instead of dialing on every request
-			if err := lt.proxyRequest(tunnelConn); err != nil {
-				if lt.ctx.Err() != nil {
-					return // Shutting down
-				}
-				// Connection closed or error, exit this handler
-				fmt.Printf("[localtunnel] connection error: %v\n", err)
+		}
+		tunnelConn, err := lt.dialTunnel(ctx)
+		if err != nil {
+			if ctx.Err() != nil {
 				return
 			}
+			time.Sleep(500 * time.Millisecond) // apply backoff delay
+			continue
 		}
+
+		// tunnelConn is established, start proxying
+		_ = lt.proxyRequest(ctx, tunnelConn)
+
+		// tunnel connection terminated, close it
+		tunnelConn.Close()
 	}
+
 }
 
 // proxyRequest forwards data between the tunnel connection and the local server.
-func (lt *localTunnel) proxyRequest(tunnelConn net.Conn) error {
+func (lt *localTunnel) proxyRequest(ctx context.Context, tunnelConn net.Conn) error {
 	// connect to local server
 	localAddr := fmt.Sprintf("127.0.0.1:%d", lt.localPort)
-	localConn, err := net.DialTimeout("tcp", localAddr, 5*time.Second)
+
+	var dialer net.Dialer
+	localConn, err := dialer.DialContext(ctx, "tcp", localAddr)
 	if err != nil {
 		return fmt.Errorf("local dial failed: %w", err)
 	}
 	defer localConn.Close()
 
-	// Set deadlines, it helps to avoid hanging connections
-	// e.g: if either side doesn't respond in time, the copy will end
-	_ = tunnelConn.SetDeadline(time.Now().Add(proxyDeadlineTimeOut))
-	_ = localConn.SetDeadline(time.Now().Add(proxyDeadlineTimeOut))
-
-	// Start bidirectional copy
-	// mental model: copy(blocking ops) the data from tunnel to local and
-	//local to tunnel concurrently when either side closes, the copy ends
 	var wg sync.WaitGroup
-	wg.Add(2)
+	// Forward request: when tunnel finishes, close localConn
+	wg.Go(func() {
+		_, _ = io.Copy(localConn, tunnelConn)
+		localConn.Close()
+	})
 
-	go func() {
-		defer wg.Done()
-		io.Copy(localConn, tunnelConn)
-	}()
-
-	go func() {
-		defer wg.Done()
-		io.Copy(tunnelConn, localConn)
-	}()
+	// Forward response: when local server finishes (EOF), close tunnelConn
+	// which immediately unblocks the tunnel reader above
+	wg.Go(func() {
+		_, _ = io.Copy(tunnelConn, localConn)
+		tunnelConn.Close()
+	})
 
 	wg.Wait()
 	return nil
@@ -267,10 +235,8 @@ func (lt *localTunnel) Close() error {
 
 	if lt.cancel != nil {
 		lt.cancel()
-
 	}
 
-	lt.closeAllConnections()
 	lt.connected = false
 	return nil
 }
