@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+
+{% block extrahead %}
+  <!-- Open Graph / Facebook / Discord -->
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="{% if page.title %}{{ page.title }} — Expose{% else %}{{ config.site_name }}{% endif %}">
+  <meta property="og:description" content="{% if page.meta and page.meta.description %}{{ page.meta.description }}{% else %}{{ config.site_description }}{% endif %}">
+  <meta property="og:image" content="{{ config.site_url }}social-preview.png">
+  <meta property="og:url" content="{{ page.canonical_url }}">
+
+  <!-- Twitter / X -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="{% if page.title %}{{ page.title }} — Expose{% else %}{{ config.site_name }}{% endif %}">
+  <meta name="twitter:description" content="{% if page.meta and page.meta.description %}{{ page.meta.description }}{% else %}{{ config.site_description }}{% endif %}">
+  <meta name="twitter:image" content="{{ config.site_url }}social-preview.png">
+
+  <!-- Machine-Readable LLM Documentation -->
+  <link rel="alternate" type="text/plain" href="{{ config.site_url }}llms.txt" title="LLM Documentation (Index)">
+  <link rel="alternate" type="text/plain" href="{{ config.site_url }}llms-full.txt" title="LLM Documentation (Full)">
+
+  <!-- JSON-LD Structured Data for Software Application -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "Expose",
+    "applicationCategory": "DeveloperApplication",
+    "operatingSystem": "macOS, Linux, Windows",
+    "description": "The open-source, single-binary Go (Golang) alternative to ngrok. Expose local ports via LocalTunnel, Cloudflare, or a self-hosted server with zero signup.",
+    "url": "https://kernelshard.github.io/expose/",
+    "license": "https://opensource.org/licenses/MIT",
+    "offers": {
+      "@type": "Offer",
+      "price": "0",
+      "priceCurrency": "USD"
+    }
+  }
+  </script>
+{% endblock %}

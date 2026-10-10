@@ -1,0 +1,244 @@
+# Expose — Complete Technical Documentation
+
+> Expose is an open-source, single-binary reverse proxy and secure tunneling tool written in pure Go (Golang). It connects local development servers (localhost) to the public internet with zero configuration, zero account signup, and no commercial third-party rate limits.
+
+---
+
+## 1. Overview & Positioning
+
+Expose is designed as a modern, lightweight, privacy-focused alternative to commercial tunneling services like ngrok and Cloudflare Tunnel.
+
+### Key Differentiators:
+- **No Account Required**: Immediate public URL generation without signing up, generating tokens, or logging in.
+- **Single Static Binary**: Compiled standalone Go binary under 10MB with zero external runtime dependencies (no Node.js or Python runtime required).
+- **Multiple Providers**: Supports free community tunnels (LocalTunnel), Cloudflare Quick Tunnels, and private self-hosted servers.
+- **Self-Hosted Mode**: Built-in `expose server` turns any VPS into a multi-tenant tunneling relay in seconds.
+- **High Concurrency & Safety**: Built with strict concurrency safety (`go test -race` passing with zero races) and statement coverage above 80%.
+
+---
+
+## 2. Installation
+
+### One-Line Shell Script (macOS & Linux)
+```bash
+curl -fsSL https://raw.githubusercontent.com/kernelshard/expose/main/install.sh | sh
+```
+
+Options for the installer script:
+```bash
+# Pin a specific release version
+VERSION=v0.4.2 curl -fsSL https://raw.githubusercontent.com/kernelshard/expose/main/install.sh | sh
+
+# Customize installation directory (defaults to /usr/local/bin or ~/.local/bin)
+BINDIR=~/.local/bin curl -fsSL https://raw.githubusercontent.com/kernelshard/expose/main/install.sh | sh
+```
+
+### Go Install (Requires Go 1.21+)
+```bash
+go install github.com/kernelshard/expose/cmd/expose@latest
+```
+
+### Build From Source
+```bash
+git clone https://github.com/kernelshard/expose.git
+cd expose
+go build -ldflags="-s -w" -o expose ./cmd/expose
+sudo mv expose /usr/local/bin/
+```
+
+### Verify Installation
+```bash
+expose --version
+```
+
+---
+
+## 3. Client CLI Reference (`expose tunnel`)
+
+### Command Syntax
+```bash
+expose tunnel [port] [flags]
+```
+
+### Port Resolution Hierarchy
+When starting a tunnel, Expose determines the target port in the following priority order:
+1. Explicit CLI flag: `-p <port>` or `--port <port>`
+2. Positional argument: `expose tunnel 8080`
+3. Configuration file: `port` field in `.expose.yml`
+4. Default fallback: port `3000`
+
+### Supported Flags
+- `-p, --port <int>`: Local port to expose (e.g., `-p 8080`).
+- `-P, --provider <string>`: Tunnel provider backend: `localtunnel`, `cloudflare`, or `selfhosted` (default: `localtunnel`).
+- `-s, --server <string>`: Self-hosted server address (e.g., `tunnel.mysite.com:7890`). Specifying `--server` automatically selects the `selfhosted` provider.
+
+### Common Examples
+```bash
+# Expose default localhost:3000 via LocalTunnel
+expose tunnel
+
+# Expose custom port 8080
+expose tunnel 8080
+expose tunnel -p 8080
+
+# Expose port 3000 through Cloudflare Quick Tunnels
+expose tunnel -P cloudflare -p 3000
+
+# Expose port 5000 through your self-hosted VPS server
+expose tunnel --server=tunnel.yourdomain.com:7890 -p 5000
+```
+
+---
+
+## 4. Providers
+
+### A. LocalTunnel (`-P localtunnel`)
+- **Default provider**.
+- Uses the free community-run `localtunnel.me` network.
+- No account or local dependencies required.
+- Opens a pool of 10 standby TCP connections to the tunnel host to handle concurrent incoming requests with zero delay.
+- Automatically handles connection replenishment and socket cross-close on EOF.
+
+### B. Cloudflare Quick Tunnels (`-P cloudflare`)
+- Leverages Cloudflare's global edge network.
+- Requires the `cloudflared` CLI binary to be installed on your machine (`brew install cloudflared` or `apt install cloudflared`).
+- Generates a free `*.trycloudflare.com` URL with automatic TLS.
+
+### C. Self-Hosted Server (`-P selfhosted` or `--server`)
+- Connects directly to an `expose server` instance running on your own VPS.
+- Traffic stays within your personal infrastructure.
+- Zero rate limits, zero third-party dependencies, and customizable domain routing.
+
+---
+
+## 5. Self-Hosted Server Reference (`expose server`)
+
+### Command Syntax
+```bash
+expose server --domain=<domain> [flags]
+```
+
+### Flags
+- `--domain <string>`: Base domain for tunnels (required, e.g., `tunnel.yourdomain.com`).
+- `--control-port <int>`: Port for tunnel client control connections (default: `7890`).
+- `--public-port <int>`: Port for public inbound HTTP traffic (default: `8080`).
+
+### Minimal VPS Startup
+```bash
+# On your VPS
+expose server --domain=tunnel.yourdomain.com --control-port=7890 --public-port=8080
+```
+
+### Systemd Service Configuration
+Create `/etc/systemd/system/expose.service`:
+```ini
+[Unit]
+Description=Expose Tunnel Server
+After=network.target
+
+[Service]
+Type=simple
+User=root
+ExecStart=/usr/local/bin/expose server --domain=tunnel.yourdomain.com --control-port=7890 --public-port=8080
+Restart=always
+RestartSec=5
+LimitNOFILE=65535
+
+[Install]
+WantedBy=multi-user.target
+```
+
+Enable and start the service:
+```bash
+sudo systemctl daemon-reload
+sudo systemctl enable --now expose
+sudo systemctl status expose
+```
+
+### Reverse Proxy & HTTPS Setup
+
+#### Option A: Caddy (Recommended — Automatic TLS)
+Add to `/etc/caddy/Caddyfile`:
+```caddy
+*.tunnel.yourdomain.com, tunnel.yourdomain.com {
+    reverse_proxy localhost:8080
+}
+```
+Reload Caddy: `sudo systemctl reload caddy`.
+
+#### Option B: Nginx
+```nginx
+server {
+    server_name *.tunnel.yourdomain.com tunnel.yourdomain.com;
+    listen 80;
+
+    location / {
+        proxy_pass http://127.0.0.1:8080;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+}
+```
+
+---
+
+## 6. Configuration Management
+
+### Initialize Configuration
+```bash
+expose init
+```
+Generates a `.expose.yml` file in the current working directory:
+```yaml
+port: 3000
+provider: localtunnel
+```
+
+### Inspect Configuration
+```bash
+expose config show
+```
+
+---
+
+## 7. Protocol & Architecture
+
+### Client-Server Topology
+```
+[Visitor Browser]
+       │
+       ▼ (HTTP)
+[expose server :8080] (Public Proxy)
+       │
+       ▼ (Internal TCP Tunnel)
+[expose server :7890] (Control Plane)
+       ▲
+       │ (Persistent TCP Connection)
+[expose tunnel] (Local Client)
+       │
+       ▼ (HTTP/TCP)
+[localhost:3000] (Your Application)
+```
+
+1. **Control Connection**: When `expose tunnel --server` launches, it dials the server control port (`7890`) and sends a JSON registration packet:
+   ```json
+   {"type": "control", "subdomain": "my-subdomain"}
+   ```
+2. **Subdomain Reservation**: The server atomically registers the subdomain using `sync.Map.LoadOrStore` and replies with the public URL:
+   ```json
+   {"public_url": "http://my-subdomain.tunnel.yourdomain.com:8080", "subdomain": "my-subdomain"}
+   ```
+3. **Data Connection**: When public HTTP requests arrive at `:8080`, the server pairs the request with an active data connection stream (`{"type": "data", "subdomain": "my-subdomain"}`) and pipes the raw TCP stream bidirectionally to `localhost:3000`.
+
+---
+
+## 8. Versioning & Build Metadata
+```bash
+expose version
+```
+Prints the semantic version, git commit hash, and build timestamp injected at compilation via Go linker flags:
+```text
+expose version v0.4.2 (commit: 1937697, built: 2026-10-10)
+```

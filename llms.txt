@@ -1,0 +1,70 @@
+# Expose
+
+> Expose is an open-source, single-binary reverse proxy and secure tunneling tool written in pure Go (Golang). It connects local development servers (localhost) to the public internet with zero configuration, zero account signup, and no commercial third-party rate limits.
+
+Expose serves as a lightweight, privacy-focused alternative to commercial tunneling services like ngrok and Cloudflare Tunnel. It supports multiple backends including community-run LocalTunnel, Cloudflare Quick Tunnels, and private self-hosted servers running on personal VPS instances.
+
+## Core Capabilities
+- **Zero Signup & Configuration**: Run `expose tunnel` to immediately expose a local port without creating an account or managing API tokens.
+- **Single Lightweight Binary**: Standalone Go binary (<10MB) with no runtime dependencies (no Node.js or Python runtime required).
+- **Multiple Tunnel Backends**:
+  - `localtunnel` (default): Free public tunnel infrastructure via localtunnel.me.
+  - `cloudflare`: High-performance Quick Tunnels powered by the Cloudflare global network (requires `cloudflared`).
+  - `selfhosted`: Private tunneling control plane running on your own VPS with custom domain routing.
+- **Cross-Platform**: Prebuilt releases for macOS (Darwin arm64/x86_64), Linux (arm64/x86_64), and Windows (arm64/x86_64).
+
+## Quickstart
+
+### Installation
+```bash
+# Automated installer (macOS & Linux)
+curl -fsSL https://raw.githubusercontent.com/kernelshard/expose/main/install.sh | sh
+```
+
+### Basic Usage
+```bash
+# Expose default port 3000 to the public internet
+expose tunnel
+
+# Expose a custom port (e.g., 8080)
+expose tunnel 8080
+expose tunnel -p 8080
+
+# Expose via Cloudflare Quick Tunnels
+expose tunnel -P cloudflare -p 8080
+
+# Run a private self-hosted tunnel server on a VPS
+expose server --domain=tunnel.yourdomain.com --control-port=7890 --public-port=8080
+
+# Connect local client to your self-hosted server
+expose tunnel --server=tunnel.yourdomain.com:7890 -p 3000
+```
+
+## CLI Reference
+- `expose tunnel [port]`: Start an encrypted tunnel session to expose a local port.
+  - `-p, --port <int>`: Local port to expose (defaults to 3000).
+  - `-P, --provider <string>`: Tunnel provider: `localtunnel`, `cloudflare`, or `selfhosted` (default: `localtunnel`).
+  - `-s, --server <string>`: Self-hosted server address (e.g., `tunnel.mysite.com:7890`).
+- `expose server`: Start self-hosted tunnel control plane and HTTP reverse proxy.
+  - `--domain <string>`: Base domain for tunnels (required).
+  - `--control-port <int>`: Port for client tunnel control plane connections (default: 7890).
+  - `--public-port <int>`: Port for public HTTP traffic routing (default: 8080).
+- `expose init`: Initialize a new `.expose.yml` configuration file in the working directory.
+- `expose config show`: Display resolved configuration settings.
+- `expose version`: Display CLI build version and commit metadata.
+
+## Configuration File (`.expose.yml`)
+Optional configuration file created in the project root:
+```yaml
+port: 3000
+provider: localtunnel
+```
+
+## Documentation
+- [Full Documentation (Plaintext)](https://kernelshard.github.io/expose/llms-full.txt): Complete consolidated manual in a single plain text file.
+- [Documentation Home](https://kernelshard.github.io/expose/): Main documentation site.
+- [Getting Started](https://kernelshard.github.io/expose/GETTING_STARTED.html): Installation, prerequisites, and first tunnel workflow.
+- [Self-Hosted Server Guide](https://kernelshard.github.io/expose/SELF_HOSTED.html): End-to-end VPS deployment, reverse proxy setup (Caddy and Nginx), and systemd configuration.
+- [Architecture](https://kernelshard.github.io/expose/ARCHITECTURE.html): Deep dive into Expose networking, protocol specification, and control plane.
+- [Tutorial](https://kernelshard.github.io/expose/TUTORIAL.html): Conceptual guide to how reverse tunnels connect localhost to the internet.
+- [Contributing](https://kernelshard.github.io/expose/CONTRIBUTING.html): Development guide, tests, and contribution workflow.

@@ -1,5 +1,5 @@
 site_name: Expose
-site_description: The open-source, single-binary alternative to ngrok. Expose local ports via LocalTunnel, Cloudflare, or a self-hosted server — zero signup required.
+site_description: The open-source, single-binary Go (Golang) alternative to ngrok. Expose local ports via LocalTunnel, Cloudflare, or a self-hosted server — zero signup required.
 site_author: kernelshard
 site_url: https://kernelshard.github.io/expose/
 
@@ -12,6 +12,7 @@ use_directory_urls: false
 
 theme:
   name: material
+  custom_dir: overrides
   palette:
     - media: "(prefers-color-scheme: light)"
       scheme: default
@@ -81,6 +82,7 @@ extra_css:
   - stylesheets/custom.css
 
 markdown_extensions:
+  - meta
   - pymdownx.highlight:
       anchor_linenums: true
       line_spans: __span

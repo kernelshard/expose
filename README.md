@@ -8,7 +8,7 @@
 [![Go Report Card](https://goreportcard.com/badge/github.com/kernelshard/expose)](https://goreportcard.com/report/github.com/kernelshard/expose)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://github.com/kernelshard/expose/blob/main/LICENSE)
 
-> **The open-source, single-binary alternative to ngrok.**
+> **The open-source, pure Go (Golang) alternative to ngrok.**
 > Expose your local `localhost` server to the internet with zero config, zero signup, and zero hassle.
 
 **Expose** is a modern Go-based tunneling tool that lets you share your local development environment with the world. Perfect for testing webhooks, mobile debugging, or showing off your work on `localtunnel` or `Cloudflare` networks.
