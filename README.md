@@ -103,6 +103,21 @@ go build -o expose ./cmd/expose
 ./expose --version
 ```
 
+### 📖 Man Page
+
+Expose provides a complete `expose(1)` manual page.
+
+* **Preview locally:**
+  ```bash
+  man ./man/expose.1
+  ```
+* **Install system-wide (macOS / Linux):**
+  ```bash
+  sudo install -d /usr/local/share/man/man1
+  sudo install -m 0644 man/expose.1 /usr/local/share/man/man1/expose.1
+  man expose
+  ```
+
 ---
 
 ## 📖 Usage

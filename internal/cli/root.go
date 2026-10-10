@@ -6,20 +6,23 @@ import (
 	"github.com/kernelshard/expose/internal/version"
 )
 
-var rootCmd = &cobra.Command{
-	Use:     "expose",
-	Short:   "Expose localhost to the internet",
-	Long:    "Minimal CLI to expose your local dev server",
-	Version: version.GetFullVersion(),
+// NewRootCmd creates and initializes the root cobra command with all subcommands.
+func NewRootCmd() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:     "expose",
+		Short:   "Expose localhost to the internet",
+		Long:    "Minimal CLI to expose your local dev server",
+		Version: version.GetFullVersion(),
+	}
+
+	cmd.AddCommand(newInitCmd())
+	cmd.AddCommand(newTunnelCmd())
+	cmd.AddCommand(newServerCmd())
+	cmd.AddCommand(newConfigCmd())
+
+	return cmd
 }
 
 func Execute() error {
-
-	// Add commands
-	rootCmd.AddCommand(newInitCmd())
-	rootCmd.AddCommand(newTunnelCmd())
-	rootCmd.AddCommand(newServerCmd())
-	rootCmd.AddCommand(newConfigCmd())
-
-	return rootCmd.Execute()
+	return NewRootCmd().Execute()
 }
