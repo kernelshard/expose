@@ -58,6 +58,13 @@ Share your localhost with the world in seconds. No account. No auth tokens. No n
 
 ## Quick Start
 
+=== "Shell Script (macOS & Linux)"
+    ```bash
+    curl -fsSL https://raw.githubusercontent.com/kernelshard/expose/main/install.sh | sh
+    expose init
+    expose tunnel
+    ```
+
 === "Go Install"
     ```bash
     go install github.com/kernelshard/expose/cmd/expose@latest

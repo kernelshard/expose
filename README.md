@@ -37,8 +37,8 @@
 ## 🚀 Quick Start
 
 ```bash
-# Install
-go install github.com/kernelshard/expose/cmd/expose@latest
+# Install (macOS & Linux)
+curl -fsSL https://raw.githubusercontent.com/kernelshard/expose/main/install.sh | sh
 
 # Initialize config
 expose init
@@ -65,11 +65,30 @@ expose tunnel --server=tunnel.mysite.com:7890
 
 ### 📦 Installation
 
-#### 1. Download Binary (Recommended)
-Download the latest binary for your OS (Windows, macOS, Linux) from the [Releases Page](https://github.com/kernelshard/expose/releases).
-Unzip it and add it to your PATH.
+#### 1. Shell Script (macOS & Linux — Recommended)
 
-#### 2. Using Go Install
+Install the latest pre-compiled binary with a single command:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/kernelshard/expose/main/install.sh | sh
+```
+
+You can customize the destination directory or pin a specific version:
+
+```bash
+# Install a specific version
+VERSION=v0.4.1 curl -fsSL https://raw.githubusercontent.com/kernelshard/expose/main/install.sh | sh
+
+# Install into a custom directory (defaults to /usr/local/bin or ~/.local/bin)
+BINDIR=~/.local/bin curl -fsSL https://raw.githubusercontent.com/kernelshard/expose/main/install.sh | sh
+```
+
+#### 2. Pre-built Binaries
+Download the latest binary for your operating system (macOS, Linux, Windows) from the [Releases Page](https://github.com/kernelshard/expose/releases). Extract the archive and place `expose` in your `$PATH`.
+
+#### 3. Using Go Install
+
+Requires Go 1.21+:
 
 ```bash
 go install github.com/kernelshard/expose/cmd/expose@latest

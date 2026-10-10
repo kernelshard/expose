@@ -11,7 +11,23 @@ description: Install Expose and run your first tunnel in under 2 minutes.
 
 ## Installation
 
-=== "Go Install (Recommended)"
+=== "Shell Script (macOS & Linux)"
+    Install the latest pre-compiled binary with a single command:
+    ```bash
+    curl -fsSL https://raw.githubusercontent.com/kernelshard/expose/main/install.sh | sh
+    ```
+
+    ??? tip "Custom installation directory or version pinning"
+        You can customize the destination folder or specify a target version:
+        ```bash
+        # Install a specific release version
+        VERSION=v0.4.1 curl -fsSL https://raw.githubusercontent.com/kernelshard/expose/main/install.sh | sh
+
+        # Install into custom directory (defaults to /usr/local/bin or ~/.local/bin)
+        BINDIR=~/.local/bin curl -fsSL https://raw.githubusercontent.com/kernelshard/expose/main/install.sh | sh
+        ```
+
+=== "Go Install"
     Requires **Go 1.21+**. This installs the latest release directly into your `$GOPATH/bin`:
     ```bash
     go install github.com/kernelshard/expose/cmd/expose@latest
