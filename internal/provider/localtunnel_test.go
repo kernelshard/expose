@@ -28,9 +28,6 @@ func Test_NewLocalTunnel(t *testing.T) {
 			t.Errorf("expected endpoint %s, got %s", localtunnelAPI, lt.serverAPIEndpoint)
 		}
 
-		if cap(lt.connections) != clientMaxConn {
-			t.Errorf("expected connections capacity %d, got %d", clientMaxConn, cap(lt.connections))
-		}
 	})
 
 	t.Run("with custom httpClient should use it", func(t *testing.T) {
@@ -232,48 +229,13 @@ func TestLocalTunnel_PublicURL(t *testing.T) {
 	}
 }
 
-func Test_closeAllConnections(t *testing.T) {
-	// create mock connection s
-	conn1Client, conn1Server := net.Pipe()
-	conn2Client, conn2Server := net.Pipe()
-
-	defer conn1Server.Close()
-	defer conn2Server.Close()
-
-	lt := &localTunnel{
-		connections: []net.Conn{conn1Client, conn2Client},
-	}
-
-	lt.closeAllConnections()
-	// make sure all closed
-	if len(lt.connections) != 0 {
-		t.Errorf("expected empty connections slice, got %d connections, ", len(lt.connections))
-	}
-
-	// verify connections are actually closed,
-	_, err := conn1Client.Write([]byte("test"))
-	if err == nil {
-		t.Error("expected error writing to closed connection")
-	}
-	_, err = conn2Client.Write([]byte("test"))
-	if err == nil {
-		t.Error("Expected error writing to closed connection")
-	}
-
-}
-
 func TestLocalTunnel_Close(t *testing.T) {
-	ctx, canelFunc := context.WithCancel(context.Background())
-
-	// create mock connection
-	clientConn, serverConn := net.Pipe()
-	defer serverConn.Close()
+	ctx, cancel := context.WithCancel(context.Background())
 
 	lt := &localTunnel{
-		connected:   true,
-		publicURL:   "https://test.example.com",
-		connections: []net.Conn{clientConn},
-		cancel:      canelFunc,
+		connected: true,
+		publicURL: "https://test.example.com",
+		cancel:    cancel,
 	}
 
 	err := lt.Close()
@@ -284,10 +246,6 @@ func TestLocalTunnel_Close(t *testing.T) {
 	if lt.IsConnected() {
 		t.Error("expected connected to be false after Close")
 	}
-	if len(lt.connections) != 0 {
-		t.Errorf("expected connections to be cleared, got %d", len(lt.connections))
-	}
-
 	// verify ctx was canceled
 	select {
 	case <-ctx.Done():
@@ -315,7 +273,7 @@ func TestLocalTunnel_ProxyRequest(t *testing.T) {
 	lt := &localTunnel{localPort: localPort}
 
 	// 3. Run proxyRequest in the background
-	go lt.proxyRequest(tunnelServer)
+	go lt.proxyRequest(t.Context(), tunnelServer)
 
 	// 4. Send HTTP request
 	req := "GET / HTTP/1.1\r\nHost: localhost\r\n\r\n"
@@ -337,7 +295,7 @@ func TestLocalTunnel_ProxyRequest(t *testing.T) {
 	dummyClient, dummyServer := net.Pipe()
 	defer dummyClient.Close()
 	ltClosed := &localTunnel{localPort: 0}
-	if err := ltClosed.proxyRequest(dummyServer); err == nil {
+	if err := ltClosed.proxyRequest(t.Context(), dummyServer); err == nil {
 		t.Errorf("expected error when localPort is closed, got nil")
 	}
 }
@@ -356,7 +314,7 @@ func TestLocalTunnel_DialTunnel(t *testing.T) {
 		tunnelPort: port,
 	}
 
-	conn, err := lt.dialTunnel()
+	conn, err := lt.dialTunnel(t.Context())
 	if err != nil {
 		t.Fatalf("dialTunnel failed: %v", err)
 	}
@@ -367,14 +325,18 @@ func TestLocalTunnel_DialTunnel(t *testing.T) {
 		tunnelHost: "127.0.0.1",
 		tunnelPort: 0,
 	}
-	_, err = ltFail.dialTunnel()
+	_, err = ltFail.dialTunnel(t.Context())
 	if err == nil {
 		t.Errorf("expected error dialing port 0, got nil")
 	}
 }
 
 func TestLocalTunnel_OpenConnections(t *testing.T) {
-	// 1. Success: Start a test TCP server that accepts connections
+	ctx, cancel := context.WithCancel(t.Context())
+	defer cancel()
+
+	// Track incoming connections from workers
+	accepted := make(chan net.Conn, 2)
 	ln, err := net.Listen("tcp", "127.0.0.1:0")
 	if err != nil {
 		t.Fatalf("failed to listen: %v", err)
@@ -387,11 +349,9 @@ func TestLocalTunnel_OpenConnections(t *testing.T) {
 			if err != nil {
 				return
 			}
-			defer conn.Close()
+			accepted <- conn
 		}
 	}()
-
-	ctx := t.Context()
 
 	port := ln.Addr().(*net.TCPAddr).Port
 	lt := &localTunnel{
@@ -405,20 +365,16 @@ func TestLocalTunnel_OpenConnections(t *testing.T) {
 		t.Fatalf("openConnections failed: %v", err)
 	}
 
-	if len(lt.connections) != 2 {
-		t.Errorf("expected 2 connections in pool, got %d", len(lt.connections))
+	// Verify that both worker goroutines connect to the server
+	for i := 0; i < 2; i++ {
+		select {
+		case conn := <-accepted:
+			conn.Close()
+		case <-time.After(2 * time.Second):
+			t.Fatalf("timed out waiting for worker %d to connect", i+1)
+		}
 	}
-	lt.closeAllConnections()
 
-	// 2. Failure: When tunnel port is unreachable
-	ltFail := &localTunnel{
-		tunnelHost:     "127.0.0.1",
-		tunnelPort:     0,
-		maxConnections: 1,
-	}
-	if err := ltFail.openConnections(); err == nil {
-		t.Errorf("expected error when dialing unreachable port, got nil")
-	}
 }
 
 func TestLocalTunnel_Connect_RequestTunnelError(t *testing.T) {
