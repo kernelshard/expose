@@ -21,7 +21,7 @@ description: Install Expose and run your first tunnel in under 2 minutes.
         You can customize the destination folder or specify a target version:
         ```bash
         # Install a specific release version
-        VERSION=v0.4.1 curl -fsSL https://raw.githubusercontent.com/kernelshard/expose/main/install.sh | sh
+        VERSION=v0.4.2 curl -fsSL https://raw.githubusercontent.com/kernelshard/expose/main/install.sh | sh
 
         # Install into custom directory (defaults to /usr/local/bin or ~/.local/bin)
         BINDIR=~/.local/bin curl -fsSL https://raw.githubusercontent.com/kernelshard/expose/main/install.sh | sh

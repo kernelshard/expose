@@ -77,7 +77,7 @@ You can customize the destination directory or pin a specific version:
 
 ```bash
 # Install a specific version
-VERSION=v0.4.1 curl -fsSL https://raw.githubusercontent.com/kernelshard/expose/main/install.sh | sh
+VERSION=v0.4.2 curl -fsSL https://raw.githubusercontent.com/kernelshard/expose/main/install.sh | sh
 
 # Install into a custom directory (defaults to /usr/local/bin or ~/.local/bin)
 BINDIR=~/.local/bin curl -fsSL https://raw.githubusercontent.com/kernelshard/expose/main/install.sh | sh
