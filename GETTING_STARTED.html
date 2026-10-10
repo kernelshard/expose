@@ -24,7 +24,7 @@
         
       
       
-      <link rel="icon" href="https://raw.githubusercontent.com/google/material-design-icons/master/src/places/wifi_tethering/materialicons/24px.svg">
+      <link rel="icon" href="assets/images/favicon.png">
       <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
     
     
@@ -100,8 +100,7 @@
   <nav class="md-header__inner md-grid" aria-label="Header">
     <a href="index.html" title="Expose" class="md-header__button md-logo" aria-label="Expose" data-md-component="logo">
       
-  
-  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M18 11h-3.18C14.4 9.84 13.3 9 12 9s-2.4.84-2.82 2H6c-.33 0-2-.1-2-2V8c0-1.83 1.54-2 2-2h10.18C16.6 7.16 17.7 8 19 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3c-1.3 0-2.4.84-2.82 2H6C4.39 4 2 5.06 2 8v1c0 2.94 2.39 4 4 4h3.18c.42 1.16 1.52 2 2.82 2s2.4-.84 2.82-2H18c.33 0 2 .1 2 2v1c0 1.83-1.54 2-2 2H7.82C7.4 16.84 6.3 16 5 16a3 3 0 0 0-3 3 3 3 0 0 0 3 3c1.3 0 2.4-.84 2.82-2H18c1.61 0 4-1.07 4-4v-1c0-2.93-2.39-4-4-4m1-7a1 1 0 0 1 1 1 1 1 0 0 1-1 1 1 1 0 0 1-1-1 1 1 0 0 1 1-1M5 20a1 1 0 0 1-1-1 1 1 0 0 1 1-1 1 1 0 0 1 1 1 1 1 0 0 1-1 1"/></svg>
+  <img src="assets/images/logo.svg" alt="logo">
 
     </a>
     <label class="md-header__button md-icon" for="__drawer">
@@ -376,8 +375,7 @@
   <label class="md-nav__title" for="__drawer">
     <a href="index.html" title="Expose" class="md-nav__button md-logo" aria-label="Expose" data-md-component="logo">
       
-  
-  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M18 11h-3.18C14.4 9.84 13.3 9 12 9s-2.4.84-2.82 2H6c-.33 0-2-.1-2-2V8c0-1.83 1.54-2 2-2h10.18C16.6 7.16 17.7 8 19 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3c-1.3 0-2.4.84-2.82 2H6C4.39 4 2 5.06 2 8v1c0 2.94 2.39 4 4 4h3.18c.42 1.16 1.52 2 2.82 2s2.4-.84 2.82-2H18c.33 0 2 .1 2 2v1c0 1.83-1.54 2-2 2H7.82C7.4 16.84 6.3 16 5 16a3 3 0 0 0-3 3 3 3 0 0 0 3 3c1.3 0 2.4-.84 2.82-2H18c1.61 0 4-1.07 4-4v-1c0-2.93-2.39-4-4-4m1-7a1 1 0 0 1 1 1 1 1 0 0 1-1 1 1 1 0 0 1-1-1 1 1 0 0 1 1-1M5 20a1 1 0 0 1-1-1 1 1 0 0 1 1-1 1 1 0 0 1 1 1 1 1 0 0 1-1 1"/></svg>
+  <img src="assets/images/logo.svg" alt="logo">
 
     </a>
     Expose
@@ -1400,100 +1398,115 @@
 <p><strong>Expose</strong> is a lightweight CLI tool that creates secure tunnels so your <code>localhost</code> is reachable from the internet — perfect for webhook testing, mobile debugging, or sharing work-in-progress.</p>
 <hr />
 <h2 id="installation">Installation<a class="headerlink" href="#installation" title="Permanent link">&para;</a></h2>
-<div class="tabbed-set tabbed-alternate" data-tabs="1:3"><input checked="checked" id="__tabbed_1_1" name="__tabbed_1" type="radio" /><input id="__tabbed_1_2" name="__tabbed_1" type="radio" /><input id="__tabbed_1_3" name="__tabbed_1" type="radio" /><div class="tabbed-labels"><label for="__tabbed_1_1">Go Install (Recommended)</label><label for="__tabbed_1_2">Pre-built Binary</label><label for="__tabbed_1_3">Build from Source</label></div>
+<div class="tabbed-set tabbed-alternate" data-tabs="1:4"><input checked="checked" id="__tabbed_1_1" name="__tabbed_1" type="radio" /><input id="__tabbed_1_2" name="__tabbed_1" type="radio" /><input id="__tabbed_1_3" name="__tabbed_1" type="radio" /><input id="__tabbed_1_4" name="__tabbed_1" type="radio" /><div class="tabbed-labels"><label for="__tabbed_1_1">Shell Script (macOS &amp; Linux)</label><label for="__tabbed_1_2">Go Install</label><label for="__tabbed_1_3">Pre-built Binary</label><label for="__tabbed_1_4">Build from Source</label></div>
 <div class="tabbed-content">
 <div class="tabbed-block">
+<p>Install the latest pre-compiled binary with a single command:
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>curl<span class="w"> </span>-fsSL<span class="w"> </span>https://raw.githubusercontent.com/kernelshard/expose/main/install.sh<span class="w"> </span><span class="p">|</span><span class="w"> </span>sh
+</span></code></pre></div></p>
+<details class="tip">
+<summary>Custom installation directory or version pinning</summary>
+<p>You can customize the destination folder or specify a target version:
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="c1"># Install a specific release version</span>
+</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="nv">VERSION</span><span class="o">=</span>v0.4.2<span class="w"> </span>curl<span class="w"> </span>-fsSL<span class="w"> </span>https://raw.githubusercontent.com/kernelshard/expose/main/install.sh<span class="w"> </span><span class="p">|</span><span class="w"> </span>sh
+</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>
+</span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="c1"># Install into custom directory (defaults to /usr/local/bin or ~/.local/bin)</span>
+</span><span id="__span-1-5"><a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="nv">BINDIR</span><span class="o">=</span>~/.local/bin<span class="w"> </span>curl<span class="w"> </span>-fsSL<span class="w"> </span>https://raw.githubusercontent.com/kernelshard/expose/main/install.sh<span class="w"> </span><span class="p">|</span><span class="w"> </span>sh
+</span></code></pre></div></p>
+</details>
+</div>
+<div class="tabbed-block">
 <p>Requires <strong>Go 1.21+</strong>. This installs the latest release directly into your <code>$GOPATH/bin</code>:
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>go<span class="w"> </span>install<span class="w"> </span>github.com/kernelshard/expose/cmd/expose@latest
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>go<span class="w"> </span>install<span class="w"> </span>github.com/kernelshard/expose/cmd/expose@latest
 </span></code></pre></div></p>
 </div>
 <div class="tabbed-block">
 <p>Download the binary for your OS from the <a href="https://github.com/kernelshard/expose/releases">Releases page</a>:
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="c1"># macOS / Linux — make executable and move to PATH</span>
-</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>chmod<span class="w"> </span>+x<span class="w"> </span>expose-linux-amd64
-</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>sudo<span class="w"> </span>mv<span class="w"> </span>expose-linux-amd64<span class="w"> </span>/usr/local/bin/expose
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="c1"># macOS / Linux — make executable and move to PATH</span>
+</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>chmod<span class="w"> </span>+x<span class="w"> </span>expose-linux-amd64
+</span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>sudo<span class="w"> </span>mv<span class="w"> </span>expose-linux-amd64<span class="w"> </span>/usr/local/bin/expose
 </span></code></pre></div>
 Windows users: add the <code>.exe</code> file to a directory in <code>%PATH%</code>.</p>
 </div>
 <div class="tabbed-block">
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/kernelshard/expose.git
-</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="nb">cd</span><span class="w"> </span>expose
-</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>go<span class="w"> </span>build<span class="w"> </span>-o<span class="w"> </span>expose<span class="w"> </span>./cmd/expose
-</span><span id="__span-2-4"><a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>
-</span><span id="__span-2-5"><a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="c1"># Optional: move to PATH</span>
-</span><span id="__span-2-6"><a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a>sudo<span class="w"> </span>mv<span class="w"> </span>expose<span class="w"> </span>/usr/local/bin/
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/kernelshard/expose.git
+</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="nb">cd</span><span class="w"> </span>expose
+</span><span id="__span-4-3"><a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>go<span class="w"> </span>build<span class="w"> </span>-o<span class="w"> </span>expose<span class="w"> </span>./cmd/expose
+</span><span id="__span-4-4"><a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a>
+</span><span id="__span-4-5"><a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a><span class="c1"># Optional: move to PATH</span>
+</span><span id="__span-4-6"><a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a>sudo<span class="w"> </span>mv<span class="w"> </span>expose<span class="w"> </span>/usr/local/bin/
 </span></code></pre></div>
 </div>
 </div>
 </div>
 <p>Verify the installation:</p>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>expose<span class="w"> </span>--version
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>expose<span class="w"> </span>--version
 </span></code></pre></div>
 <hr />
 <h2 id="your-first-tunnel">Your First Tunnel<a class="headerlink" href="#your-first-tunnel" title="Permanent link">&para;</a></h2>
 <h3 id="step-1-start-a-local-server">Step 1 — Start a local server<a class="headerlink" href="#step-1-start-a-local-server" title="Permanent link">&para;</a></h3>
 <p>You need something running on localhost. Any of these work:</p>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>python<span class="w"> </span>-m<span class="w"> </span>http.server<span class="w"> </span><span class="m">3000</span><span class="w">   </span><span class="c1"># Python 3</span>
-</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>npx<span class="w"> </span>http-server<span class="w"> </span>-p<span class="w"> </span><span class="m">3000</span><span class="w">      </span><span class="c1"># Node.js</span>
-</span><span id="__span-4-3"><a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>npm<span class="w"> </span>run<span class="w"> </span>dev<span class="w">                  </span><span class="c1"># Any framework</span>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>python<span class="w"> </span>-m<span class="w"> </span>http.server<span class="w"> </span><span class="m">3000</span><span class="w">   </span><span class="c1"># Python 3</span>
+</span><span id="__span-6-2"><a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>npx<span class="w"> </span>http-server<span class="w"> </span>-p<span class="w"> </span><span class="m">3000</span><span class="w">      </span><span class="c1"># Node.js</span>
+</span><span id="__span-6-3"><a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>npm<span class="w"> </span>run<span class="w"> </span>dev<span class="w">                  </span><span class="c1"># Any framework</span>
 </span></code></pre></div>
 <h3 id="step-2-initialize-project-config">Step 2 — Initialize project config<a class="headerlink" href="#step-2-initialize-project-config" title="Permanent link">&para;</a></h3>
 <p>In your project directory:</p>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>expose<span class="w"> </span>init
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>expose<span class="w"> </span>init
 </span></code></pre></div>
 <p>This creates a <code>.expose.yml</code> file:</p>
-<div class="language-yaml highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="nt">project</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">my-project</span>
-</span><span id="__span-6-2"><a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="nt">port</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">3000</span>
+<div class="language-yaml highlight"><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="nt">project</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">my-project</span>
+</span><span id="__span-8-2"><a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a><span class="nt">port</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">3000</span>
 </span></code></pre></div>
 <div class="admonition tip">
 <p class="admonition-title">Commit <code>.expose.yml</code> to git</p>
 <p>Share your tunnel settings with your team — everyone gets the same port and project name automatically.</p>
 </div>
 <h3 id="step-3-start-the-tunnel">Step 3 — Start the tunnel<a class="headerlink" href="#step-3-start-the-tunnel" title="Permanent link">&para;</a></h3>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>expose<span class="w"> </span>tunnel
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-9-1"><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>expose<span class="w"> </span>tunnel
 </span></code></pre></div>
 <p>Output:</p>
-<div class="language-text highlight"><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>✓ Tunnel (LocalTunnel) started for localhost:3000
-</span><span id="__span-8-2"><a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>✓ Public URL: https://quick-mammals-sing.loca.lt
-</span><span id="__span-8-3"><a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a>✓ Forwarding to: http://localhost:3000
-</span><span id="__span-8-4"><a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a>✓ Provider: LocalTunnel
-</span><span id="__span-8-5"><a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a>  Press Ctrl+C to stop
+<div class="language-text highlight"><pre><span></span><code><span id="__span-10-1"><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>✓ Tunnel (LocalTunnel) started for localhost:3000
+</span><span id="__span-10-2"><a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a>✓ Public URL: https://quick-mammals-sing.loca.lt
+</span><span id="__span-10-3"><a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a>✓ Forwarding to: http://localhost:3000
+</span><span id="__span-10-4"><a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a>✓ Provider: LocalTunnel
+</span><span id="__span-10-5"><a id="__codelineno-10-5" name="__codelineno-10-5" href="#__codelineno-10-5"></a>  Press Ctrl+C to stop
 </span></code></pre></div>
 <p><strong>That's it.</strong> Your local server is now publicly accessible. <img alt="🎉" class="twemoji" src="https://cdn.jsdelivr.net/gh/jdecked/twemoji@16.0.1/assets/svg/1f389.svg" title=":tada:" /></p>
 <p>Press <span class="keys"><kbd class="key-control">Ctrl</kbd><span>+</span><kbd class="key-c">C</kbd></span> to stop the tunnel:</p>
-<div class="language-text highlight"><pre><span></span><code><span id="__span-9-1"><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>^C
-</span><span id="__span-9-2"><a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a>Shutting down...
-</span><span id="__span-9-3"><a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a>✓ Tunnel closed
+<div class="language-text highlight"><pre><span></span><code><span id="__span-11-1"><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a>^C
+</span><span id="__span-11-2"><a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a>Shutting down...
+</span><span id="__span-11-3"><a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a>✓ Tunnel closed
 </span></code></pre></div>
 <hr />
 <h2 id="common-use-cases">Common Use Cases<a class="headerlink" href="#common-use-cases" title="Permanent link">&para;</a></h2>
 <h3 id="testing-webhooks">Testing Webhooks<a class="headerlink" href="#testing-webhooks" title="Permanent link">&para;</a></h3>
 <p>Services like GitHub, Stripe, and Twilio need to reach your local handler via HTTP. Use Expose to give them a public URL:</p>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-10-1"><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="c1"># Start your webhook receiver</span>
-</span><span id="__span-10-2"><a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a>node<span class="w"> </span>webhook-server.js<span class="w">        </span><span class="c1"># e.g. listening on port 4000</span>
-</span><span id="__span-10-3"><a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a>
-</span><span id="__span-10-4"><a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a><span class="c1"># In another terminal</span>
-</span><span id="__span-10-5"><a id="__codelineno-10-5" name="__codelineno-10-5" href="#__codelineno-10-5"></a>expose<span class="w"> </span>tunnel<span class="w"> </span>-p<span class="w"> </span><span class="m">4000</span>
-</span><span id="__span-10-6"><a id="__codelineno-10-6" name="__codelineno-10-6" href="#__codelineno-10-6"></a>
-</span><span id="__span-10-7"><a id="__codelineno-10-7" name="__codelineno-10-7" href="#__codelineno-10-7"></a><span class="c1"># Use the public URL in your service's webhook settings</span>
-</span><span id="__span-10-8"><a id="__codelineno-10-8" name="__codelineno-10-8" href="#__codelineno-10-8"></a><span class="c1"># e.g. https://your-tunnel.loca.lt/webhook</span>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-12-1"><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a><span class="c1"># Start your webhook receiver</span>
+</span><span id="__span-12-2"><a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a>node<span class="w"> </span>webhook-server.js<span class="w">        </span><span class="c1"># e.g. listening on port 4000</span>
+</span><span id="__span-12-3"><a id="__codelineno-12-3" name="__codelineno-12-3" href="#__codelineno-12-3"></a>
+</span><span id="__span-12-4"><a id="__codelineno-12-4" name="__codelineno-12-4" href="#__codelineno-12-4"></a><span class="c1"># In another terminal</span>
+</span><span id="__span-12-5"><a id="__codelineno-12-5" name="__codelineno-12-5" href="#__codelineno-12-5"></a>expose<span class="w"> </span>tunnel<span class="w"> </span>-p<span class="w"> </span><span class="m">4000</span>
+</span><span id="__span-12-6"><a id="__codelineno-12-6" name="__codelineno-12-6" href="#__codelineno-12-6"></a>
+</span><span id="__span-12-7"><a id="__codelineno-12-7" name="__codelineno-12-7" href="#__codelineno-12-7"></a><span class="c1"># Use the public URL in your service's webhook settings</span>
+</span><span id="__span-12-8"><a id="__codelineno-12-8" name="__codelineno-12-8" href="#__codelineno-12-8"></a><span class="c1"># e.g. https://your-tunnel.loca.lt/webhook</span>
 </span></code></pre></div>
 <h3 id="mobile-device-testing">Mobile Device Testing<a class="headerlink" href="#mobile-device-testing" title="Permanent link">&para;</a></h3>
 <p>Test responsive design on real devices without deploying:</p>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-11-1"><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a>expose<span class="w"> </span>tunnel
-</span><span id="__span-11-2"><a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a><span class="c1"># Open the public URL on your phone or tablet</span>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-13-1"><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a>expose<span class="w"> </span>tunnel
+</span><span id="__span-13-2"><a id="__codelineno-13-2" name="__codelineno-13-2" href="#__codelineno-13-2"></a><span class="c1"># Open the public URL on your phone or tablet</span>
 </span></code></pre></div>
 <h3 id="client-demo">Client Demo<a class="headerlink" href="#client-demo" title="Permanent link">&para;</a></h3>
 <p>Share work-in-progress without a staging environment:</p>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-12-1"><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a><span class="c1"># Use Cloudflare for a more reliable connection during demos</span>
-</span><span id="__span-12-2"><a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a>expose<span class="w"> </span>tunnel<span class="w"> </span>-P<span class="w"> </span>cloudflare<span class="w"> </span>-p<span class="w"> </span><span class="m">3000</span>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-14-1"><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a><span class="c1"># Use Cloudflare for a more reliable connection during demos</span>
+</span><span id="__span-14-2"><a id="__codelineno-14-2" name="__codelineno-14-2" href="#__codelineno-14-2"></a>expose<span class="w"> </span>tunnel<span class="w"> </span>-P<span class="w"> </span>cloudflare<span class="w"> </span>-p<span class="w"> </span><span class="m">3000</span>
 </span></code></pre></div>
 <hr />
 <h2 id="provider-options">Provider Options<a class="headerlink" href="#provider-options" title="Permanent link">&para;</a></h2>
 <h3 id="localtunnel-default">LocalTunnel (default)<a class="headerlink" href="#localtunnel-default" title="Permanent link">&para;</a></h3>
 <p>No dependencies, no signup — just works. Great for quick webhook tests.</p>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-13-1"><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a>expose<span class="w"> </span>tunnel
-</span><span id="__span-13-2"><a id="__codelineno-13-2" name="__codelineno-13-2" href="#__codelineno-13-2"></a><span class="c1"># same as: expose tunnel --provider localtunnel</span>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-15-1"><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a>expose<span class="w"> </span>tunnel
+</span><span id="__span-15-2"><a id="__codelineno-15-2" name="__codelineno-15-2" href="#__codelineno-15-2"></a><span class="c1"># same as: expose tunnel --provider localtunnel</span>
 </span></code></pre></div>
 <p><strong>Limitations</strong>: shared infrastructure, occasional connection drops on long sessions.</p>
 <h3 id="cloudflare-tunnel">Cloudflare Tunnel<a class="headerlink" href="#cloudflare-tunnel" title="Permanent link">&para;</a></h3>
@@ -1501,72 +1514,72 @@ Windows users: add the <code>.exe</code> file to a directory in <code>%PATH%</co
 <div class="tabbed-set tabbed-alternate" data-tabs="2:2"><input checked="checked" id="__tabbed_2_1" name="__tabbed_2" type="radio" /><input id="__tabbed_2_2" name="__tabbed_2" type="radio" /><div class="tabbed-labels"><label for="__tabbed_2_1">macOS</label><label for="__tabbed_2_2">Linux</label></div>
 <div class="tabbed-content">
 <div class="tabbed-block">
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-14-1"><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a>brew<span class="w"> </span>install<span class="w"> </span>cloudflare/cloudflare/cloudflared
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-16-1"><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a>brew<span class="w"> </span>install<span class="w"> </span>cloudflare/cloudflare/cloudflared
 </span></code></pre></div>
 </div>
 <div class="tabbed-block">
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-15-1"><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a>wget<span class="w"> </span>-q<span class="w"> </span>https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-amd64
-</span><span id="__span-15-2"><a id="__codelineno-15-2" name="__codelineno-15-2" href="#__codelineno-15-2"></a>sudo<span class="w"> </span>mv<span class="w"> </span>cloudflared-linux-amd64<span class="w"> </span>/usr/local/bin/cloudflared
-</span><span id="__span-15-3"><a id="__codelineno-15-3" name="__codelineno-15-3" href="#__codelineno-15-3"></a>sudo<span class="w"> </span>chmod<span class="w"> </span>+x<span class="w"> </span>/usr/local/bin/cloudflared
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-17-1"><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a>wget<span class="w"> </span>-q<span class="w"> </span>https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-amd64
+</span><span id="__span-17-2"><a id="__codelineno-17-2" name="__codelineno-17-2" href="#__codelineno-17-2"></a>sudo<span class="w"> </span>mv<span class="w"> </span>cloudflared-linux-amd64<span class="w"> </span>/usr/local/bin/cloudflared
+</span><span id="__span-17-3"><a id="__codelineno-17-3" name="__codelineno-17-3" href="#__codelineno-17-3"></a>sudo<span class="w"> </span>chmod<span class="w"> </span>+x<span class="w"> </span>/usr/local/bin/cloudflared
 </span></code></pre></div>
 </div>
 </div>
 </div>
 <p>Then:</p>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-16-1"><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a>expose<span class="w"> </span>tunnel<span class="w"> </span>--provider<span class="w"> </span>cloudflare
-</span><span id="__span-16-2"><a id="__codelineno-16-2" name="__codelineno-16-2" href="#__codelineno-16-2"></a><span class="c1"># short form: expose tunnel -P cloudflare</span>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-18-1"><a id="__codelineno-18-1" name="__codelineno-18-1" href="#__codelineno-18-1"></a>expose<span class="w"> </span>tunnel<span class="w"> </span>--provider<span class="w"> </span>cloudflare
+</span><span id="__span-18-2"><a id="__codelineno-18-2" name="__codelineno-18-2" href="#__codelineno-18-2"></a><span class="c1"># short form: expose tunnel -P cloudflare</span>
 </span></code></pre></div>
 <hr />
 <h2 id="configuration-reference">Configuration Reference<a class="headerlink" href="#configuration-reference" title="Permanent link">&para;</a></h2>
 <h3 id="view-config">View config<a class="headerlink" href="#view-config" title="Permanent link">&para;</a></h3>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-17-1"><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a>expose<span class="w"> </span>config<span class="w"> </span>list<span class="w">        </span><span class="c1"># all settings</span>
-</span><span id="__span-17-2"><a id="__codelineno-17-2" name="__codelineno-17-2" href="#__codelineno-17-2"></a>expose<span class="w"> </span>config<span class="w"> </span>get<span class="w"> </span>port<span class="w">    </span><span class="c1"># a specific key</span>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-19-1"><a id="__codelineno-19-1" name="__codelineno-19-1" href="#__codelineno-19-1"></a>expose<span class="w"> </span>config<span class="w"> </span>list<span class="w">        </span><span class="c1"># all settings</span>
+</span><span id="__span-19-2"><a id="__codelineno-19-2" name="__codelineno-19-2" href="#__codelineno-19-2"></a>expose<span class="w"> </span>config<span class="w"> </span>get<span class="w"> </span>port<span class="w">    </span><span class="c1"># a specific key</span>
 </span></code></pre></div>
 <h3 id="override-port-on-the-fly">Override port on the fly<a class="headerlink" href="#override-port-on-the-fly" title="Permanent link">&para;</a></h3>
 <p>The <code>-p</code> / <code>--port</code> flag overrides whatever is set in <code>.expose.yml</code>:</p>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-18-1"><a id="__codelineno-18-1" name="__codelineno-18-1" href="#__codelineno-18-1"></a>expose<span class="w"> </span>tunnel<span class="w"> </span>-p<span class="w"> </span><span class="m">8080</span>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-20-1"><a id="__codelineno-20-1" name="__codelineno-20-1" href="#__codelineno-20-1"></a>expose<span class="w"> </span>tunnel<span class="w"> </span>-p<span class="w"> </span><span class="m">8080</span>
 </span></code></pre></div>
 <h3 id="per-project-configs">Per-project configs<a class="headerlink" href="#per-project-configs" title="Permanent link">&para;</a></h3>
 <p>Each project directory can have its own <code>.expose.yml</code>:</p>
-<div class="language-yaml highlight"><pre><span></span><code><span id="__span-19-1"><a id="__codelineno-19-1" name="__codelineno-19-1" href="#__codelineno-19-1"></a><span class="c1"># ~/projects/frontend/.expose.yml</span>
-</span><span id="__span-19-2"><a id="__codelineno-19-2" name="__codelineno-19-2" href="#__codelineno-19-2"></a><span class="nt">project</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">frontend</span>
-</span><span id="__span-19-3"><a id="__codelineno-19-3" name="__codelineno-19-3" href="#__codelineno-19-3"></a><span class="nt">port</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">3000</span>
+<div class="language-yaml highlight"><pre><span></span><code><span id="__span-21-1"><a id="__codelineno-21-1" name="__codelineno-21-1" href="#__codelineno-21-1"></a><span class="c1"># ~/projects/frontend/.expose.yml</span>
+</span><span id="__span-21-2"><a id="__codelineno-21-2" name="__codelineno-21-2" href="#__codelineno-21-2"></a><span class="nt">project</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">frontend</span>
+</span><span id="__span-21-3"><a id="__codelineno-21-3" name="__codelineno-21-3" href="#__codelineno-21-3"></a><span class="nt">port</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">3000</span>
 </span></code></pre></div>
-<div class="language-yaml highlight"><pre><span></span><code><span id="__span-20-1"><a id="__codelineno-20-1" name="__codelineno-20-1" href="#__codelineno-20-1"></a><span class="c1"># ~/projects/api/.expose.yml</span>
-</span><span id="__span-20-2"><a id="__codelineno-20-2" name="__codelineno-20-2" href="#__codelineno-20-2"></a><span class="nt">project</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">api</span>
-</span><span id="__span-20-3"><a id="__codelineno-20-3" name="__codelineno-20-3" href="#__codelineno-20-3"></a><span class="nt">port</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">4000</span>
+<div class="language-yaml highlight"><pre><span></span><code><span id="__span-22-1"><a id="__codelineno-22-1" name="__codelineno-22-1" href="#__codelineno-22-1"></a><span class="c1"># ~/projects/api/.expose.yml</span>
+</span><span id="__span-22-2"><a id="__codelineno-22-2" name="__codelineno-22-2" href="#__codelineno-22-2"></a><span class="nt">project</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">api</span>
+</span><span id="__span-22-3"><a id="__codelineno-22-3" name="__codelineno-22-3" href="#__codelineno-22-3"></a><span class="nt">port</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">4000</span>
 </span></code></pre></div>
 <p>Switch between them by <code>cd</code>-ing into the right directory before running <code>expose tunnel</code>.</p>
 <hr />
 <h2 id="troubleshooting">Troubleshooting<a class="headerlink" href="#troubleshooting" title="Permanent link">&para;</a></h2>
 <h3 id="error-config-not-found"><code>Error: config not found</code><a class="headerlink" href="#error-config-not-found" title="Permanent link">&para;</a></h3>
-<div class="language-text highlight"><pre><span></span><code><span id="__span-21-1"><a id="__codelineno-21-1" name="__codelineno-21-1" href="#__codelineno-21-1"></a>Error: config not found (run 'expose init' first)
+<div class="language-text highlight"><pre><span></span><code><span id="__span-23-1"><a id="__codelineno-23-1" name="__codelineno-23-1" href="#__codelineno-23-1"></a>Error: config not found (run 'expose init' first)
 </span></code></pre></div>
 <p><strong>Fix</strong>: Run <code>expose init</code> in your project directory.</p>
 <h3 id="port-already-in-use">Port already in use<a class="headerlink" href="#port-already-in-use" title="Permanent link">&para;</a></h3>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-22-1"><a id="__codelineno-22-1" name="__codelineno-22-1" href="#__codelineno-22-1"></a><span class="c1"># Find what's using the port</span>
-</span><span id="__span-22-2"><a id="__codelineno-22-2" name="__codelineno-22-2" href="#__codelineno-22-2"></a>lsof<span class="w"> </span>-i<span class="w"> </span>:3000
-</span><span id="__span-22-3"><a id="__codelineno-22-3" name="__codelineno-22-3" href="#__codelineno-22-3"></a>
-</span><span id="__span-22-4"><a id="__codelineno-22-4" name="__codelineno-22-4" href="#__codelineno-22-4"></a><span class="c1"># Kill it or pick a different port</span>
-</span><span id="__span-22-5"><a id="__codelineno-22-5" name="__codelineno-22-5" href="#__codelineno-22-5"></a>expose<span class="w"> </span>tunnel<span class="w"> </span>-p<span class="w"> </span><span class="m">8080</span>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-24-1"><a id="__codelineno-24-1" name="__codelineno-24-1" href="#__codelineno-24-1"></a><span class="c1"># Find what's using the port</span>
+</span><span id="__span-24-2"><a id="__codelineno-24-2" name="__codelineno-24-2" href="#__codelineno-24-2"></a>lsof<span class="w"> </span>-i<span class="w"> </span>:3000
+</span><span id="__span-24-3"><a id="__codelineno-24-3" name="__codelineno-24-3" href="#__codelineno-24-3"></a>
+</span><span id="__span-24-4"><a id="__codelineno-24-4" name="__codelineno-24-4" href="#__codelineno-24-4"></a><span class="c1"># Kill it or pick a different port</span>
+</span><span id="__span-24-5"><a id="__codelineno-24-5" name="__codelineno-24-5" href="#__codelineno-24-5"></a>expose<span class="w"> </span>tunnel<span class="w"> </span>-p<span class="w"> </span><span class="m">8080</span>
 </span></code></pre></div>
 <h3 id="tunnel-disconnects-frequently">Tunnel disconnects frequently<a class="headerlink" href="#tunnel-disconnects-frequently" title="Permanent link">&para;</a></h3>
 <p>LocalTunnel can be unstable. Switch to Cloudflare:</p>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-23-1"><a id="__codelineno-23-1" name="__codelineno-23-1" href="#__codelineno-23-1"></a>expose<span class="w"> </span>tunnel<span class="w"> </span>-P<span class="w"> </span>cloudflare
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-25-1"><a id="__codelineno-25-1" name="__codelineno-25-1" href="#__codelineno-25-1"></a>expose<span class="w"> </span>tunnel<span class="w"> </span>-P<span class="w"> </span>cloudflare
 </span></code></pre></div>
 <h3 id="cloudflared-command-not-found"><code>cloudflared: command not found</code><a class="headerlink" href="#cloudflared-command-not-found" title="Permanent link">&para;</a></h3>
 <p>See <a href="#cloudflare-tunnel">Cloudflare Tunnel</a> installation steps above.</p>
 <hr />
 <h2 id="quick-reference">Quick Reference<a class="headerlink" href="#quick-reference" title="Permanent link">&para;</a></h2>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-24-1"><a id="__codelineno-24-1" name="__codelineno-24-1" href="#__codelineno-24-1"></a>expose<span class="w"> </span>init<span class="w">                          </span><span class="c1"># Create .expose.yml in current directory</span>
-</span><span id="__span-24-2"><a id="__codelineno-24-2" name="__codelineno-24-2" href="#__codelineno-24-2"></a>expose<span class="w"> </span>tunnel<span class="w">                        </span><span class="c1"># Start tunnel (uses config)</span>
-</span><span id="__span-24-3"><a id="__codelineno-24-3" name="__codelineno-24-3" href="#__codelineno-24-3"></a>expose<span class="w"> </span>tunnel<span class="w"> </span>-p<span class="w"> </span><span class="m">8080</span><span class="w">                </span><span class="c1"># Override port</span>
-</span><span id="__span-24-4"><a id="__codelineno-24-4" name="__codelineno-24-4" href="#__codelineno-24-4"></a>expose<span class="w"> </span>tunnel<span class="w"> </span>-P<span class="w"> </span>cloudflare<span class="w">          </span><span class="c1"># Use Cloudflare provider</span>
-</span><span id="__span-24-5"><a id="__codelineno-24-5" name="__codelineno-24-5" href="#__codelineno-24-5"></a>expose<span class="w"> </span>tunnel<span class="w"> </span>-P<span class="w"> </span>cloudflare<span class="w"> </span>-p<span class="w"> </span><span class="m">3000</span><span class="w">  </span><span class="c1"># Cloudflare on a specific port</span>
-</span><span id="__span-24-6"><a id="__codelineno-24-6" name="__codelineno-24-6" href="#__codelineno-24-6"></a>expose<span class="w"> </span>config<span class="w"> </span>list<span class="w">                   </span><span class="c1"># Show current config</span>
-</span><span id="__span-24-7"><a id="__codelineno-24-7" name="__codelineno-24-7" href="#__codelineno-24-7"></a>expose<span class="w"> </span>config<span class="w"> </span>get<span class="w"> </span>port<span class="w">               </span><span class="c1"># Get a single config value</span>
-</span><span id="__span-24-8"><a id="__codelineno-24-8" name="__codelineno-24-8" href="#__codelineno-24-8"></a>expose<span class="w"> </span>--help<span class="w">                        </span><span class="c1"># Help for any command</span>
-</span><span id="__span-24-9"><a id="__codelineno-24-9" name="__codelineno-24-9" href="#__codelineno-24-9"></a>expose<span class="w"> </span>tunnel<span class="w"> </span>--help
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-26-1"><a id="__codelineno-26-1" name="__codelineno-26-1" href="#__codelineno-26-1"></a>expose<span class="w"> </span>init<span class="w">                          </span><span class="c1"># Create .expose.yml in current directory</span>
+</span><span id="__span-26-2"><a id="__codelineno-26-2" name="__codelineno-26-2" href="#__codelineno-26-2"></a>expose<span class="w"> </span>tunnel<span class="w">                        </span><span class="c1"># Start tunnel (uses config)</span>
+</span><span id="__span-26-3"><a id="__codelineno-26-3" name="__codelineno-26-3" href="#__codelineno-26-3"></a>expose<span class="w"> </span>tunnel<span class="w"> </span>-p<span class="w"> </span><span class="m">8080</span><span class="w">                </span><span class="c1"># Override port</span>
+</span><span id="__span-26-4"><a id="__codelineno-26-4" name="__codelineno-26-4" href="#__codelineno-26-4"></a>expose<span class="w"> </span>tunnel<span class="w"> </span>-P<span class="w"> </span>cloudflare<span class="w">          </span><span class="c1"># Use Cloudflare provider</span>
+</span><span id="__span-26-5"><a id="__codelineno-26-5" name="__codelineno-26-5" href="#__codelineno-26-5"></a>expose<span class="w"> </span>tunnel<span class="w"> </span>-P<span class="w"> </span>cloudflare<span class="w"> </span>-p<span class="w"> </span><span class="m">3000</span><span class="w">  </span><span class="c1"># Cloudflare on a specific port</span>
+</span><span id="__span-26-6"><a id="__codelineno-26-6" name="__codelineno-26-6" href="#__codelineno-26-6"></a>expose<span class="w"> </span>config<span class="w"> </span>list<span class="w">                   </span><span class="c1"># Show current config</span>
+</span><span id="__span-26-7"><a id="__codelineno-26-7" name="__codelineno-26-7" href="#__codelineno-26-7"></a>expose<span class="w"> </span>config<span class="w"> </span>get<span class="w"> </span>port<span class="w">               </span><span class="c1"># Get a single config value</span>
+</span><span id="__span-26-8"><a id="__codelineno-26-8" name="__codelineno-26-8" href="#__codelineno-26-8"></a>expose<span class="w"> </span>--help<span class="w">                        </span><span class="c1"># Help for any command</span>
+</span><span id="__span-26-9"><a id="__codelineno-26-9" name="__codelineno-26-9" href="#__codelineno-26-9"></a>expose<span class="w"> </span>tunnel<span class="w"> </span>--help
 </span></code></pre></div>
 <hr />
 <p><strong>Need help?</strong> <a href="https://github.com/kernelshard/expose/issues">Open an issue on GitHub</a> — we're happy to help.</p>

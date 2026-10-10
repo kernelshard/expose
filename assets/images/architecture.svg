@@ -1,0 +1,83 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 400" width="100%" height="100%">
+  <!-- Background -->
+  <rect width="600" height="400" fill="#090d16" />
+
+  <!-- Left Bus / Ingress Circuits (Localhost) -->
+  <g stroke="#38bdf8" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round">
+    <!-- Top Trace -->
+    <path d="M 90 150 L 150 150 L 185 175 L 210 175" />
+    <circle cx="85" cy="150" r="4.5" fill="#38bdf8" stroke="none" />
+
+    <!-- Center Direct Trace -->
+    <path d="M 60 200 L 200 200" />
+    <circle cx="55" cy="200" r="4.5" fill="#38bdf8" stroke="none" />
+
+    <!-- Bottom Trace -->
+    <path d="M 90 250 L 150 250 L 185 225 L 210 225" />
+    <circle cx="85" cy="250" r="4.5" fill="#38bdf8" stroke="none" />
+  </g>
+
+  <!-- Right Bus / Egress Circuits (Public Web) -->
+  <g stroke="#818cf8" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round">
+    <!-- Top Trace -->
+    <path d="M 510 150 L 450 150 L 415 175 L 390 175" />
+    <circle cx="515" cy="150" r="4.5" fill="#818cf8" stroke="none" />
+
+    <!-- Center Direct Trace -->
+    <path d="M 540 200 L 400 200" />
+    <circle cx="545" cy="200" r="4.5" fill="#818cf8" stroke="none" />
+
+    <!-- Bottom Trace -->
+    <path d="M 510 250 L 450 250 L 415 225 L 390 225" />
+    <circle cx="515" cy="250" r="4.5" fill="#818cf8" stroke="none" />
+  </g>
+
+  <!-- Network Globe -->
+  <!-- Outer Rim Boundary -->
+  <circle cx="300" cy="200" r="100" fill="#0f172a" stroke="#334155" stroke-width="3" />
+  
+  <!-- Subtle Internal Grid Lines -->
+  <ellipse cx="300" cy="200" rx="48" ry="100" fill="none" stroke="#1e293b" stroke-width="2" />
+  <ellipse cx="300" cy="200" rx="100" ry="36" fill="none" stroke="#1e293b" stroke-width="2" />
+
+  <!-- Port Ingress/Egress Junction Nodes on Globe Rim -->
+  <circle cx="200" cy="200" r="5" fill="#38bdf8" />
+  <circle cx="210" cy="175" r="4" fill="#38bdf8" />
+  <circle cx="210" cy="225" r="4" fill="#38bdf8" />
+
+  <circle cx="400" cy="200" r="5" fill="#818cf8" />
+  <circle cx="390" cy="175" r="4" fill="#818cf8" />
+  <circle cx="390" cy="225" r="4" fill="#818cf8" />
+
+  <!-- Center Monogram "E" -->
+  <g fill="#f8fafc">
+    <!-- Vertical Spine -->
+    <rect x="270" y="156" width="14" height="88" rx="3" />
+    <!-- Top Arm -->
+    <rect x="270" y="156" width="54" height="14" rx="3" />
+    <!-- Middle Arm (Data Bridge) -->
+    <rect x="270" y="193" width="44" height="14" rx="3" />
+    <!-- Bottom Arm -->
+    <rect x="270" y="230" width="54" height="14" rx="3" />
+  </g>
+
+  <!-- Clean Wordmark Below (Optional) -->
+  <text x="300" y="342" 
+        text-anchor="middle" 
+        font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Inter, sans-serif" 
+        font-weight="700" 
+        font-size="28" 
+        letter-spacing="4" 
+        fill="#f8fafc">
+    EXPOSE
+  </text>
+  <text x="300" y="365" 
+        text-anchor="middle" 
+        font-family="'JetBrains Mono', 'Fira Code', monospace" 
+        font-weight="500" 
+        font-size="11" 
+        letter-spacing="2" 
+        fill="#64748b">
+    TUNNEL ENGINE
+  </text>
+</svg>
