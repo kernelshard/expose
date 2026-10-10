@@ -1,9 +1,11 @@
 ---
-title: Expose — Zero-Signup Tunneling & Reverse Proxy
-description: The open-source, single-binary alternative to ngrok. Expose local ports via LocalTunnel, Cloudflare, or a self-hosted server — no signup, no hassle.
+title: Expose — Go-Based Reverse Proxy & Tunneling CLI (Ngrok Alternative)
+description: The open-source, single-binary Go (Golang) alternative to ngrok. Expose local ports via LocalTunnel, Cloudflare, or a self-hosted server — zero signup, no rate limits.
 keywords:
   - expose
   - ngrok alternative
+  - golang ngrok alternative
+  - go tunnel
   - reverse proxy
   - tunneling
   - localtunnel
