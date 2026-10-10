@@ -115,7 +115,7 @@ func TestCloudflare_IsConnected_ProcessKill(t *testing.T) {
 		t.Errorf("expected no error from Close, got %v", err)
 	}
 
-	if cf.IsConnected(){
+	if cf.IsConnected() {
 		t.Errorf("expected IsConnected to be false after Close, got true")
 	}
 

@@ -58,6 +58,19 @@ Verify the installation:
 expose --version
 ```
 
+??? info "Unix Man Page (`expose(1)`)"
+    Expose includes an `expose(1)` manual page. When installed via package managers (like Homebrew), it is registered automatically.
+
+    To preview it from source:
+    ```bash
+    man ./man/expose.1
+    ```
+    To install system-wide manually:
+    ```bash
+    sudo install -d /usr/local/share/man/man1
+    sudo install -m 0644 man/expose.1 /usr/local/share/man/man1/expose.1
+    ```
+
 ---
 
 ## Your First Tunnel
