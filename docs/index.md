@@ -34,7 +34,7 @@ Share your localhost with the world in seconds. No account. No auth tokens. No n
 [![Downloads](https://img.shields.io/github/downloads/kernelshard/expose/total?color=5C6BC0&logo=github&labelColor=1a1f35&style=flat-square)](https://github.com/kernelshard/expose/releases)
 [![Tests](https://img.shields.io/github/actions/workflow/status/kernelshard/expose/test.yml?label=tests&style=flat-square&labelColor=1a1f35&color=26C6DA)](https://github.com/kernelshard/expose/actions/workflows/test.yml)
 [![Go Report Card](https://goreportcard.com/badge/github.com/kernelshard/expose)](https://goreportcard.com/report/github.com/kernelshard/expose)
-[![License: MIT](https://img.shields.io/badge/License-MIT-5C6BC0.svg?style=flat-square&labelColor=1a1f35)](https://github.com/kernelshard/expose/blob/main/LICENSE)
+[![License: Apache 2.0](https://img.shields.io/badge/License-Apache_2.0-5C6BC0.svg?style=flat-square&labelColor=1a1f35)](https://github.com/kernelshard/expose/blob/main/LICENSE)
 </div>
 
 <div class="expose-stats" markdown>
@@ -145,7 +145,7 @@ Output when running `expose tunnel`:
 <div class="expose-feature-card" markdown>
 <span class="expose-feature-card__icon">🔓</span>
 <div class="expose-feature-card__title">Fully Open Source</div>
-<p class="expose-feature-card__desc">MIT licensed. Audit the code, extend it, run it yourself. No proprietary lock-in.</p>
+<p class="expose-feature-card__desc">Apache 2.0 licensed. Audit the code, extend it, run it yourself. No proprietary lock-in.</p>
 </div>
 
 </div>
