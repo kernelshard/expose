@@ -9,11 +9,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.5.0] - 2026-10-12
+
+### Added
+- **Multi-Tenant Subdomain Routing**: Isolated tunnel connection pools per subdomain, ensuring multiple concurrent client tunnels can register and route traffic independently without shared FIFO connection collision ([#33](https://github.com/kernelshard/expose/issues/33), [#51](https://github.com/kernelshard/expose/pull/51)).
+- **Homebrew Tap Support**: Automated formula publication to [`kernelshard/homebrew-tap`](https://github.com/kernelshard/homebrew-tap) via GoReleaser, enabling `brew install kernelshard/tap/expose` ([#60](https://github.com/kernelshard/expose/issues/60), [#61](https://github.com/kernelshard/expose/pull/61)).
+- **LLM & Search Engine Optimization**: Added `/llms.txt`, `/llms-full.txt`, `robots.txt`, and Open Graph / JSON-LD schema metadata for improved AI discoverability and search indexing ([#48](https://github.com/kernelshard/expose/issues/48), [#49](https://github.com/kernelshard/expose/pull/49)).
+
 ### Changed
 - **Relicensed to Apache License 2.0**: Relicensed the project from MIT to the Apache License 2.0 to provide explicit patent grant protection (Section 3), trademark reservations (Section 6), and greater legal certainty for enterprise adoption ([#52](https://github.com/kernelshard/expose/issues/52), [#53](https://github.com/kernelshard/expose/pull/53)).
 
-### Added
-- **LLM & Search Engine Optimization**: Added `/llms.txt`, `/llms-full.txt`, `robots.txt`, and Open Graph / JSON-LD schema metadata for improved AI discoverability and search indexing ([#48](https://github.com/kernelshard/expose/issues/48), [#49](https://github.com/kernelshard/expose/pull/49)).
+---
 
 ## [0.4.2] - 2026-10-10
 
@@ -110,7 +116,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
-[Unreleased]: https://github.com/kernelshard/expose/compare/v0.4.2...HEAD
+[Unreleased]: https://github.com/kernelshard/expose/compare/v0.5.0...HEAD
+[0.5.0]: https://github.com/kernelshard/expose/compare/v0.4.2...v0.5.0
 [0.4.2]: https://github.com/kernelshard/expose/compare/v0.4.1...v0.4.2
 [0.4.1]: https://github.com/kernelshard/expose/compare/v0.4.0...v0.4.1
 [0.4.0]: https://github.com/kernelshard/expose/compare/v0.3.0...v0.4.0
