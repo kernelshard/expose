@@ -11,6 +11,12 @@ description: Install Expose and run your first tunnel in under 2 minutes.
 
 ## Installation
 
+=== "Homebrew (macOS & Linux)"
+    Install via the official tap:
+    ```bash
+    brew install kernelshard/tap/expose
+    ```
+
 === "Shell Script (macOS & Linux)"
     Install the latest pre-compiled binary with a single command:
     ```bash
