@@ -9,6 +9,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+- **Relicensed to Apache License 2.0**: Relicensed the project from MIT to the Apache License 2.0 to provide explicit patent grant protection (Section 3), trademark reservations (Section 6), and greater legal certainty for enterprise adoption ([#52](https://github.com/kernelshard/expose/issues/52), [#53](https://github.com/kernelshard/expose/pull/53)).
+
+### Added
+- **LLM & Search Engine Optimization**: Added `/llms.txt`, `/llms-full.txt`, `robots.txt`, and Open Graph / JSON-LD schema metadata for improved AI discoverability and search indexing ([#48](https://github.com/kernelshard/expose/issues/48), [#49](https://github.com/kernelshard/expose/pull/49)).
+
 ## [0.4.2] - 2026-10-10
 
 ### Fixed
