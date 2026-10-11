@@ -51,7 +51,7 @@ func TestServerLifeCycle(t *testing.T) {
 	select {
 	case err := <-errChan:
 		if err != nil {
-			t.Errorf("Server errror: %v", err)
+			t.Errorf("Server error: %v", err)
 		}
 	case <-time.After(1 * time.Second):
 		t.Fatal("Timeout waiting for stop!")
@@ -100,22 +100,40 @@ func TestServer_HandleControl_RegisterCustomSubdomain(t *testing.T) {
 
 func TestServer_HandleControl_DataConnection(t *testing.T) {
 	srv := NewServer("localhost", 7890, 8080)
+
+	// First register a subdomain so a ClientConnection exists
+	regClient, regServer := net.Pipe()
+	defer regClient.Close()
+	defer regServer.Close()
+
+	sub, err := srv.registerSubdomain(regServer, "alice")
+	if err != nil {
+		t.Fatalf("failed to register subdomain: %v", err)
+	}
+
+	val, ok := srv.tunnels.Load(sub)
+	if !ok {
+		t.Fatalf("subdomain not found in tunnels map")
+	}
+	client := val.(ClientConnection)
+
 	clientConn, serverConn := net.Pipe()
 	defer clientConn.Close()
 
 	go srv.handleControlConnection(serverConn)
 
-	// send data connection request
+	// send data connection request targeting the registered subdomain
 	req := protocol.TunnelRequest{
-		Type: protocol.TypeData,
+		Type:      protocol.TypeData,
+		Subdomain: sub,
 	}
 	if err := json.NewEncoder(clientConn).Encode(req); err != nil {
 		t.Fatalf("failed to encode request: %v", err)
 	}
 
-	// Should be pushed to srv.dataConns
+	// Should be pushed to client.dataConns
 	select {
-	case conn := <-srv.dataConns:
+	case conn := <-client.dataConns:
 		if conn == nil {
 			t.Fatalf("expected non-nil data connection")
 		}
@@ -131,14 +149,14 @@ func TestServer_HandleControl_InvalidJSON(t *testing.T) {
 
 	go srv.handleControlConnection(serverConn)
 
-	// Send garbage bytes that canbot be parsed as JSON
+	// Send garbage bytes that cannot be parsed as JSON
 	_, _ = clientConn.Write([]byte("invalid-json\n"))
 
-	// Server should close the conenction
+	// Server should close the connection
 	buf := make([]byte, 10)
 	_, err := clientConn.Read(buf)
 	if err == nil {
-		t.Errorf("expected connection to be cosed on invalid JSON")
+		t.Errorf("expected connection to be closed on invalid JSON")
 	}
 
 	// Ignore EOF and network errors
@@ -180,12 +198,21 @@ func TestServer_ServeHTTP_NonHijacker(t *testing.T) {
 	defer c1.Close()
 	defer c2.Close()
 
-	// Place a data connection in the queue so ServeHTTP doesn't block
-	srv.dataConns <- c1
+	// Register subdomain
+	sub, err := srv.registerSubdomain(c2, "mytest")
+	if err != nil {
+		t.Fatalf("failed to register subdomain: %v", err)
+	}
+	val, _ := srv.tunnels.Load(sub)
+	client := val.(ClientConnection)
+
+	// Place a data connection in the client's queue so ServeHTTP doesn't block
+	client.dataConns <- c1
 
 	// httptest.ResponseRecorder does not support hijacking, so this triggers the error branch
 	rec := httptest.NewRecorder()
 	req := httptest.NewRequest(http.MethodGet, "/", nil)
+	req.Host = "mytest.localhost"
 
 	srv.ServeHTTP(rec, req)
 
@@ -198,10 +225,18 @@ func TestServer_Success(t *testing.T) {
 	srv := NewServer("localhost", 0, 0)
 
 	// create a mock tunnel to simulate the laptop
-	tunnelClientCOnn, tunnelServerConn := net.Pipe()
-	defer tunnelClientCOnn.Close()
+	tunnelClientConn, tunnelServerConn := net.Pipe()
+	defer tunnelClientConn.Close()
 
-	srv.dataConns <- tunnelServerConn
+	// Register subdomain
+	sub, err := srv.registerSubdomain(tunnelClientConn, "alice")
+	if err != nil {
+		t.Fatalf("failed to register subdomain: %v", err)
+	}
+	val, _ := srv.tunnels.Load(sub)
+	client := val.(ClientConnection)
+
+	client.dataConns <- tunnelServerConn
 
 	ts := httptest.NewServer(srv)
 	defer ts.Close()
@@ -209,16 +244,22 @@ func TestServer_Success(t *testing.T) {
 	// simulate laptop receiving the request and sending back 200 ok
 	go func() {
 		buf := make([]byte, 1024)
-		n, _ := tunnelClientCOnn.Read(buf)
+		n, _ := tunnelClientConn.Read(buf)
 
 		if n > 0 {
 			resp := "HTTP/1.1 200 OK\r\nContent-Length: 12\r\n\r\nHello World!"
-			_, _ = tunnelClientCOnn.Write([]byte(resp))
+			_, _ = tunnelClientConn.Write([]byte(resp))
 		}
 	}()
 
-	// make a real HTTP request to the public server
-	resp, err := http.Get(ts.URL)
+	// make a real HTTP request to the public server with Host header
+	req, err := http.NewRequest(http.MethodGet, ts.URL, nil)
+	if err != nil {
+		t.Fatalf("failed to create request: %v", err)
+	}
+	req.Host = "alice.localhost"
+
+	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
 		t.Fatalf("failed to make http request: %v", err)
 	}
@@ -229,7 +270,6 @@ func TestServer_Success(t *testing.T) {
 	if string(body) != "Hello World!" {
 		t.Errorf("expected body %q, got: %q", "Hello World!", string(body))
 	}
-
 }
 
 func TestServer_Start_PortAlreadyInUse(t *testing.T) {
@@ -305,10 +345,169 @@ func TestSever_HandleControl_SubdomainAlreadyTaken(t *testing.T) {
 	}
 
 	if resp2.Error == "" {
-		t.Fatalf("expected colision error for client 2, got empty error")
+		t.Fatalf("expected collision error for client 2, got empty error")
 	}
 
 	if resp2.PublicURL != "" {
 		t.Fatalf("expected no public URL for client 2 collision, got %q", resp2.PublicURL)
+	}
+}
+
+func TestExtractSubdomain(t *testing.T) {
+	tests := []struct {
+		name       string
+		host       string
+		baseDomain string
+		want       string
+	}{
+		{"standard subdomain", "alice.localhost", "localhost", "alice"},
+		{"with port", "alice.tunnel.com:8080", "tunnel.com", "alice"},
+		{"uppercase normalization", "ALICE.TUNNEL.COM", "tunnel.com", "alice"},
+		{"nested subdomain", "staging.alice.tunnel.com", "tunnel.com", "staging.alice"},
+		{"apex domain rejected", "tunnel.com", "tunnel.com", ""},
+		{"apex with port rejected", "tunnel.com:8080", "tunnel.com", ""},
+		{"raw IPv4 rejected", "127.0.0.1", "localhost", ""},
+		{"raw IPv4 with port rejected", "192.168.1.1:8080", "tunnel.com", ""},
+		{"unrelated domain rejected", "evil.com", "tunnel.com", ""},
+		{"empty base domain returns empty", "alice.localhost", "", ""},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got := extractSubdomain(tt.host, tt.baseDomain)
+			if got != tt.want {
+				t.Errorf("extractSubdomain(%q, %q) = %q, want %q", tt.host, tt.baseDomain, got, tt.want)
+			}
+		})
+	}
+}
+
+func TestServer_ServeHTTP_InvalidSubdomain(t *testing.T) {
+	srv := NewServer("localhost", 0, 0)
+	rec := httptest.NewRecorder()
+	req := httptest.NewRequest(http.MethodGet, "/", nil)
+	req.Host = "localhost" // apex domain, no subdomain
+
+	srv.ServeHTTP(rec, req)
+
+	if rec.Code != http.StatusBadRequest {
+		t.Errorf("got status %d, want %d", rec.Code, http.StatusBadRequest)
+	}
+}
+
+func TestServer_ServeHTTP_TunnelNotFound(t *testing.T) {
+	srv := NewServer("localhost", 0, 0)
+	rec := httptest.NewRecorder()
+	req := httptest.NewRequest(http.MethodGet, "/", nil)
+	req.Host = "unknown.localhost"
+
+	srv.ServeHTTP(rec, req)
+
+	if rec.Code != http.StatusBadGateway {
+		t.Errorf("got status %d, want %d", rec.Code, http.StatusBadGateway)
+	}
+}
+
+func TestServer_ServeHTTP_ContextCanceled(t *testing.T) {
+	srv := NewServer("localhost", 0, 0)
+	c1, c2 := net.Pipe()
+	defer c1.Close()
+	defer c2.Close()
+
+	sub, err := srv.registerSubdomain(c1, "alice")
+	if err != nil {
+		t.Fatalf("failed to register subdomain: %v", err)
+	}
+	_ = sub
+
+	ctx, cancel := context.WithCancel(context.Background())
+	cancel() // cancel immediately
+
+	rec := httptest.NewRecorder()
+	req := httptest.NewRequest(http.MethodGet, "/", nil).WithContext(ctx)
+	req.Host = "alice.localhost"
+
+	srv.ServeHTTP(rec, req)
+	// Should return cleanly without hanging
+}
+
+func TestServer_MultiTenant_Routing(t *testing.T) {
+	srv := NewServer("localhost", 0, 0)
+
+	// Setup Alice
+	aliceClient, aliceServer := net.Pipe()
+	defer aliceClient.Close()
+	_, err := srv.registerSubdomain(aliceClient, "alice")
+	if err != nil {
+		t.Fatalf("failed to register alice: %v", err)
+	}
+	valA, _ := srv.tunnels.Load("alice")
+	alice := valA.(ClientConnection)
+	alice.dataConns <- aliceServer
+
+	// Setup Bob
+	bobClient, bobServer := net.Pipe()
+	defer bobClient.Close()
+	_, err = srv.registerSubdomain(bobClient, "bob")
+	if err != nil {
+		t.Fatalf("failed to register bob: %v", err)
+	}
+	valB, _ := srv.tunnels.Load("bob")
+	bob := valB.(ClientConnection)
+	bob.dataConns <- bobServer
+
+	ts := httptest.NewServer(srv)
+	defer ts.Close()
+
+	// Simulate Alice's laptop responding
+	go func() {
+		defer aliceClient.Close()
+		buf := make([]byte, 1024)
+		n, _ := aliceClient.Read(buf)
+		if n > 0 {
+			resp := "HTTP/1.1 200 OK\r\nContent-Length: 12\r\nConnection: close\r\n\r\nHello Alice!"
+			_, _ = aliceClient.Write([]byte(resp))
+		}
+	}()
+
+	// Simulate Bob's laptop responding
+	go func() {
+		defer bobClient.Close()
+		buf := make([]byte, 1024)
+		n, _ := bobClient.Read(buf)
+		if n > 0 {
+			resp := "HTTP/1.1 200 OK\r\nContent-Length: 10\r\nConnection: close\r\n\r\nHello Bob!"
+			_, _ = bobClient.Write([]byte(resp))
+		}
+	}()
+
+	httpClient := &http.Client{
+		Transport: &http.Transport{DisableKeepAlives: true},
+	}
+
+	// Request for Alice
+	reqAlice, _ := http.NewRequest(http.MethodGet, ts.URL, nil)
+	reqAlice.Host = "alice.localhost"
+	respAlice, err := httpClient.Do(reqAlice)
+	if err != nil {
+		t.Fatalf("failed to request alice: %v", err)
+	}
+	defer respAlice.Body.Close()
+	bodyAlice, _ := io.ReadAll(respAlice.Body)
+	if string(bodyAlice) != "Hello Alice!" {
+		t.Errorf("expected %q, got %q", "Hello Alice!", string(bodyAlice))
+	}
+
+	// Request for Bob
+	reqBob, _ := http.NewRequest(http.MethodGet, ts.URL, nil)
+	reqBob.Host = "bob.localhost"
+	respBob, err := httpClient.Do(reqBob)
+	if err != nil {
+		t.Fatalf("failed to request bob: %v", err)
+	}
+	defer respBob.Body.Close()
+	bodyBob, _ := io.ReadAll(respBob.Body)
+	if string(bodyBob) != "Hello Bob!" {
+		t.Errorf("expected %q, got %q", "Hello Bob!", string(bodyBob))
 	}
 }
