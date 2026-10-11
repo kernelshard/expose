@@ -65,7 +65,13 @@ expose tunnel --server=tunnel.mysite.com:7890
 
 ### 📦 Installation
 
-#### 1. Shell Script (macOS & Linux — Recommended)
+#### 1. Homebrew (macOS & Linux)
+
+```bash
+brew install kernelshard/tap/expose
+```
+
+#### 2. Shell Script (macOS & Linux)
 
 Install the latest pre-compiled binary with a single command:
 
@@ -83,10 +89,10 @@ VERSION=v0.4.2 curl -fsSL https://raw.githubusercontent.com/kernelshard/expose/m
 BINDIR=~/.local/bin curl -fsSL https://raw.githubusercontent.com/kernelshard/expose/main/install.sh | sh
 ```
 
-#### 2. Pre-built Binaries
+#### 3. Pre-built Binaries
 Download the latest binary for your operating system (macOS, Linux, Windows) from the [Releases Page](https://github.com/kernelshard/expose/releases). Extract the archive and place `expose` in your `$PATH`.
 
-#### 3. Using Go Install
+#### 4. Using Go Install
 
 Requires Go 1.21+:
 
