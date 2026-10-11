@@ -8,7 +8,9 @@ import (
 	"io"
 	"net"
 	"net/http"
+	"strings"
 	"sync"
+	"time"
 
 	"github.com/kernelshard/expose/internal/server/protocol"
 )
@@ -16,22 +18,22 @@ import (
 // Server manages the self-hosted tunnel server.
 // holds the state of the server and handles incoming connections.
 type Server struct {
-	domain      string
-	controlPort int // port for client connections
-	publicPort  int // port for public http connections
-	tunnels     sync.Map
-
-	// TODO: use sync.Map;for v1 we are keeping it simple, single connection
-	dataConns       chan net.Conn
+	domain          string
+	controlPort     int // port for client connections
+	publicPort      int // port for public http connections
+	tunnels         sync.Map
 	controlListener net.Listener
 	publicListener  net.Listener
 	ready           chan struct{}
 }
 
+const defaultDataConnBuffer = 10
+
 // ClientConnection represents a connected client
 type ClientConnection struct {
 	conn      net.Conn
 	subdomain string
+	dataConns chan net.Conn
 }
 
 // NewServer creates a new server.
@@ -40,23 +42,20 @@ func NewServer(domain string, controlPort, publicPort int) *Server {
 		domain:      domain, // e.g. localtunnel.me
 		controlPort: controlPort,
 		publicPort:  publicPort,
-		dataConns:   make(chan net.Conn, 10),
 		ready:       make(chan struct{}), // Used by Listeners to signal readiness.
 	}
 }
 
-// startControlPlane listens for incoming tunnel connections from clients.
+// startControlPlane accepts incoming client connections (registrations and data sockets)
+// and dispatches each to handleControlConnection in a separate goroutine.
 func (s *Server) startControlPlane() error {
-	// listen on control port, it will be used for client connections
 	fmt.Printf("Control plane listening on %s\n", s.controlListener.Addr().String())
 
-	// accept incoming connections on the listener
 	for {
 		conn, err := s.controlListener.Accept()
 		if err != nil {
-			// check if error is due to shutdown(listener close)
 			if s.isClosed(err) {
-				return nil
+				return nil // Graceful shutdown
 			}
 			return err
 		}
@@ -77,12 +76,17 @@ func (s *Server) isClosed(err error) bool {
 	return errors.Is(err, net.ErrClosed)
 }
 
-// registerSubdomain automatically researves a custom or random subdomain.
-// it stores the connection in the tunnels map and returns the subdomain in response
+// registerSubdomain reserves a custom or random subdomain for a new client.
+// It initializes the ClientConnection with a dedicated dataConns buffer
+// and registers it in the tunnels map.
 func (s *Server) registerSubdomain(conn net.Conn, requested string) (string, error) {
 	subdomain := requested
 	if subdomain != "" {
-		client := ClientConnection{conn: conn, subdomain: requested}
+		client := ClientConnection{
+			conn:      conn,
+			subdomain: requested,
+			dataConns: make(chan net.Conn, defaultDataConnBuffer),
+		}
 		if _, loaded := s.tunnels.LoadOrStore(requested, client); loaded {
 			return "", fmt.Errorf("subdomain '%s' is already in use", requested)
 		}
@@ -95,7 +99,11 @@ func (s *Server) registerSubdomain(conn net.Conn, requested string) (string, err
 		if err != nil {
 			return "", err
 		}
-		client := ClientConnection{conn: conn, subdomain: sub}
+		client := ClientConnection{
+			conn:      conn,
+			subdomain: sub,
+			dataConns: make(chan net.Conn, defaultDataConnBuffer),
+		}
 		if _, loaded := s.tunnels.LoadOrStore(sub, client); !loaded {
 			return sub, nil
 		}
@@ -104,24 +112,39 @@ func (s *Server) registerSubdomain(conn net.Conn, requested string) (string, err
 	return "", fmt.Errorf("failed to generate unique subdomain")
 }
 
+// handleControlConnection processes an incoming client socket.
+// It handles two distinct connection types:
+//  1. Data connection (TypeData): stores the socket in the tenant's dataConns buffer
+//     for proxying incoming public HTTP visitors.
+//  2. Control connection (default): registers the subdomain, replies with the public URL,
+//     and stays open to monitor client lifecycle and detect disconnects.
 func (s *Server) handleControlConnection(conn net.Conn) {
-	// 1. Read Request
+	// 1. Read the handshake request
 	var req protocol.TunnelRequest
-	// here we are reading the request from the client
 	if err := json.NewDecoder(conn).Decode(&req); err != nil {
-		// Failed to read JSON
 		conn.Close()
 		return
 	}
 
-	// for data connections, we are just storing the connection in a channel
-	// and returning immediately
+	// Phase 1: Data socket - park in tenant's buffer and exit
 	if req.Type == protocol.TypeData {
-		s.dataConns <- conn
-		return
+		val, ok := s.tunnels.Load(req.Subdomain)
+		if !ok {
+			conn.Close() // Subdomain not registered, reject
+			return
+		}
+
+		client := val.(ClientConnection)
+		select {
+		case client.dataConns <- conn:
+			return // Parked in tenant's pool
+		default:
+			conn.Close() // Buffer full (10 sockets already waiting), drop excess
+			return
+		}
 	}
 
-	// 2. Register/assign Subdomain
+	// Phase 2: Control socket - register new tunnel
 	subdomain, err := s.registerSubdomain(conn, req.Subdomain)
 	if err != nil {
 		_ = json.NewEncoder(conn).Encode(protocol.TunnelResponse{Error: err.Error()})
@@ -208,7 +231,30 @@ func (s *Server) Start(ctx context.Context) error {
 // and is responsible for forwarding the request to the client connection.
 func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	// Grab the first available data connection
-	dataConn := <-s.dataConns
+	subdomain := extractSubdomain(r.Host, s.domain)
+	if subdomain == "" {
+		http.Error(w, "Invalid subdomain", http.StatusBadRequest)
+		return
+	}
+
+	val, ok := s.tunnels.Load(subdomain)
+	if !ok {
+		http.Error(w, "502 Bad Gateway", http.StatusBadGateway)
+		return
+	}
+	client := val.(ClientConnection)
+	var dataConn net.Conn
+
+	select {
+	case dataConn = <-client.dataConns:
+		// got one
+	case <-time.After(5 * time.Second):
+		http.Error(w, "504 Gateway Timeout", http.StatusGatewayTimeout)
+		return
+	case <-r.Context().Done():
+		return
+	}
+
 	defer dataConn.Close()
 
 	// Hijack the underlying TCP connection from net/http.
@@ -267,6 +313,33 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	// - If this fails, the client will not receive anything
 	go io.Copy(clientConn, dataConn)
 	io.Copy(dataConn, clientConn)
+}
+
+// extractSubdomain parses the tenant subdomain from the incoming HTTP Host header.
+// It returns an empty string if the host is invalid, an IP, or not a subdomain of baseDomain.
+func extractSubdomain(host, baseDomain string) string {
+	host = strings.ToLower(host)
+	baseDomain = strings.ToLower(baseDomain)
+	if baseDomain == "" {
+		return ""
+	}
+
+	// when a request doesn't have a port, we strip it if present.
+	if h, _, err := net.SplitHostPort(host); err == nil {
+		host = h
+	}
+
+	// A raw IP is not a domain name and cannot have subdomains
+	if net.ParseIP(host) != nil {
+		return ""
+	}
+
+	suffix := "." + baseDomain // e.g. ".example.com"
+	if strings.HasSuffix(host, suffix) {
+		return strings.TrimSuffix(host, suffix)
+	}
+
+	return ""
 }
 
 // Ready returns a channel that is closed when the server is ready.

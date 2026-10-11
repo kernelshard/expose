@@ -20,7 +20,6 @@ type SelfHosted struct {
 	publicURL  string
 	connected  bool
 	mu         sync.RWMutex
-	// TODO: support concurrent requests like LocalTunnel (pre-open multiple data connections)
 }
 
 // NewSelfHosted creates a new self-hosted provider.
@@ -108,9 +107,8 @@ func (s *SelfHosted) Close() error {
 	return nil
 }
 
-// openDataConnections opens a pool of TCP connections to the localtunnel server.
-// Each connection will handle incoming requests.
-// TODO: for now we only open one connection, but we should open multiple connections to handle concurrent requests
+// openDataConnections continuously maintains a pool of TCP connections to the server.
+// Each connection is held ready to proxy an incoming visitor request to the local port.
 func (s *SelfHosted) openDataConnections(ctx context.Context, localPort int) {
 	var dialer net.Dialer
 	const initialBackoff = 50 * time.Millisecond
@@ -119,7 +117,7 @@ func (s *SelfHosted) openDataConnections(ctx context.Context, localPort int) {
 	subdomain := s.subdomain
 	s.mu.RUnlock()
 
-	// keep trying to open data connections
+	// Maintain connections to handle incoming traffic
 	for {
 		conn, err := dialer.DialContext(ctx, "tcp", s.serverAddr)
 		if err != nil {
