@@ -19,6 +19,11 @@ Expose is designed as a modern, lightweight, privacy-focused alternative to comm
 
 ## 2. Installation
 
+### Homebrew (macOS & Linux — Recommended)
+```bash
+brew install kernelshard/tap/expose
+```
+
 ### One-Line Shell Script (macOS & Linux)
 ```bash
 curl -fsSL https://raw.githubusercontent.com/kernelshard/expose/main/install.sh | sh
