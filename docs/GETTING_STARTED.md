@@ -78,29 +78,15 @@ npx http-server -p 3000      # Node.js
 npm run dev                  # Any framework
 ```
 
-### Step 2 — Initialize project config
+### Step 2 — Start the tunnel (Zero Config)
 
-In your project directory:
-
-```bash
-expose init
-```
-
-This creates a `.expose.yml` file:
-
-```yaml
-project: my-project
-port: 3000
-```
-
-!!! tip "Commit `.expose.yml` to git"
-    Share your tunnel settings with your team — everyone gets the same port and project name automatically.
-
-### Step 3 — Start the tunnel
+Run directly with your local port:
 
 ```bash
-expose tunnel
+expose tunnel 3000
 ```
+
+*(Or just `expose tunnel` which defaults to port 3000).*
 
 Output:
 
@@ -111,6 +97,24 @@ Output:
 ✓ Provider: LocalTunnel
   Press Ctrl+C to stop
 ```
+
+### Step 3 (Optional) — Save project configuration
+
+If you want to persist defaults or share tunnel settings across your team in version control:
+
+```bash
+expose init
+```
+
+This creates an optional `.expose.yml` file:
+
+```yaml
+project: my-project
+port: 3000
+```
+
+!!! tip "Commit `.expose.yml` to git"
+    Share your tunnel settings with your team — everyone gets the same port and provider defaults automatically without passing CLI flags.
 
 **That's it.** Your local server is now publicly accessible. :tada:
 

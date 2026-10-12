@@ -60,26 +60,29 @@ Share your localhost with the world in seconds. No account. No auth tokens. No n
 
 ## Quick Start
 
+=== "Homebrew (macOS & Linux)"
+    ```bash
+    brew install kernelshard/tap/expose
+    expose tunnel 3000
+    ```
+
 === "Shell Script (macOS & Linux)"
     ```bash
     curl -fsSL https://raw.githubusercontent.com/kernelshard/expose/main/install.sh | sh
-    expose init
-    expose tunnel
+    expose tunnel 3000
     ```
 
 === "Go Install"
     ```bash
     go install github.com/kernelshard/expose/cmd/expose@latest
-    expose init
-    expose tunnel
+    expose tunnel 3000
     ```
 
 === "Download Binary"
     Download for your platform from the [Releases page](https://github.com/kernelshard/expose/releases), then:
     ```bash
     chmod +x expose
-    expose init
-    expose tunnel
+    ./expose tunnel 3000
     ```
 
 === "Build from Source"
@@ -87,7 +90,7 @@ Share your localhost with the world in seconds. No account. No auth tokens. No n
     git clone https://github.com/kernelshard/expose.git
     cd expose
     go build -o expose ./cmd/expose
-    ./expose init && ./expose tunnel
+    ./expose tunnel 3000
     ```
 
 Output when running `expose tunnel`:

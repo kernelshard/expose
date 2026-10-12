@@ -36,29 +36,33 @@
 
 ## 🚀 Quick Start
 
+### 1. Install
+
 ```bash
-# Install (macOS & Linux)
+# macOS & Linux (Homebrew — recommended)
+brew install kernelshard/tap/expose
+
+# Or via one-line shell installer
 curl -fsSL https://raw.githubusercontent.com/kernelshard/expose/main/install.sh | sh
-
-# Initialize config
-expose init
-
-# Start tunnel (defaults to port 3000)
-expose tunnel
 ```
 
-### Or use Cloudflare
+### 2. Expose a Local Port
+
 ```bash
+# Expose any local port instantly (zero config required!)
+expose tunnel 3000
+```
+
+> No signup, API tokens, or configuration files needed. Your localhost is instantly live on a secure public HTTPS URL.
+
+### ⚡ Other Providers
+
+```bash
+# Use Cloudflare Quick Tunnels
 expose tunnel -P cloudflare -p 8080
-```
 
-### Or use your own self-hosted server
-```bash
-# On your VPS — one-time setup
-expose server --domain=tunnel.mysite.com --control-port=7890 --public-port=8080
-
-# On your laptop — just works
-expose tunnel --server=tunnel.mysite.com:7890
+# Or connect to your private self-hosted server
+expose tunnel 3000 --server=tunnel.mysite.com:7890
 ```
 
 ---

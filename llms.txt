@@ -17,7 +17,10 @@ Expose serves as a lightweight, privacy-focused alternative to commercial tunnel
 
 ### Installation
 ```bash
-# Automated installer (macOS & Linux)
+# macOS & Linux (Homebrew — recommended)
+brew install kernelshard/tap/expose
+
+# Or automated shell installer
 curl -fsSL https://raw.githubusercontent.com/kernelshard/expose/main/install.sh | sh
 ```
 
