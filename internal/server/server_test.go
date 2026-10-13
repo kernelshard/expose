@@ -511,3 +511,44 @@ func TestServer_MultiTenant_Routing(t *testing.T) {
 		t.Errorf("expected %q, got %q", "Hello Bob!", string(bodyBob))
 	}
 }
+
+func Test_HandleControl_KeepAliveAndDisconnect(t *testing.T) {
+	srv := NewServer("tunnel.localhost.com", 7890, 8080)
+	clientConn, serverConn := net.Pipe()
+	go srv.handleControlConnection(serverConn)
+
+	// 1. Send registration request
+	req := protocol.TunnelRequest{Type: protocol.TypeControl, Subdomain: "example"}
+	_ = json.NewEncoder(clientConn).Encode(req)
+
+	// 2. Read the server's response
+	var resp protocol.TunnelResponse
+	_ = json.NewDecoder(clientConn).Decode(&resp)
+
+	// 3. Check is the subdomain actually stored in srv.tunnels
+	if _, ok := srv.tunnels.Load("example"); !ok {
+		t.Fatal("expected subdomain to be registered in map")
+	}
+
+	// client sends ping to server
+	for range 3 {
+		if _, err := clientConn.Write([]byte("PING\n")); err != nil {
+			t.Fatalf("failed to send ping: %v", err)
+		}
+	}
+
+	// tunnel must still be alive in srv.tunnels
+	if _, ok := srv.tunnels.Load("example"); !ok {
+		t.Fatal("tunnel was unexpectedly removed")
+	}
+
+	// client closed connection
+	clientConn.Close()
+
+	// give the goroutine time to detect the disconnection and remove the tunnel
+	time.Sleep(50 * time.Millisecond)
+	// tunnel must be removed now
+	if _, ok := srv.tunnels.Load("example"); ok {
+		t.Fatal("expected subdomain to be deleted after the client disconnects")
+	}
+}
