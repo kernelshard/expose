@@ -25,6 +25,14 @@ func TestTunnelCmd(t *testing.T) {
 	if flag.Shorthand != "p" {
 		t.Errorf("expected shorthand 'p' got %s", flag.Shorthand)
 	}
+
+	subdomainFlag := cmd.Flags().Lookup("subdomain")
+	if subdomainFlag == nil {
+		t.Error("subdomain flag not defined")
+	}
+	if subdomainFlag.Shorthand != "d" {
+		t.Errorf("expected shorthand 'd', got %s", subdomainFlag.Shorthand)
+	}
 }
 
 func TestResolvePort(t *testing.T) {
