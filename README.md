@@ -11,13 +11,14 @@
 > **Turn your `localhost` into a public shareable URL in one command — zero config, zero signups, and a single <10MB binary.**  
 > The lightweight, open-source Go alternative to ngrok for webhook testing, mobile previews, and remote debugging.
 
+**Install via Homebrew:**
 ```bash
-# 1. Install via Homebrew (macOS & Linux)
 brew install kernelshard/tap/expose
+```
 
-# 2. Tunnel any local port instantly (no account, token, or config needed)
+**Tunnel your local server (e.g. port 3000):**
+```bash
 expose tunnel 3000
-# ➜ Public URL: https://quick-mammals-sing.loca.lt -> http://localhost:3000
 ```
 
 ---
