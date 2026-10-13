@@ -165,12 +165,18 @@ func (s *Server) handleControlConnection(conn net.Conn) {
 		return
 	}
 
-	/// 5. Wait for disconnect
-	// TODO: We loop here to keep the connection alive.
-	// If the client sends data (like a PING), we ignore it.
-	// If the client disconnects, Read returns an error and we
-	buf := make([]byte, 1)
-	_, _ = conn.Read(buf)
+	buf := make([]byte, 1024)
+
+	// keeping connection alive to detect disconnects
+	// for other cases like ping we try to read again to check
+	// that the connection is still alive
+	for {
+		_, err = conn.Read(buf)
+		if err != nil {
+			break
+		}
+	}
+
 	conn.Close()
 
 }
