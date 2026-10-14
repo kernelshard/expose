@@ -96,6 +96,9 @@ Then connect from your local machine:
 
 ```bash
 expose tunnel --server=tunnel.mysite.com:7890 -p 3000
+
+# Or request a custom subdomain
+expose tunnel --server=tunnel.mysite.com:7890 --subdomain=my-app -p 3000
 ```
 
 !!! tip "Advantages of self-hosting"

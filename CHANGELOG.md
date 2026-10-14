@@ -9,6 +9,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.5.1] - 2026-10-15
+
+### Added
+- **Heartbeat Ping-Pong & Zombie Connection Eviction**: Periodic 20s client `PING` and 60s server deadline to actively prune dead tunnel connections upon silent network drops ([#73](https://github.com/kernelshard/expose/issues/73), [#79](https://github.com/kernelshard/expose/pull/79)).
+- **Custom Subdomain Flag**: Added `--subdomain` / `-d` CLI flag support for self-hosted relay registration with collision detection ([#75](https://github.com/kernelshard/expose/issues/75), [#76](https://github.com/kernelshard/expose/pull/76)).
+
+### Fixed
+- **Keep-Alive Control Connection**: Kept the control connection socket open indefinitely until client termination, preventing premature tunnel teardown ([#72](https://github.com/kernelshard/expose/issues/72), [#74](https://github.com/kernelshard/expose/pull/74)).
+- **Deferred Local Connection Dialing**: Delayed dialing `localhost` until incoming visitor request bytes actually arrive over the tunnel, avoiding connection spam and resource leaks ([#59](https://github.com/kernelshard/expose/issues/59), [#78](https://github.com/kernelshard/expose/pull/78)).
+
+### Documentation & UX
+- **Quickstart Usability**: Streamlined README with dedicated copy-paste blocks for Homebrew installation and direct command execution.
+
+---
+
 ## [0.5.0] - 2026-10-12
 
 ### Added
@@ -116,7 +131,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
-[Unreleased]: https://github.com/kernelshard/expose/compare/v0.5.0...HEAD
+[Unreleased]: https://github.com/kernelshard/expose/compare/v0.5.1...HEAD
+[0.5.1]: https://github.com/kernelshard/expose/compare/v0.5.0...v0.5.1
 [0.5.0]: https://github.com/kernelshard/expose/compare/v0.4.2...v0.5.0
 [0.4.2]: https://github.com/kernelshard/expose/compare/v0.4.1...v0.4.2
 [0.4.1]: https://github.com/kernelshard/expose/compare/v0.4.0...v0.4.1

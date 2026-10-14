@@ -119,6 +119,27 @@ Output:
 !!! note
     When `--server` is provided, Expose automatically selects the `selfhosted` provider — you don't need to pass `-P selfhosted` separately.
 
+### Requesting a Custom Subdomain
+
+By default, the server generates a random unique subdomain. You can request a specific subdomain using `--subdomain` (or `-d`):
+
+```bash
+expose tunnel --server=tunnel.mysite.com:7890 --subdomain=my-app 3000
+```
+
+Output:
+
+```text
+✓ Tunnel (SelfHosted) started for localhost:3000
+✓ Public URL: http://my-app.tunnel.mysite.com:8080
+✓ Forwarding to: http://localhost:3000
+✓ Provider: SelfHosted
+  Press Ctrl+C to stop
+```
+
+!!! tip "Collision Protection"
+    If the requested subdomain is already registered by an active tunnel, the server safely rejects the registration request with an error to prevent traffic hijacking or routing conflicts.
+
 ---
 
 ## Run as a Background Service (systemd)

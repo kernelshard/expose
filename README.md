@@ -79,7 +79,7 @@ curl -fsSL https://raw.githubusercontent.com/kernelshard/expose/main/install.sh 
 Pin a specific version or install to a custom path:
 ```bash
 # Pin version
-VERSION=v0.5.0 curl -fsSL https://raw.githubusercontent.com/kernelshard/expose/main/install.sh | sh
+VERSION=v0.5.1 curl -fsSL https://raw.githubusercontent.com/kernelshard/expose/main/install.sh | sh
 
 # Custom directory
 BINDIR=~/.local/bin curl -fsSL https://raw.githubusercontent.com/kernelshard/expose/main/install.sh | sh
@@ -114,9 +114,9 @@ Need complete privacy and zero third-party relay dependence? Run your own tunnel
 expose server --domain=tunnel.mysite.com --control-port=7890 --public-port=8080
 ```
 
-Connect your client to your VPS:
+Connect your client to your VPS (supports custom subdomains):
 ```bash
-expose tunnel 3000 --server=tunnel.mysite.com:7890
+expose tunnel 3000 --server=tunnel.mysite.com:7890 --subdomain=my-app
 ```
 
 ---
