@@ -552,3 +552,33 @@ func Test_HandleControl_KeepAliveAndDisconnect(t *testing.T) {
 		t.Fatal("expected subdomain to be deleted after the client disconnects")
 	}
 }
+
+func Test_HandleControl_HeartbeatTimeout(t *testing.T) {
+	srv := NewServer("tunnel.localhost.com", 7890, 8080)
+	srv.SetControlTimeout(50 * time.Millisecond) // Evict after 50ms of silence
+
+	clientConn, serverConn := net.Pipe()
+	go srv.handleControlConnection(serverConn)
+
+	// 1. Register tunnel
+	req := protocol.TunnelRequest{Type: protocol.TypeControl, Subdomain: "ghost-app"}
+	_ = json.NewEncoder(clientConn).Encode(req)
+
+	var resp protocol.TunnelResponse
+	_ = json.NewDecoder(clientConn).Decode(&resp)
+
+	// 2. Verify registered
+	if _, ok := srv.tunnels.Load("ghost-app"); !ok {
+		t.Fatal("expected ghost-app to be registered")
+	}
+
+	// 3. Client goes completely silent! (simulating lid closed/battery dead)
+	// We wait past the 50ms deadline:
+	time.Sleep(100 * time.Millisecond)
+
+	// 4. Verify the server automatically evicted the zombie tunnel!
+	if _, ok := srv.tunnels.Load("ghost-app"); ok {
+		t.Fatal("expected ghost-app to be evicted after heartbeat timeout")
+	}
+
+}

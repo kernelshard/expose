@@ -38,6 +38,32 @@ func (s *SelfHosted) Name() string {
 	return "selfhosted"
 }
 
+// startHeartBeat periodically pings the server to keep the control connection alive.
+func (s *SelfHosted) startHeartBeat(ctx context.Context) {
+	ticker := time.NewTicker(20 * time.Second)
+	defer ticker.Stop()
+	for {
+		select {
+		case <-ctx.Done():
+			return
+		case <-ticker.C:
+			// send heartbeat
+			s.mu.RLock()
+			conn := s.conn
+			s.mu.RUnlock()
+			// means disconnected
+			if conn == nil {
+				return
+			}
+			if _, err := conn.Write([]byte("PING\n")); err != nil {
+				fmt.Printf("[selfhosted] control connection lost: %v\n", err)
+				return // server closed or restarted
+			}
+
+		}
+	}
+}
+
 // Connect establishes a connection to the self-hosted server.
 // It sends a registration request and returns the public URL & set connection to
 // conn to user for further use.
@@ -79,6 +105,8 @@ func (s *SelfHosted) Connect(ctx context.Context, localPort int) (string, error)
 
 	// 5. Open data connections
 	go s.openDataConnections(ctx, localPort)
+	// 6. Start heartbeat to keep connection alive
+	go s.startHeartBeat(ctx)
 
 	return s.publicURL, nil
 
