@@ -149,6 +149,16 @@ func (s *SelfHosted) openDataConnections(ctx context.Context, localPort int) {
 func (s *SelfHosted) proxyRequest(ctx context.Context, tunnelConn net.Conn, localPort int) {
 	defer tunnelConn.Close()
 
+	// 1. Defer local dial: wait for visitor request bytes to arrive over the tunnel.
+	// This prevents holding open idle connections to localhost and avoids log spam
+	// if the local app hasn't been started yet.
+	buf := make([]byte, 4*1024)
+	n, err := tunnelConn.Read(buf)
+	if err != nil {
+		return
+
+	}
+
 	localAddr := fmt.Sprintf("localhost:%d", localPort)
 	var dialer net.Dialer
 	localConn, err := dialer.DialContext(ctx, "tcp", localAddr)
@@ -167,6 +177,11 @@ func (s *SelfHosted) proxyRequest(ctx context.Context, tunnelConn net.Conn, loca
 		return
 	}
 	defer localConn.Close()
+
+	// 2. Forward the initial chunk of the request (already read into buf) to the local app.
+	if _, err := localConn.Write(buf[:n]); err != nil {
+		return
+	}
 
 	var wg sync.WaitGroup
 

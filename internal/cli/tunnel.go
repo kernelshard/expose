@@ -4,10 +4,12 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"net"
 	"os"
 	"os/signal"
 	"strconv"
 	"syscall"
+	"time"
 
 	"github.com/spf13/cobra"
 
@@ -143,10 +145,17 @@ func runTunnel(port int, svc *tunnel.Service) error {
 	// wait for ready
 	select {
 	case <-svc.Ready():
+		appStatus := "Ready"
+		// if local port is not listening, start watching for it and update status when it comes online
+		if !isPortListening(port) {
+			appStatus = "Waiting for local app to start..."
+			// keep watching for port and update status when it comes online so user can see it in cli
+			go watchLocalPort(ctx, port)
+		}
 		// Show info
 		fmt.Printf("🚀 Tunnel[%s] started for localhost:%d\n", svc.ProviderName(), port)
 		fmt.Printf("✓ Public URL: %s\n", svc.PublicURL())
-		fmt.Printf("✓ Forwarding to: http://localhost:%d\n", port)
+		fmt.Printf("✓ Forwarding to: http://localhost:%d (%s)\n", port, appStatus)
 		fmt.Printf("✓ Provider: %s\n", svc.ProviderName())
 		fmt.Println("Press Ctrl+C to stop")
 
@@ -167,4 +176,33 @@ func runTunnel(port int, svc *tunnel.Service) error {
 
 	fmt.Println("✓ Tunnel closed")
 	return nil
+}
+
+// isPortListening performs a quick check to see if a local service is accepting connections.
+func isPortListening(port int) bool {
+	conn, err := net.DialTimeout("tcp", fmt.Sprintf("localhost:%d", port), 200*time.Millisecond)
+	if err != nil {
+		return false
+	}
+	conn.Close()
+	return true
+}
+
+// watchLocalPort polls in the background until the local app comes online
+// watchLocalPort polls in the background until the local app comes online.
+func watchLocalPort(ctx context.Context, port int) {
+	ticker := time.NewTicker(2 * time.Second)
+	defer ticker.Stop()
+
+	for {
+		select {
+		case <-ctx.Done():
+			return
+		case <-ticker.C:
+			if isPortListening(port) {
+				fmt.Printf("\n✓ Connected to localhost:%d\n", port)
+				return
+			}
+		}
+	}
 }

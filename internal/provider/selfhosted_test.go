@@ -165,6 +165,14 @@ func TestSelfHosted_ProxyRequest_LocalOffline(t *testing.T) {
 	// Proxy to an unused port where no server is listening
 	go p.proxyRequest(t.Context(), tunnelServer, 59999)
 
+	// Since proxyRequest defers dialing localhost until visitor traffic arrives,
+	// we simulate an incoming visitor request to trigger the dial and verify it returns 502.
+	req := "GET / HTTP/1.1\r\nHost: example.localhost:8080\r\n\r\n"
+	if _, err := tunnelClient.Write([]byte(req)); err != nil {
+		t.Fatalf("failed to write request: %v", err)
+	}
+
+	// wait for 502
 	buf := make([]byte, 1024)
 	n, err := tunnelClient.Read(buf)
 	if err != nil {
