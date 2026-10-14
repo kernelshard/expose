@@ -38,6 +38,9 @@ func newTunnelCmd() *cobra.Command {
 	// server flag for self-hosted provider. auto-selects selfhosted provider if set.
 	cmd.Flags().StringP("server", "s", "", "Self-hosted server address (e.g. tunnel.mysite.com:7890)")
 
+	// subdomain flag for custom subdomain request
+	cmd.Flags().StringP("subdomain", "d", "", "Request a custom subdomain (e.g. --subdomain my-app)")
+
 	return cmd
 }
 
@@ -103,12 +106,14 @@ func runTunnelCmd(cmd *cobra.Command, args []string) error {
 		providerName = "selfhosted"
 	}
 
+	subdomain, _ := cmd.Flags().GetString("subdomain")
+
 	var svc *tunnel.Service
 	switch providerName {
 	case "cloudflare":
 		svc = tunnel.NewService(provider.NewCloudFlare())
 	case "selfhosted":
-		svc = tunnel.NewService(provider.NewSelfHosted(serverAddr))
+		svc = tunnel.NewService(provider.NewSelfHosted(serverAddr, subdomain))
 	default:
 		svc = tunnel.NewService(provider.NewLocalTunnel(nil))
 	}

@@ -31,7 +31,7 @@ func TestSelfHosted_Connect(t *testing.T) {
 	controlAddr := srv.ControlAddr()
 
 	// 3. Connect via selfhosted provider
-	provider := NewSelfHosted(controlAddr)
+	provider := NewSelfHosted(controlAddr, "example")
 	url, err := provider.Connect(ctx, 3000)
 	if err != nil {
 		t.Errorf("Connect failed: %v", err)
@@ -52,7 +52,7 @@ func TestSelfHosted_Connect(t *testing.T) {
 }
 
 func TestSelfHosted_GettersAndClose(t *testing.T) {
-	p := NewSelfHosted("localhost:7890")
+	p := NewSelfHosted("localhost:7890", "example")
 
 	if p.Name() != "selfhosted" {
 		t.Errorf("expected provider name 'selfhosted', got '%s'", p.Name())
@@ -75,7 +75,7 @@ func TestSelfHosted_GettersAndClose(t *testing.T) {
 }
 
 func TestSelfHosted_Connect_Unreachable(t *testing.T) {
-	provider := NewSelfHosted("localhost:0")
+	provider := NewSelfHosted("localhost:0", "example")
 
 	_, err := provider.Connect(t.Context(), 3000)
 	if err == nil {
@@ -109,7 +109,7 @@ func TestSelfHosted_Connect_ServerError(t *testing.T) {
 	}()
 
 	// 3. connect to the fake server
-	provider := NewSelfHosted(ln.Addr().String())
+	provider := NewSelfHosted(ln.Addr().String(), "example")
 	_, err = provider.Connect(t.Context(), 8080)
 
 	// 4. verify error returned
@@ -134,7 +134,7 @@ func TestSelfHosted_ProxyRequest(t *testing.T) {
 	tunnelClient, tunnelServer := net.Pipe()
 	defer tunnelClient.Close()
 
-	p := NewSelfHosted("localhost:0")
+	p := NewSelfHosted("localhost:0", "example")
 
 	// 3. start proxying in the bg
 	go p.proxyRequest(t.Context(), tunnelServer, localPort)
@@ -160,7 +160,7 @@ func TestSelfHosted_ProxyRequest_LocalOffline(t *testing.T) {
 	tunnelClient, tunnelServer := net.Pipe()
 	defer tunnelClient.Close()
 
-	p := NewSelfHosted("localhost:0")
+	p := NewSelfHosted("localhost:0", "example")
 
 	// Proxy to an unused port where no server is listening
 	go p.proxyRequest(t.Context(), tunnelServer, 59999)
@@ -179,7 +179,7 @@ func TestSelfHosted_ConcurrentCloseAndGetters(t *testing.T) {
 	c1, c2 := net.Pipe()
 	defer c2.Close()
 
-	p := NewSelfHosted("localhost:7890")
+	p := NewSelfHosted("localhost:7890", "example")
 	p.conn = c1
 	p.connected = true
 	p.publicURL = "http://test.example.com"
@@ -204,4 +204,46 @@ func TestSelfHosted_ConcurrentCloseAndGetters(t *testing.T) {
 
 	wg.Wait()
 
+}
+
+func TestSelfHosted_Connect_CustomSubdomain(t *testing.T) {
+	// 1. Start real test server on dynamic ports
+	srv := server.NewServer("localhost", 0, 0)
+	ctx := t.Context()
+	go func() {
+		_ = srv.Start(ctx)
+	}()
+	<-srv.Ready()
+	controlAddr := srv.ControlAddr()
+
+	// 2. Client 1 requests custom subdomain "alpha"
+	client1 := NewSelfHosted(controlAddr, "alpha")
+	url1, err := client1.Connect(ctx, 3000)
+	if err != nil {
+		t.Fatalf("expected client1 to connect, got: %v", err)
+	}
+	defer client1.Close()
+
+	if !strings.Contains(url1, "alpha") {
+		t.Errorf("expected URL to contain 'alpha', got %s", url1)
+	}
+
+	// 3. Client 2 requests the SAME subdomain "alpha" (must fail!)
+	client2 := NewSelfHosted(controlAddr, "alpha")
+	_, err = client2.Connect(ctx, 3001)
+	if err == nil {
+		t.Errorf("expected duplicate subdomain to fail, got nil error")
+	}
+
+	// 4. Client 3 requests random subdomain ("") (must succeed!)
+	client3 := NewSelfHosted(controlAddr, "")
+	url3, err := client3.Connect(ctx, 3002)
+	if err != nil {
+		t.Fatalf("expected random subdomain to succeed, got: %v", err)
+	}
+	defer client3.Close()
+
+	if url3 == "" {
+		t.Errorf("expected non-empty URL for random subdomain")
+	}
 }

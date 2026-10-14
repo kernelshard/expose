@@ -25,9 +25,11 @@ type SelfHosted struct {
 // NewSelfHosted creates a new self-hosted provider.
 // publicURL and connected will be set after the first connection.
 // serverAddr is the address of the control plane. eg. localhost:7890
-func NewSelfHosted(serverAddr string) *SelfHosted {
+// subdomain is the requested subdomain. empty = random subdomain
+func NewSelfHosted(serverAddr string, subdomain string) *SelfHosted {
 	return &SelfHosted{
 		serverAddr: serverAddr,
+		subdomain:  subdomain,
 	}
 }
 
@@ -47,7 +49,10 @@ func (s *SelfHosted) Connect(ctx context.Context, localPort int) (string, error)
 	}
 
 	// 2. Send registration request
-	req := protocol.TunnelRequest{Type: protocol.TypeControl} // empty = ask for random subdomain
+	req := protocol.TunnelRequest{
+		Type:      protocol.TypeControl,
+		Subdomain: s.subdomain,
+	}
 	if err := json.NewEncoder(conn).Encode(req); err != nil {
 		conn.Close()
 		return "", err
