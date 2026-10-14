@@ -22,12 +22,16 @@ type Server struct {
 	controlPort     int // port for client connections
 	publicPort      int // port for public http connections
 	tunnels         sync.Map
+	controlTimeout  time.Duration
 	controlListener net.Listener
 	publicListener  net.Listener
 	ready           chan struct{}
 }
 
-const defaultDataConnBuffer = 10
+const (
+	defaultDataConnBuffer = 10
+	defaultControlTimeout = 60 * time.Second // after 60 seconds of no client activity, connection is closed
+)
 
 // ClientConnection represents a connected client
 type ClientConnection struct {
@@ -39,10 +43,11 @@ type ClientConnection struct {
 // NewServer creates a new server.
 func NewServer(domain string, controlPort, publicPort int) *Server {
 	return &Server{
-		domain:      domain, // e.g. localtunnel.me
-		controlPort: controlPort,
-		publicPort:  publicPort,
-		ready:       make(chan struct{}), // Used by Listeners to signal readiness.
+		domain:         domain, // e.g. localtunnel.me
+		controlPort:    controlPort,
+		publicPort:     publicPort,
+		controlTimeout: defaultControlTimeout,
+		ready:          make(chan struct{}), // Used by Listeners to signal readiness.
 	}
 }
 
@@ -171,6 +176,7 @@ func (s *Server) handleControlConnection(conn net.Conn) {
 	// for other cases like ping we try to read again to check
 	// that the connection is still alive
 	for {
+		_ = conn.SetReadDeadline(time.Now().Add(s.controlTimeout))
 		_, err = conn.Read(buf)
 		if err != nil {
 			break
@@ -370,4 +376,9 @@ func (s *Server) ControlAddr() string {
 		return ""
 	}
 	return s.controlListener.Addr().String()
+}
+
+// SetControlTimeout sets the read deadline for the control connection.
+func (s *Server) SetControlTimeout(d time.Duration) {
+	s.controlTimeout = d
 }
