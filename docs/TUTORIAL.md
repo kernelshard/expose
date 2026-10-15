@@ -1,26 +1,24 @@
 ---
-title: How Tunnels Work: Build an ngrok Alternative in Go
-description: Understand how reverse proxy tunnels like ngrok and Expose work under the hood. Build a lightweight, pure Go reverse-proxy tunnel client from first principles.
+title: How Tunnels Work: Building an ngrok Alternative in Go
+description: Understand how reverse proxy tunnels like ngrok and Expose work under the hood. Build a lightweight, pure-Go ngrok alternative from first principles.
 ---
 
-# How Tunnels Work: Build an ngrok Alternative in Go
+# How Tunnels Work
 
 Reverse-proxy tunnels allow services running on your local machine (`localhost`) to be reachable from anywhere on the public internet, bypassing NATs, CGNATs, and restrictive local firewalls.
 
-This tutorial breaks down the mechanics of tunneling from first principles. By the end, you will understand how tools like **ngrok**, **LocalTunnel**, and **Expose** work under the hood, and how to build a working tunnel client in pure Go.
+This guide explains how reverse tunneling works from first principles. By the end, you will understand how commercial tools like **ngrok** work under the hood, and how to build a lightweight, open-source **ngrok alternative** from scratch in pure Go.
 
-!!! tip "Public Sandboxes vs. Self-Hosted Relays"
-    In this tutorial, we will use the free, open **LocalTunnel protocol** (`localtunnel.me`) as a zero-setup sandbox so you can run the code immediately without spinning up a cloud server. 
-    
-    In production, **Expose** also includes its own built-in, pure-Go private relay server (`expose server`) for complete data privacy, custom subdomains, and zero third-party reliance.
+!!! note "Sandbox vs. Private Relays"
+    This walkthrough uses the open **LocalTunnel protocol** (`localtunnel.me`) as a zero-setup sandbox so you can run the code immediately without cloud infrastructure. In production, **Expose** also ships its own private, pure-Go relay server (`expose server`).
 
 ---
 
-## Part 1 — What Is a Reverse Proxy Tunnel? (NAT Traversal)
+## Part 1 — What Is a Tunnel?
 
-When you run a web server on `localhost:3000`, external visitors cannot connect to it because your computer sits behind a router using Network Address Translation (NAT) with a private IP address (e.g., `192.168.1.X`).
+When you run a web server on `localhost:3000`, external visitors cannot reach it because your machine sits behind a router using Network Address Translation (NAT) with a private IP.
 
-A **reverse proxy tunnel** solves this by flipping the direction of connection: **your local machine initiates an outbound TCP connection to a public relay server.** Because stateful firewalls automatically permit outbound traffic and its return packets, this outbound socket bypasses NAT and firewall restrictions without requiring port forwarding or router configuration.
+A **reverse proxy tunnel** solves this by flipping the connection flow: **your local machine initiates an outbound TCP connection to a public relay server.** Because stateful firewalls permit outbound traffic and its return packets, this connection stays open and acts as a bidirectional bridge.
 
 ```text
  ┌────────────────┐          ┌───────────────────────┐          ┌──────────────┐
@@ -31,21 +29,21 @@ A **reverse proxy tunnel** solves this by flipping the direction of connection: 
 
 ### The Request Lifecycle
 
-1. **Registration:** Your client contacts the relay server and requests a public endpoint (e.g., `https://my-app.relay.com`).
-2. **Persistent Control Connection:** The client establishes an outbound TCP connection to the relay and keeps it open.
-3. **Incoming Traffic:** A public user visits `https://my-app.relay.com`.
-4. **Data Multiplexing:** The relay forwards raw HTTP bytes down the active TCP connection to your client.
-5. **Local Proxying:** Your client dials `localhost:3000`, writes the HTTP bytes, reads the local server's response, and pumps it back to the relay.
+1. **Registration:** The client contacts the relay server and requests a public endpoint (e.g., `https://my-app.relay.com`).
+2. **Control Connection:** The client establishes an outbound TCP socket to the relay and keeps it alive.
+3. **Visitor Traffic:** An external user sends an HTTP request to `https://my-app.relay.com`.
+4. **Data Multiplexing:** The relay streams raw HTTP bytes down the active TCP connection to your client.
+5. **Local Proxying:** Your client dials `localhost:3000`, writes the request, reads the local response, and pumps it back to the relay.
 
 ---
 
 ## Part 2 — Building a Minimal Tunnel Client
 
-Let's build a standalone, working tunnel client in Go in under 60 lines of code.
+Let's build a working, standalone tunnel client in Go in under 60 lines of code.
 
 ### Step 1: Request a Tunnel Endpoint
 
-First, we ask the relay for an assigned subdomain and a dedicated TCP data port:
+First, ask the relay for an assigned subdomain and dedicated TCP relay port:
 
 ```go
 package main
@@ -79,7 +77,7 @@ func requestTunnel() (*TunnelInfo, error) {
 
 ### Step 2: Establish the TCP Relay Connection
 
-Next, we open an outbound TCP socket to the relay host on the assigned port:
+Next, open an outbound TCP socket to the relay host on the assigned port:
 
 ```go
 import "net"
@@ -92,7 +90,7 @@ func dialTunnel(info *TunnelInfo) (net.Conn, error) {
 
 ### Step 3: Bidirectional Socket Proxying
 
-When the relay sends an incoming HTTP request down the connection, we dial our local application and stream raw bytes using full-duplex piping with `io.Copy`:
+When incoming HTTP bytes arrive from the relay, dial the local application and stream data in full-duplex using `io.Copy`:
 
 ```go
 import (
@@ -157,6 +155,7 @@ func main() {
 ```
 
 To test it:
+
 ```bash
 # Terminal 1: Start any local web server
 python3 -m http.server 3000
@@ -165,16 +164,13 @@ python3 -m http.server 3000
 go run main.go
 ```
 
-!!! note "Handling Traffic Concurrency"
-    This introductory script handles requests sequentially. In **Part 5**, we show how Expose uses pre-warmed connection pools to serve concurrent requests simultaneously.
+*(Note: This introductory script processes requests sequentially. In Part 5, we show how production Expose handles concurrent traffic using connection pools.)*
 
 ---
 
 ## Part 3 — The Provider Abstraction Pattern
 
-Production systems like Expose support multiple relays (LocalTunnel, Cloudflare, private VPS). Moving from our standalone script to a production codebase introduces two crucial Go patterns:
-- **`context.Context`**: For dial timeouts, cancellation, and leak-free shutdowns that our 50-line script omitted.
-- **`Provider` Interfaces**: To switch transports with zero changes to CLI or business logic.
+Production systems like Expose (an open-source ngrok alternative) support multiple tunnel relays (LocalTunnel, Cloudflare, private self-hosted servers). We use Go interfaces and context propagation to decouple the transport layer.
 
 ### The `Provider` Interface
 
@@ -200,9 +196,7 @@ type Provider interface {
 
 ### Thread-Safe Service Lifecycle
 
-In real applications, multiple goroutines query tunnel state concurrently (e.g., CLI printers, health probes, shutdown hooks). 
-
-Expose wraps the active provider in a `Service` struct synchronized by `sync.RWMutex` and channels:
+Expose coordinates the active provider inside a `Service` wrapper synchronized with `sync.RWMutex` and ready channels:
 
 ```go
 // internal/tunnel/service.go
@@ -241,7 +235,7 @@ func (s *Service) Start(ctx context.Context, localPort int) error {
         return err
     }
 
-    close(s.ready) // Deterministically signals CLI and caller routines that the URL is live
+    close(s.ready) // Signals CLI and caller routines that the URL is live
     return nil
 }
 
@@ -252,9 +246,9 @@ func (s *Service) Close() error          { return s.provider.Close() }
 
 ---
 
-## Part 4 — Modern CLI Ergonomics with Cobra
+## Part 4 — Building the CLI with Cobra
 
-Expose uses [Cobra](https://github.com/spf13/cobra) to offer an intuitive CLI supporting positional arguments (`expose tunnel 3000`), configuration defaults, and custom flags:
+Expose uses [Cobra](https://github.com/spf13/cobra) to offer clean command ergonomics supporting positional arguments, configuration defaults, and flag overrides:
 
 ```go
 // internal/cli/tunnel.go
@@ -289,12 +283,12 @@ func runTunnel(cmd *cobra.Command, args []string) error {
     ctx, cancel := context.WithCancel(context.Background())
     defer cancel()
 
-    // Listen for SIGINT / SIGTERM for clean teardown
+    // Graceful shutdown on Ctrl+C
     sigCh := make(chan os.Signal, 1)
     signal.Notify(sigCh, os.Interrupt, syscall.SIGTERM)
     go func() {
         <-sigCh
-        fmt.Println("\nGracefully shutting down tunnel...")
+        fmt.Println("\nShutting down tunnel...")
         cancel()
     }()
 
@@ -320,11 +314,11 @@ func runTunnel(cmd *cobra.Command, args []string) error {
 
 ## Part 5 — Advanced Tunneling Patterns
 
-Production tunnel clients must handle connection drops, high traffic spikes, and custom routing. Expose solves these through three core architectural patterns:
+Production tunnel clients must handle connection drops, traffic spikes, and custom routing. Expose solves these through three core patterns:
 
 ### 1. Pre-Warmed Connection Pooling
 
-Dialing a new TCP connection on every incoming request introduces 50–150ms of latency. To achieve high throughput, the client maintains a pool of pre-warmed idle TCP sockets ready to handle requests instantly:
+Dialing a new TCP connection on every incoming request adds 50–150ms of latency. To achieve high throughput, the client maintains a pool of pre-warmed idle TCP sockets ready to serve traffic instantly:
 
 ```go
 func (lt *LocalTunnel) maintainPool(port int, maxConn int) {
@@ -336,7 +330,7 @@ func (lt *LocalTunnel) maintainPool(port int, maxConn int) {
                     time.Sleep(time.Second)
                     continue
                 }
-                lt.handleTraffic(conn) // Handles request and automatically replenishes socket
+                lt.handleTraffic(conn) // Handles request and replenishes socket
             }
         }()
     }
@@ -347,16 +341,16 @@ func (lt *LocalTunnel) maintainPool(port int, maxConn int) {
 
 Rather than relying on third-party servers, Expose implements its own pure-Go relay protocol (`internal/server`):
 
-1. **JSON Control Channel:** The client opens a single persistent TCP connection to the server (`expose server`) and sends a `protocol.TunnelRequest`:
+1. **JSON Control Channel:** The client opens a single persistent TCP socket to the relay (`expose server`) and sends a registration request:
    ```json
    {"type": "control", "subdomain": "my-api"}
    ```
-2. **Heartbeat Eviction:** The client transmits a lightweight `PING\n` every 20 seconds. If silent packet loss or a Wi-Fi drop occurs, the server's read deadline (60s) evicts the zombie registration to prevent stale port binding.
-3. **On-Demand Data Sockets:** When an external HTTP visitor arrives at the relay, the server signals the client over the control channel to establish a separate data socket for that request.
+2. **Heartbeat Eviction:** The client transmits a lightweight `PING\n` every 20 seconds. If a network drop occurs, the server's read deadline (60s) evicts the zombie registration to keep the port clean.
+3. **On-Demand Data Sockets:** When an external HTTP visitor arrives at the relay, the server signals the client to establish a dedicated data connection for that stream.
 
 ### 3. Subprocess Orchestration (Cloudflare Quick Tunnels)
 
-When using Cloudflare, Expose does not dial raw TCP sockets. Instead, it manages the lifecycle of the official `cloudflared` binary as a child process and streams logs:
+For Cloudflare, Expose supervises the official `cloudflared` binary as a child process and dynamically parses the generated public URL from stderr:
 
 ```go
 cmd := exec.CommandContext(ctx, "cloudflared", "tunnel", "--url", fmt.Sprintf("http://localhost:%d", port))
@@ -377,19 +371,6 @@ stderr, _ := cmd.StderrPipe()
 | **LocalTunnel Client** | Public zero-config TCP socket connection pool | [`internal/provider/localtunnel.go`](file:///Users/sam/code/opensource/expose/internal/provider/localtunnel.go) |
 | **Cloudflare Client** | Subprocess supervisor for `cloudflared` | [`internal/provider/cloudflare.go`](file:///Users/sam/code/opensource/expose/internal/provider/cloudflare.go) |
 | **CLI & Commands** | Cobra flags, positional port parsing, & signal traps | [`internal/cli/`](file:///Users/sam/code/opensource/expose/internal/cli/) |
-
----
-
-## Frequently Asked Questions (FAQ)
-
-??? question "Why not just use traditional port forwarding?"
-    Port forwarding requires administrative access to the local router, exposes your public home IP address, and fails under Carrier-Grade NAT (CGNAT) where your router lacks a dedicated public IPv4 address. Reverse tunnels bypass NAT transparently by establishing an outbound TCP socket to a public relay.
-
-??? question "How does Expose differ from ngrok?"
-    While ngrok is a closed-source SaaS requiring accounts and enforcing usage limits, Expose is an Apache 2.0-licensed, pure-Go tool. It supports zero-signup public relays (LocalTunnel, Cloudflare) as well as its own built-in, private self-hosted relay server (`expose server`).
-
-??? question "How does socket teardown work in full-duplex proxies?"
-    When either the visitor disconnects or the local server finishes sending the HTTP response, `io.Copy` unblocks with `io.EOF` or a closed-socket error. The returned channel immediately executes deferred socket closures (`localConn.Close()` and `tunnelConn.Close()`), unblocking the sibling routine and preventing leaked goroutines.
 
 ---
 
