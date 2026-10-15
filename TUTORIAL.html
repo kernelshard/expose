@@ -121,7 +121,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#how-tunnels-work-build-an-ngrok-alternative-in-go" class="md-skip">
+        <a href="#how-tunnels-work" class="md-skip">
           Skip to content
         </a>
       
@@ -647,15 +647,15 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#part-1-what-is-a-reverse-proxy-tunnel-nat-traversal" class="md-nav__link">
+  <a href="#part-1-what-is-a-tunnel" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Part 1 — What Is a Reverse Proxy Tunnel? (NAT Traversal)
+        Part 1 — What Is a Tunnel?
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Part 1 — What Is a Reverse Proxy Tunnel? (NAT Traversal)">
+    <nav class="md-nav" aria-label="Part 1 — What Is a Tunnel?">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
@@ -775,10 +775,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#part-4-modern-cli-ergonomics-with-cobra" class="md-nav__link">
+  <a href="#part-4-building-the-cli-with-cobra" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Part 4 — Modern CLI Ergonomics with Cobra
+        Part 4 — Building the CLI with Cobra
       
     </span>
   </a>
@@ -840,17 +840,6 @@
     <span class="md-ellipsis">
       
         Architecture Summary
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#frequently-asked-questions-faq" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Frequently Asked Questions (FAQ)
       
     </span>
   </a>
@@ -1089,15 +1078,15 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#part-1-what-is-a-reverse-proxy-tunnel-nat-traversal" class="md-nav__link">
+  <a href="#part-1-what-is-a-tunnel" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Part 1 — What Is a Reverse Proxy Tunnel? (NAT Traversal)
+        Part 1 — What Is a Tunnel?
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Part 1 — What Is a Reverse Proxy Tunnel? (NAT Traversal)">
+    <nav class="md-nav" aria-label="Part 1 — What Is a Tunnel?">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
@@ -1217,10 +1206,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#part-4-modern-cli-ergonomics-with-cobra" class="md-nav__link">
+  <a href="#part-4-building-the-cli-with-cobra" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Part 4 — Modern CLI Ergonomics with Cobra
+        Part 4 — Building the CLI with Cobra
       
     </span>
   </a>
@@ -1282,17 +1271,6 @@
     <span class="md-ellipsis">
       
         Architecture Summary
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#frequently-asked-questions-faq" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Frequently Asked Questions (FAQ)
       
     </span>
   </a>
@@ -1378,18 +1356,17 @@
   
 
 
-<h1 id="how-tunnels-work-build-an-ngrok-alternative-in-go">How Tunnels Work: Build an ngrok Alternative in Go<a class="headerlink" href="#how-tunnels-work-build-an-ngrok-alternative-in-go" title="Permanent link">&para;</a></h1>
+<h1 id="how-tunnels-work">How Tunnels Work<a class="headerlink" href="#how-tunnels-work" title="Permanent link">&para;</a></h1>
 <p>Reverse-proxy tunnels allow services running on your local machine (<code>localhost</code>) to be reachable from anywhere on the public internet, bypassing NATs, CGNATs, and restrictive local firewalls.</p>
-<p>This tutorial breaks down the mechanics of tunneling from first principles. By the end, you will understand how tools like <strong>ngrok</strong>, <strong>LocalTunnel</strong>, and <strong>Expose</strong> work under the hood, and how to build a working tunnel client in pure Go.</p>
-<div class="admonition tip">
-<p class="admonition-title">Public Sandboxes vs. Self-Hosted Relays</p>
-<p>In this tutorial, we will use the free, open <strong>LocalTunnel protocol</strong> (<code>localtunnel.me</code>) as a zero-setup sandbox so you can run the code immediately without spinning up a cloud server. </p>
-<p>In production, <strong>Expose</strong> also includes its own built-in, pure-Go private relay server (<code>expose server</code>) for complete data privacy, custom subdomains, and zero third-party reliance.</p>
+<p>This guide explains how reverse tunneling works from first principles. By the end, you will understand how commercial tools like <strong>ngrok</strong> work under the hood, and how to build a lightweight, open-source <strong>ngrok alternative</strong> from scratch in pure Go.</p>
+<div class="admonition note">
+<p class="admonition-title">Sandbox vs. Private Relays</p>
+<p>This walkthrough uses the open <strong>LocalTunnel protocol</strong> (<code>localtunnel.me</code>) as a zero-setup sandbox so you can run the code immediately without cloud infrastructure. In production, <strong>Expose</strong> also ships its own private, pure-Go relay server (<code>expose server</code>).</p>
 </div>
 <hr />
-<h2 id="part-1-what-is-a-reverse-proxy-tunnel-nat-traversal">Part 1 — What Is a Reverse Proxy Tunnel? (NAT Traversal)<a class="headerlink" href="#part-1-what-is-a-reverse-proxy-tunnel-nat-traversal" title="Permanent link">&para;</a></h2>
-<p>When you run a web server on <code>localhost:3000</code>, external visitors cannot connect to it because your computer sits behind a router using Network Address Translation (NAT) with a private IP address (e.g., <code>192.168.1.X</code>).</p>
-<p>A <strong>reverse proxy tunnel</strong> solves this by flipping the direction of connection: <strong>your local machine initiates an outbound TCP connection to a public relay server.</strong> Because stateful firewalls automatically permit outbound traffic and its return packets, this outbound socket bypasses NAT and firewall restrictions without requiring port forwarding or router configuration.</p>
+<h2 id="part-1-what-is-a-tunnel">Part 1 — What Is a Tunnel?<a class="headerlink" href="#part-1-what-is-a-tunnel" title="Permanent link">&para;</a></h2>
+<p>When you run a web server on <code>localhost:3000</code>, external visitors cannot reach it because your machine sits behind a router using Network Address Translation (NAT) with a private IP.</p>
+<p>A <strong>reverse proxy tunnel</strong> solves this by flipping the connection flow: <strong>your local machine initiates an outbound TCP connection to a public relay server.</strong> Because stateful firewalls permit outbound traffic and its return packets, this connection stays open and acts as a bidirectional bridge.</p>
 <div class="language-text highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a> ┌────────────────┐          ┌───────────────────────┐          ┌──────────────┐
 </span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a> │ Internet User  │ ──HTTP─► │  Public Relay Server  │ ◄──TCP── │ Local Client │ ──HTTP─► localhost:3000
 </span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a> └────────────────┘          │  (e.g. VPS / Relay)   │          └──────────────┘
@@ -1397,17 +1374,17 @@
 </span></code></pre></div>
 <h3 id="the-request-lifecycle">The Request Lifecycle<a class="headerlink" href="#the-request-lifecycle" title="Permanent link">&para;</a></h3>
 <ol>
-<li><strong>Registration:</strong> Your client contacts the relay server and requests a public endpoint (e.g., <code>https://my-app.relay.com</code>).</li>
-<li><strong>Persistent Control Connection:</strong> The client establishes an outbound TCP connection to the relay and keeps it open.</li>
-<li><strong>Incoming Traffic:</strong> A public user visits <code>https://my-app.relay.com</code>.</li>
-<li><strong>Data Multiplexing:</strong> The relay forwards raw HTTP bytes down the active TCP connection to your client.</li>
-<li><strong>Local Proxying:</strong> Your client dials <code>localhost:3000</code>, writes the HTTP bytes, reads the local server's response, and pumps it back to the relay.</li>
+<li><strong>Registration:</strong> The client contacts the relay server and requests a public endpoint (e.g., <code>https://my-app.relay.com</code>).</li>
+<li><strong>Control Connection:</strong> The client establishes an outbound TCP socket to the relay and keeps it alive.</li>
+<li><strong>Visitor Traffic:</strong> An external user sends an HTTP request to <code>https://my-app.relay.com</code>.</li>
+<li><strong>Data Multiplexing:</strong> The relay streams raw HTTP bytes down the active TCP connection to your client.</li>
+<li><strong>Local Proxying:</strong> Your client dials <code>localhost:3000</code>, writes the request, reads the local response, and pumps it back to the relay.</li>
 </ol>
 <hr />
 <h2 id="part-2-building-a-minimal-tunnel-client">Part 2 — Building a Minimal Tunnel Client<a class="headerlink" href="#part-2-building-a-minimal-tunnel-client" title="Permanent link">&para;</a></h2>
-<p>Let's build a standalone, working tunnel client in Go in under 60 lines of code.</p>
+<p>Let's build a working, standalone tunnel client in Go in under 60 lines of code.</p>
 <h3 id="step-1-request-a-tunnel-endpoint">Step 1: Request a Tunnel Endpoint<a class="headerlink" href="#step-1-request-a-tunnel-endpoint" title="Permanent link">&para;</a></h3>
-<p>First, we ask the relay for an assigned subdomain and a dedicated TCP data port:</p>
+<p>First, ask the relay for an assigned subdomain and dedicated TCP relay port:</p>
 <div class="language-go highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="kn">package</span><span class="w"> </span><span class="nx">main</span>
 </span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>
 </span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="kn">import</span><span class="w"> </span><span class="p">(</span>
@@ -1437,7 +1414,7 @@
 </span><span id="__span-1-27"><a id="__codelineno-1-27" name="__codelineno-1-27" href="#__codelineno-1-27"></a><span class="p">}</span>
 </span></code></pre></div>
 <h3 id="step-2-establish-the-tcp-relay-connection">Step 2: Establish the TCP Relay Connection<a class="headerlink" href="#step-2-establish-the-tcp-relay-connection" title="Permanent link">&para;</a></h3>
-<p>Next, we open an outbound TCP socket to the relay host on the assigned port:</p>
+<p>Next, open an outbound TCP socket to the relay host on the assigned port:</p>
 <div class="language-go highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="kn">import</span><span class="w"> </span><span class="s">"net"</span>
 </span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>
 </span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="kd">func</span><span class="w"> </span><span class="nx">dialTunnel</span><span class="p">(</span><span class="nx">info</span><span class="w"> </span><span class="o">*</span><span class="nx">TunnelInfo</span><span class="p">)</span><span class="w"> </span><span class="p">(</span><span class="nx">net</span><span class="p">.</span><span class="nx">Conn</span><span class="p">,</span><span class="w"> </span><span class="kt">error</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
@@ -1446,7 +1423,7 @@
 </span><span id="__span-2-6"><a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a><span class="p">}</span>
 </span></code></pre></div>
 <h3 id="step-3-bidirectional-socket-proxying">Step 3: Bidirectional Socket Proxying<a class="headerlink" href="#step-3-bidirectional-socket-proxying" title="Permanent link">&para;</a></h3>
-<p>When the relay sends an incoming HTTP request down the connection, we dial our local application and stream raw bytes using full-duplex piping with <code>io.Copy</code>:</p>
+<p>When incoming HTTP bytes arrive from the relay, dial the local application and stream data in full-duplex using <code>io.Copy</code>:</p>
 <div class="language-go highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="kn">import</span><span class="w"> </span><span class="p">(</span>
 </span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="w">    </span><span class="s">"fmt"</span>
 </span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="w">    </span><span class="s">"io"</span>
@@ -1503,22 +1480,17 @@
 </span><span id="__span-4-30"><a id="__codelineno-4-30" name="__codelineno-4-30" href="#__codelineno-4-30"></a><span class="w">    </span><span class="p">}</span>
 </span><span id="__span-4-31"><a id="__codelineno-4-31" name="__codelineno-4-31" href="#__codelineno-4-31"></a><span class="p">}</span>
 </span></code></pre></div>
-<p>To test it:
+<p>To test it:</p>
 <div class="language-bash highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="c1"># Terminal 1: Start any local web server</span>
 </span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>python3<span class="w"> </span>-m<span class="w"> </span>http.server<span class="w"> </span><span class="m">3000</span>
 </span><span id="__span-5-3"><a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>
 </span><span id="__span-5-4"><a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a><span class="c1"># Terminal 2: Run your tunnel client</span>
 </span><span id="__span-5-5"><a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a>go<span class="w"> </span>run<span class="w"> </span>main.go
-</span></code></pre></div></p>
-<div class="admonition note">
-<p class="admonition-title">Handling Traffic Concurrency</p>
-<p>This introductory script handles requests sequentially. In <strong>Part 5</strong>, we show how Expose uses pre-warmed connection pools to serve concurrent requests simultaneously.</p>
-</div>
+</span></code></pre></div>
+<p><em>(Note: This introductory script processes requests sequentially. In Part 5, we show how production Expose handles concurrent traffic using connection pools.)</em></p>
 <hr />
 <h2 id="part-3-the-provider-abstraction-pattern">Part 3 — The Provider Abstraction Pattern<a class="headerlink" href="#part-3-the-provider-abstraction-pattern" title="Permanent link">&para;</a></h2>
-<p>Production systems like Expose support multiple relays (LocalTunnel, Cloudflare, private VPS). Moving from our standalone script to a production codebase introduces two crucial Go patterns:
-- <strong><code>context.Context</code></strong>: For dial timeouts, cancellation, and leak-free shutdowns that our 50-line script omitted.
-- <strong><code>Provider</code> Interfaces</strong>: To switch transports with zero changes to CLI or business logic.</p>
+<p>Production systems like Expose (an open-source ngrok alternative) support multiple tunnel relays (LocalTunnel, Cloudflare, private self-hosted servers). We use Go interfaces and context propagation to decouple the transport layer.</p>
 <h3 id="the-provider-interface">The <code>Provider</code> Interface<a class="headerlink" href="#the-provider-interface" title="Permanent link">&para;</a></h3>
 <div class="language-go highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="c1">// internal/tunnel/provider.go</span>
 </span><span id="__span-6-2"><a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="kn">package</span><span class="w"> </span><span class="nx">tunnel</span>
@@ -1539,8 +1511,7 @@
 </span><span id="__span-6-17"><a id="__codelineno-6-17" name="__codelineno-6-17" href="#__codelineno-6-17"></a><span class="p">}</span>
 </span></code></pre></div>
 <h3 id="thread-safe-service-lifecycle">Thread-Safe Service Lifecycle<a class="headerlink" href="#thread-safe-service-lifecycle" title="Permanent link">&para;</a></h3>
-<p>In real applications, multiple goroutines query tunnel state concurrently (e.g., CLI printers, health probes, shutdown hooks). </p>
-<p>Expose wraps the active provider in a <code>Service</code> struct synchronized by <code>sync.RWMutex</code> and channels:</p>
+<p>Expose coordinates the active provider inside a <code>Service</code> wrapper synchronized with <code>sync.RWMutex</code> and ready channels:</p>
 <div class="language-go highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="c1">// internal/tunnel/service.go</span>
 </span><span id="__span-7-2"><a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a><span class="kn">package</span><span class="w"> </span><span class="nx">tunnel</span>
 </span><span id="__span-7-3"><a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a>
@@ -1577,7 +1548,7 @@
 </span><span id="__span-7-34"><a id="__codelineno-7-34" name="__codelineno-7-34" href="#__codelineno-7-34"></a><span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="nx">err</span>
 </span><span id="__span-7-35"><a id="__codelineno-7-35" name="__codelineno-7-35" href="#__codelineno-7-35"></a><span class="w">    </span><span class="p">}</span>
 </span><span id="__span-7-36"><a id="__codelineno-7-36" name="__codelineno-7-36" href="#__codelineno-7-36"></a>
-</span><span id="__span-7-37"><a id="__codelineno-7-37" name="__codelineno-7-37" href="#__codelineno-7-37"></a><span class="w">    </span><span class="nb">close</span><span class="p">(</span><span class="nx">s</span><span class="p">.</span><span class="nx">ready</span><span class="p">)</span><span class="w"> </span><span class="c1">// Deterministically signals CLI and caller routines that the URL is live</span>
+</span><span id="__span-7-37"><a id="__codelineno-7-37" name="__codelineno-7-37" href="#__codelineno-7-37"></a><span class="w">    </span><span class="nb">close</span><span class="p">(</span><span class="nx">s</span><span class="p">.</span><span class="nx">ready</span><span class="p">)</span><span class="w"> </span><span class="c1">// Signals CLI and caller routines that the URL is live</span>
 </span><span id="__span-7-38"><a id="__codelineno-7-38" name="__codelineno-7-38" href="#__codelineno-7-38"></a><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="kc">nil</span>
 </span><span id="__span-7-39"><a id="__codelineno-7-39" name="__codelineno-7-39" href="#__codelineno-7-39"></a><span class="p">}</span>
 </span><span id="__span-7-40"><a id="__codelineno-7-40" name="__codelineno-7-40" href="#__codelineno-7-40"></a>
@@ -1586,8 +1557,8 @@
 </span><span id="__span-7-43"><a id="__codelineno-7-43" name="__codelineno-7-43" href="#__codelineno-7-43"></a><span class="kd">func</span><span class="w"> </span><span class="p">(</span><span class="nx">s</span><span class="w"> </span><span class="o">*</span><span class="nx">Service</span><span class="p">)</span><span class="w"> </span><span class="nx">Close</span><span class="p">()</span><span class="w"> </span><span class="kt">error</span><span class="w">          </span><span class="p">{</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="nx">s</span><span class="p">.</span><span class="nx">provider</span><span class="p">.</span><span class="nx">Close</span><span class="p">()</span><span class="w"> </span><span class="p">}</span>
 </span></code></pre></div>
 <hr />
-<h2 id="part-4-modern-cli-ergonomics-with-cobra">Part 4 — Modern CLI Ergonomics with Cobra<a class="headerlink" href="#part-4-modern-cli-ergonomics-with-cobra" title="Permanent link">&para;</a></h2>
-<p>Expose uses <a href="https://github.com/spf13/cobra">Cobra</a> to offer an intuitive CLI supporting positional arguments (<code>expose tunnel 3000</code>), configuration defaults, and custom flags:</p>
+<h2 id="part-4-building-the-cli-with-cobra">Part 4 — Building the CLI with Cobra<a class="headerlink" href="#part-4-building-the-cli-with-cobra" title="Permanent link">&para;</a></h2>
+<p>Expose uses <a href="https://github.com/spf13/cobra">Cobra</a> to offer clean command ergonomics supporting positional arguments, configuration defaults, and flag overrides:</p>
 <div class="language-go highlight"><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="c1">// internal/cli/tunnel.go</span>
 </span><span id="__span-8-2"><a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a><span class="kn">package</span><span class="w"> </span><span class="nx">cli</span>
 </span><span id="__span-8-3"><a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a>
@@ -1620,12 +1591,12 @@
 </span><span id="__span-8-30"><a id="__codelineno-8-30" name="__codelineno-8-30" href="#__codelineno-8-30"></a><span class="w">    </span><span class="nx">ctx</span><span class="p">,</span><span class="w"> </span><span class="nx">cancel</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">context</span><span class="p">.</span><span class="nx">WithCancel</span><span class="p">(</span><span class="nx">context</span><span class="p">.</span><span class="nx">Background</span><span class="p">())</span>
 </span><span id="__span-8-31"><a id="__codelineno-8-31" name="__codelineno-8-31" href="#__codelineno-8-31"></a><span class="w">    </span><span class="k">defer</span><span class="w"> </span><span class="nx">cancel</span><span class="p">()</span>
 </span><span id="__span-8-32"><a id="__codelineno-8-32" name="__codelineno-8-32" href="#__codelineno-8-32"></a>
-</span><span id="__span-8-33"><a id="__codelineno-8-33" name="__codelineno-8-33" href="#__codelineno-8-33"></a><span class="w">    </span><span class="c1">// Listen for SIGINT / SIGTERM for clean teardown</span>
+</span><span id="__span-8-33"><a id="__codelineno-8-33" name="__codelineno-8-33" href="#__codelineno-8-33"></a><span class="w">    </span><span class="c1">// Graceful shutdown on Ctrl+C</span>
 </span><span id="__span-8-34"><a id="__codelineno-8-34" name="__codelineno-8-34" href="#__codelineno-8-34"></a><span class="w">    </span><span class="nx">sigCh</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nb">make</span><span class="p">(</span><span class="kt">chan</span><span class="w"> </span><span class="nx">os</span><span class="p">.</span><span class="nx">Signal</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span>
 </span><span id="__span-8-35"><a id="__codelineno-8-35" name="__codelineno-8-35" href="#__codelineno-8-35"></a><span class="w">    </span><span class="nx">signal</span><span class="p">.</span><span class="nx">Notify</span><span class="p">(</span><span class="nx">sigCh</span><span class="p">,</span><span class="w"> </span><span class="nx">os</span><span class="p">.</span><span class="nx">Interrupt</span><span class="p">,</span><span class="w"> </span><span class="nx">syscall</span><span class="p">.</span><span class="nx">SIGTERM</span><span class="p">)</span>
 </span><span id="__span-8-36"><a id="__codelineno-8-36" name="__codelineno-8-36" href="#__codelineno-8-36"></a><span class="w">    </span><span class="k">go</span><span class="w"> </span><span class="kd">func</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
 </span><span id="__span-8-37"><a id="__codelineno-8-37" name="__codelineno-8-37" href="#__codelineno-8-37"></a><span class="w">        </span><span class="o">&lt;-</span><span class="nx">sigCh</span>
-</span><span id="__span-8-38"><a id="__codelineno-8-38" name="__codelineno-8-38" href="#__codelineno-8-38"></a><span class="w">        </span><span class="nx">fmt</span><span class="p">.</span><span class="nx">Println</span><span class="p">(</span><span class="s">"\nGracefully shutting down tunnel..."</span><span class="p">)</span>
+</span><span id="__span-8-38"><a id="__codelineno-8-38" name="__codelineno-8-38" href="#__codelineno-8-38"></a><span class="w">        </span><span class="nx">fmt</span><span class="p">.</span><span class="nx">Println</span><span class="p">(</span><span class="s">"\nShutting down tunnel..."</span><span class="p">)</span>
 </span><span id="__span-8-39"><a id="__codelineno-8-39" name="__codelineno-8-39" href="#__codelineno-8-39"></a><span class="w">        </span><span class="nx">cancel</span><span class="p">()</span>
 </span><span id="__span-8-40"><a id="__codelineno-8-40" name="__codelineno-8-40" href="#__codelineno-8-40"></a><span class="w">    </span><span class="p">}()</span>
 </span><span id="__span-8-41"><a id="__codelineno-8-41" name="__codelineno-8-41" href="#__codelineno-8-41"></a>
@@ -1648,9 +1619,9 @@
 </span></code></pre></div>
 <hr />
 <h2 id="part-5-advanced-tunneling-patterns">Part 5 — Advanced Tunneling Patterns<a class="headerlink" href="#part-5-advanced-tunneling-patterns" title="Permanent link">&para;</a></h2>
-<p>Production tunnel clients must handle connection drops, high traffic spikes, and custom routing. Expose solves these through three core architectural patterns:</p>
+<p>Production tunnel clients must handle connection drops, traffic spikes, and custom routing. Expose solves these through three core patterns:</p>
 <h3 id="1-pre-warmed-connection-pooling">1. Pre-Warmed Connection Pooling<a class="headerlink" href="#1-pre-warmed-connection-pooling" title="Permanent link">&para;</a></h3>
-<p>Dialing a new TCP connection on every incoming request introduces 50–150ms of latency. To achieve high throughput, the client maintains a pool of pre-warmed idle TCP sockets ready to handle requests instantly:</p>
+<p>Dialing a new TCP connection on every incoming request adds 50–150ms of latency. To achieve high throughput, the client maintains a pool of pre-warmed idle TCP sockets ready to serve traffic instantly:</p>
 <div class="language-go highlight"><pre><span></span><code><span id="__span-9-1"><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="kd">func</span><span class="w"> </span><span class="p">(</span><span class="nx">lt</span><span class="w"> </span><span class="o">*</span><span class="nx">LocalTunnel</span><span class="p">)</span><span class="w"> </span><span class="nx">maintainPool</span><span class="p">(</span><span class="nx">port</span><span class="w"> </span><span class="kt">int</span><span class="p">,</span><span class="w"> </span><span class="nx">maxConn</span><span class="w"> </span><span class="kt">int</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
 </span><span id="__span-9-2"><a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a><span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="nx">i</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="nx">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="nx">maxConn</span><span class="p">;</span><span class="w"> </span><span class="nx">i</span><span class="o">++</span><span class="w"> </span><span class="p">{</span>
 </span><span id="__span-9-3"><a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a><span class="w">        </span><span class="k">go</span><span class="w"> </span><span class="kd">func</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
@@ -1660,7 +1631,7 @@
 </span><span id="__span-9-7"><a id="__codelineno-9-7" name="__codelineno-9-7" href="#__codelineno-9-7"></a><span class="w">                    </span><span class="nx">time</span><span class="p">.</span><span class="nx">Sleep</span><span class="p">(</span><span class="nx">time</span><span class="p">.</span><span class="nx">Second</span><span class="p">)</span>
 </span><span id="__span-9-8"><a id="__codelineno-9-8" name="__codelineno-9-8" href="#__codelineno-9-8"></a><span class="w">                    </span><span class="k">continue</span>
 </span><span id="__span-9-9"><a id="__codelineno-9-9" name="__codelineno-9-9" href="#__codelineno-9-9"></a><span class="w">                </span><span class="p">}</span>
-</span><span id="__span-9-10"><a id="__codelineno-9-10" name="__codelineno-9-10" href="#__codelineno-9-10"></a><span class="w">                </span><span class="nx">lt</span><span class="p">.</span><span class="nx">handleTraffic</span><span class="p">(</span><span class="nx">conn</span><span class="p">)</span><span class="w"> </span><span class="c1">// Handles request and automatically replenishes socket</span>
+</span><span id="__span-9-10"><a id="__codelineno-9-10" name="__codelineno-9-10" href="#__codelineno-9-10"></a><span class="w">                </span><span class="nx">lt</span><span class="p">.</span><span class="nx">handleTraffic</span><span class="p">(</span><span class="nx">conn</span><span class="p">)</span><span class="w"> </span><span class="c1">// Handles request and replenishes socket</span>
 </span><span id="__span-9-11"><a id="__codelineno-9-11" name="__codelineno-9-11" href="#__codelineno-9-11"></a><span class="w">            </span><span class="p">}</span>
 </span><span id="__span-9-12"><a id="__codelineno-9-12" name="__codelineno-9-12" href="#__codelineno-9-12"></a><span class="w">        </span><span class="p">}()</span>
 </span><span id="__span-9-13"><a id="__codelineno-9-13" name="__codelineno-9-13" href="#__codelineno-9-13"></a><span class="w">    </span><span class="p">}</span>
@@ -1669,14 +1640,14 @@
 <h3 id="2-native-self-hosted-relays-heartbeat-ping-pong">2. Native Self-Hosted Relays &amp; Heartbeat Ping-Pong<a class="headerlink" href="#2-native-self-hosted-relays-heartbeat-ping-pong" title="Permanent link">&para;</a></h3>
 <p>Rather than relying on third-party servers, Expose implements its own pure-Go relay protocol (<code>internal/server</code>):</p>
 <ol>
-<li><strong>JSON Control Channel:</strong> The client opens a single persistent TCP connection to the server (<code>expose server</code>) and sends a <code>protocol.TunnelRequest</code>:
+<li><strong>JSON Control Channel:</strong> The client opens a single persistent TCP socket to the relay (<code>expose server</code>) and sends a registration request:
    <div class="language-json highlight"><pre><span></span><code><span id="__span-10-1"><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="p">{</span><span class="nt">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"control"</span><span class="p">,</span><span class="w"> </span><span class="nt">"subdomain"</span><span class="p">:</span><span class="w"> </span><span class="s2">"my-api"</span><span class="p">}</span>
 </span></code></pre></div></li>
-<li><strong>Heartbeat Eviction:</strong> The client transmits a lightweight <code>PING\n</code> every 20 seconds. If silent packet loss or a Wi-Fi drop occurs, the server's read deadline (60s) evicts the zombie registration to prevent stale port binding.</li>
-<li><strong>On-Demand Data Sockets:</strong> When an external HTTP visitor arrives at the relay, the server signals the client over the control channel to establish a separate data socket for that request.</li>
+<li><strong>Heartbeat Eviction:</strong> The client transmits a lightweight <code>PING\n</code> every 20 seconds. If a network drop occurs, the server's read deadline (60s) evicts the zombie registration to keep the port clean.</li>
+<li><strong>On-Demand Data Sockets:</strong> When an external HTTP visitor arrives at the relay, the server signals the client to establish a dedicated data connection for that stream.</li>
 </ol>
 <h3 id="3-subprocess-orchestration-cloudflare-quick-tunnels">3. Subprocess Orchestration (Cloudflare Quick Tunnels)<a class="headerlink" href="#3-subprocess-orchestration-cloudflare-quick-tunnels" title="Permanent link">&para;</a></h3>
-<p>When using Cloudflare, Expose does not dial raw TCP sockets. Instead, it manages the lifecycle of the official <code>cloudflared</code> binary as a child process and streams logs:</p>
+<p>For Cloudflare, Expose supervises the official <code>cloudflared</code> binary as a child process and dynamically parses the generated public URL from stderr:</p>
 <div class="language-go highlight"><pre><span></span><code><span id="__span-11-1"><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a><span class="nx">cmd</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">exec</span><span class="p">.</span><span class="nx">CommandContext</span><span class="p">(</span><span class="nx">ctx</span><span class="p">,</span><span class="w"> </span><span class="s">"cloudflared"</span><span class="p">,</span><span class="w"> </span><span class="s">"tunnel"</span><span class="p">,</span><span class="w"> </span><span class="s">"--url"</span><span class="p">,</span><span class="w"> </span><span class="nx">fmt</span><span class="p">.</span><span class="nx">Sprintf</span><span class="p">(</span><span class="s">"http://localhost:%d"</span><span class="p">,</span><span class="w"> </span><span class="nx">port</span><span class="p">))</span>
 </span><span id="__span-11-2"><a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a><span class="nx">stderr</span><span class="p">,</span><span class="w"> </span><span class="nx">_</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">cmd</span><span class="p">.</span><span class="nx">StderrPipe</span><span class="p">()</span>
 </span><span id="__span-11-3"><a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a><span class="c1">// Read stderr stream to extract the generated trycloudflare.com URL</span>
@@ -1729,20 +1700,6 @@
 </tr>
 </tbody>
 </table>
-<hr />
-<h2 id="frequently-asked-questions-faq">Frequently Asked Questions (FAQ)<a class="headerlink" href="#frequently-asked-questions-faq" title="Permanent link">&para;</a></h2>
-<details class="question">
-<summary>Why not just use traditional port forwarding?</summary>
-<p>Port forwarding requires administrative access to the local router, exposes your public home IP address, and fails under Carrier-Grade NAT (CGNAT) where your router lacks a dedicated public IPv4 address. Reverse tunnels bypass NAT transparently by establishing an outbound TCP socket to a public relay.</p>
-</details>
-<details class="question">
-<summary>How does Expose differ from ngrok?</summary>
-<p>While ngrok is a closed-source SaaS requiring accounts and enforcing usage limits, Expose is an Apache 2.0-licensed, pure-Go tool. It supports zero-signup public relays (LocalTunnel, Cloudflare) as well as its own built-in, private self-hosted relay server (<code>expose server</code>).</p>
-</details>
-<details class="question">
-<summary>How does socket teardown work in full-duplex proxies?</summary>
-<p>When either the visitor disconnects or the local server finishes sending the HTTP response, <code>io.Copy</code> unblocks with <code>io.EOF</code> or a closed-socket error. The returned channel immediately executes deferred socket closures (<code>localConn.Close()</code> and <code>tunnelConn.Close()</code>), unblocking the sibling routine and preventing leaked goroutines.</p>
-</details>
 <hr />
 <h2 id="next-steps">Next Steps<a class="headerlink" href="#next-steps" title="Permanent link">&para;</a></h2>
 <ul>
