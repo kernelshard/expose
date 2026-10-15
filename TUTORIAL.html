@@ -6,7 +6,7 @@
       <meta charset="utf-8">
       <meta name="viewport" content="width=device-width,initial-scale=1">
       
-        <meta name="description" content="Understand the protocol behind Expose by building a simplified tunnel client from scratch in Go.">
+        <meta name="description" content="The open-source, single-binary Go (Golang) alternative to ngrok. Expose local ports via LocalTunnel, Cloudflare, or a self-hosted server — zero signup required.">
       
       
         <meta name="author" content="kernelshard">
@@ -69,14 +69,14 @@
   <!-- Open Graph / Facebook / Discord -->
   <meta property="og:type" content="website">
   <meta property="og:title" content="How Tunnels Work — Expose">
-  <meta property="og:description" content="Understand the protocol behind Expose by building a simplified tunnel client from scratch in Go.">
+  <meta property="og:description" content="The open-source, single-binary Go (Golang) alternative to ngrok. Expose local ports via LocalTunnel, Cloudflare, or a self-hosted server — zero signup required.">
   <meta property="og:image" content="https://kernelshard.github.io/expose/social-preview.png">
   <meta property="og:url" content="https://kernelshard.github.io/expose/TUTORIAL.html">
 
   <!-- Twitter / X -->
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="How Tunnels Work — Expose">
-  <meta name="twitter:description" content="Understand the protocol behind Expose by building a simplified tunnel client from scratch in Go.">
+  <meta name="twitter:description" content="The open-source, single-binary Go (Golang) alternative to ngrok. Expose local ports via LocalTunnel, Cloudflare, or a self-hosted server — zero signup required.">
   <meta name="twitter:image" content="https://kernelshard.github.io/expose/social-preview.png">
 
   <!-- Machine-Readable LLM Documentation -->
@@ -121,7 +121,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#how-tunnels-work" class="md-skip">
+        <a href="#how-tunnels-work-build-an-ngrok-alternative-in-go" class="md-skip">
           Skip to content
         </a>
       
@@ -647,22 +647,22 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#part-1-what-is-a-tunnel" class="md-nav__link">
+  <a href="#part-1-what-is-a-reverse-proxy-tunnel-nat-traversal" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Part 1 — What Is a Tunnel?
+        Part 1 — What Is a Reverse Proxy Tunnel? (NAT Traversal)
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Part 1 — What Is a Tunnel?">
+    <nav class="md-nav" aria-label="Part 1 — What Is a Reverse Proxy Tunnel? (NAT Traversal)">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#localtunnel-protocol" class="md-nav__link">
+  <a href="#the-request-lifecycle" class="md-nav__link">
     <span class="md-ellipsis">
       
-        LocalTunnel Protocol
+        The Request Lifecycle
       
     </span>
   </a>
@@ -675,22 +675,22 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#part-2-basic-tunnel-client" class="md-nav__link">
+  <a href="#part-2-building-a-minimal-tunnel-client" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Part 2 — Basic Tunnel Client
+        Part 2 — Building a Minimal Tunnel Client
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Part 2 — Basic Tunnel Client">
+    <nav class="md-nav" aria-label="Part 2 — Building a Minimal Tunnel Client">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#register-a-tunnel" class="md-nav__link">
+  <a href="#step-1-request-a-tunnel-endpoint" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Register a tunnel
+        Step 1: Request a Tunnel Endpoint
       
     </span>
   </a>
@@ -698,10 +698,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#connect-to-the-relay-server" class="md-nav__link">
+  <a href="#step-2-establish-the-tcp-relay-connection" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Connect to the relay server
+        Step 2: Establish the TCP Relay Connection
       
     </span>
   </a>
@@ -709,10 +709,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#proxy-a-single-request" class="md-nav__link">
+  <a href="#step-3-bidirectional-socket-proxying" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Proxy a single request
+        Step 3: Bidirectional Socket Proxying
       
     </span>
   </a>
@@ -720,10 +720,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#wire-it-together" class="md-nav__link">
+  <a href="#step-4-putting-it-all-together" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Wire it together
+        Step 4: Putting It All Together
       
     </span>
   </a>
@@ -736,22 +736,22 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#part-3-provider-abstraction" class="md-nav__link">
+  <a href="#part-3-the-provider-abstraction-pattern" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Part 3 — Provider Abstraction
+        Part 3 — The Provider Abstraction Pattern
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Part 3 — Provider Abstraction">
+    <nav class="md-nav" aria-label="Part 3 — The Provider Abstraction Pattern">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
   <a href="#the-provider-interface" class="md-nav__link">
     <span class="md-ellipsis">
       
-        The Provider interface
+        The Provider Interface
       
     </span>
   </a>
@@ -759,21 +759,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#localtunnel-implementation" class="md-nav__link">
+  <a href="#thread-safe-service-lifecycle" class="md-nav__link">
     <span class="md-ellipsis">
       
-        LocalTunnel implementation
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#service-wrapper" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Service wrapper
+        Thread-Safe Service Lifecycle
       
     </span>
   </a>
@@ -786,22 +775,33 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#part-4-building-the-cli" class="md-nav__link">
+  <a href="#part-4-modern-cli-ergonomics-with-cobra" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Part 4 — Building the CLI
+        Part 4 — Modern CLI Ergonomics with Cobra
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Part 4 — Building the CLI">
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#part-5-advanced-tunneling-patterns" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Part 5 — Advanced Tunneling Patterns
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Part 5 — Advanced Tunneling Patterns">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#root-command" class="md-nav__link">
+  <a href="#1-pre-warmed-connection-pooling" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Root command
+        1. Pre-Warmed Connection Pooling
       
     </span>
   </a>
@@ -809,10 +809,21 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#tunnel-command" class="md-nav__link">
+  <a href="#2-native-self-hosted-relays-heartbeat-ping-pong" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Tunnel command
+        2. Native Self-Hosted Relays &amp; Heartbeat Ping-Pong
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-subprocess-orchestration-cloudflare-quick-tunnels" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Subprocess Orchestration (Cloudflare Quick Tunnels)
       
     </span>
   </a>
@@ -825,49 +836,32 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#part-5-advanced-patterns" class="md-nav__link">
+  <a href="#architecture-summary" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Part 5 — Advanced Patterns
+        Architecture Summary
       
     </span>
   </a>
-  
-    <nav class="md-nav" aria-label="Part 5 — Advanced Patterns">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#connection-pooling" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Connection pooling
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#cloudflare-provider-subprocess-wrapping" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Cloudflare provider — subprocess wrapping
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#summary" class="md-nav__link">
+  <a href="#frequently-asked-questions-faq" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Summary
+        Frequently Asked Questions (FAQ)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#next-steps" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Next Steps
       
     </span>
   </a>
@@ -1095,22 +1089,22 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#part-1-what-is-a-tunnel" class="md-nav__link">
+  <a href="#part-1-what-is-a-reverse-proxy-tunnel-nat-traversal" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Part 1 — What Is a Tunnel?
+        Part 1 — What Is a Reverse Proxy Tunnel? (NAT Traversal)
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Part 1 — What Is a Tunnel?">
+    <nav class="md-nav" aria-label="Part 1 — What Is a Reverse Proxy Tunnel? (NAT Traversal)">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#localtunnel-protocol" class="md-nav__link">
+  <a href="#the-request-lifecycle" class="md-nav__link">
     <span class="md-ellipsis">
       
-        LocalTunnel Protocol
+        The Request Lifecycle
       
     </span>
   </a>
@@ -1123,22 +1117,22 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#part-2-basic-tunnel-client" class="md-nav__link">
+  <a href="#part-2-building-a-minimal-tunnel-client" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Part 2 — Basic Tunnel Client
+        Part 2 — Building a Minimal Tunnel Client
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Part 2 — Basic Tunnel Client">
+    <nav class="md-nav" aria-label="Part 2 — Building a Minimal Tunnel Client">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#register-a-tunnel" class="md-nav__link">
+  <a href="#step-1-request-a-tunnel-endpoint" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Register a tunnel
+        Step 1: Request a Tunnel Endpoint
       
     </span>
   </a>
@@ -1146,10 +1140,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#connect-to-the-relay-server" class="md-nav__link">
+  <a href="#step-2-establish-the-tcp-relay-connection" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Connect to the relay server
+        Step 2: Establish the TCP Relay Connection
       
     </span>
   </a>
@@ -1157,10 +1151,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#proxy-a-single-request" class="md-nav__link">
+  <a href="#step-3-bidirectional-socket-proxying" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Proxy a single request
+        Step 3: Bidirectional Socket Proxying
       
     </span>
   </a>
@@ -1168,10 +1162,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#wire-it-together" class="md-nav__link">
+  <a href="#step-4-putting-it-all-together" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Wire it together
+        Step 4: Putting It All Together
       
     </span>
   </a>
@@ -1184,22 +1178,22 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#part-3-provider-abstraction" class="md-nav__link">
+  <a href="#part-3-the-provider-abstraction-pattern" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Part 3 — Provider Abstraction
+        Part 3 — The Provider Abstraction Pattern
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Part 3 — Provider Abstraction">
+    <nav class="md-nav" aria-label="Part 3 — The Provider Abstraction Pattern">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
   <a href="#the-provider-interface" class="md-nav__link">
     <span class="md-ellipsis">
       
-        The Provider interface
+        The Provider Interface
       
     </span>
   </a>
@@ -1207,21 +1201,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#localtunnel-implementation" class="md-nav__link">
+  <a href="#thread-safe-service-lifecycle" class="md-nav__link">
     <span class="md-ellipsis">
       
-        LocalTunnel implementation
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#service-wrapper" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Service wrapper
+        Thread-Safe Service Lifecycle
       
     </span>
   </a>
@@ -1234,22 +1217,33 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#part-4-building-the-cli" class="md-nav__link">
+  <a href="#part-4-modern-cli-ergonomics-with-cobra" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Part 4 — Building the CLI
+        Part 4 — Modern CLI Ergonomics with Cobra
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Part 4 — Building the CLI">
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#part-5-advanced-tunneling-patterns" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Part 5 — Advanced Tunneling Patterns
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Part 5 — Advanced Tunneling Patterns">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#root-command" class="md-nav__link">
+  <a href="#1-pre-warmed-connection-pooling" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Root command
+        1. Pre-Warmed Connection Pooling
       
     </span>
   </a>
@@ -1257,10 +1251,21 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#tunnel-command" class="md-nav__link">
+  <a href="#2-native-self-hosted-relays-heartbeat-ping-pong" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Tunnel command
+        2. Native Self-Hosted Relays &amp; Heartbeat Ping-Pong
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-subprocess-orchestration-cloudflare-quick-tunnels" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Subprocess Orchestration (Cloudflare Quick Tunnels)
       
     </span>
   </a>
@@ -1273,49 +1278,32 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#part-5-advanced-patterns" class="md-nav__link">
+  <a href="#architecture-summary" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Part 5 — Advanced Patterns
+        Architecture Summary
       
     </span>
   </a>
-  
-    <nav class="md-nav" aria-label="Part 5 — Advanced Patterns">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#connection-pooling" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Connection pooling
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#cloudflare-provider-subprocess-wrapping" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Cloudflare provider — subprocess wrapping
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#summary" class="md-nav__link">
+  <a href="#frequently-asked-questions-faq" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Summary
+        Frequently Asked Questions (FAQ)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#next-steps" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Next Steps
       
     </span>
   </a>
@@ -1390,389 +1378,384 @@
   
 
 
-<h1 id="how-tunnels-work">How Tunnels Work<a class="headerlink" href="#how-tunnels-work" title="Permanent link">&para;</a></h1>
-<p>This guide explains how reverse-proxy tunnels work by walking you through building a simplified version of Expose from scratch. By the end you'll understand every moving part of the real codebase.</p>
-<div class="admonition note">
-<p class="admonition-title">Who this is for</p>
-<p>This is for developers who want to understand how tunneling works under the hood — whether to contribute to Expose or just to satisfy curiosity. For daily usage, see <a href="GETTING_STARTED.html">Getting Started</a>.</p>
+<h1 id="how-tunnels-work-build-an-ngrok-alternative-in-go">How Tunnels Work: Build an ngrok Alternative in Go<a class="headerlink" href="#how-tunnels-work-build-an-ngrok-alternative-in-go" title="Permanent link">&para;</a></h1>
+<p>Reverse-proxy tunnels allow services running on your local machine (<code>localhost</code>) to be reachable from anywhere on the public internet, bypassing NATs, CGNATs, and restrictive local firewalls.</p>
+<p>This tutorial breaks down the mechanics of tunneling from first principles. By the end, you will understand how tools like <strong>ngrok</strong>, <strong>LocalTunnel</strong>, and <strong>Expose</strong> work under the hood, and how to build a working tunnel client in pure Go.</p>
+<div class="admonition tip">
+<p class="admonition-title">Public Sandboxes vs. Self-Hosted Relays</p>
+<p>In this tutorial, we will use the free, open <strong>LocalTunnel protocol</strong> (<code>localtunnel.me</code>) as a zero-setup sandbox so you can run the code immediately without spinning up a cloud server. </p>
+<p>In production, <strong>Expose</strong> also includes its own built-in, pure-Go private relay server (<code>expose server</code>) for complete data privacy, custom subdomains, and zero third-party reliance.</p>
 </div>
 <hr />
-<h2 id="part-1-what-is-a-tunnel">Part 1 — What Is a Tunnel?<a class="headerlink" href="#part-1-what-is-a-tunnel" title="Permanent link">&para;</a></h2>
-<p>A tunnel solves one problem: <strong>your localhost is not reachable from the internet</strong> (NAT, firewall). A public server acts as a relay:</p>
-<div class="language-text highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>Internet user
-</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>     │
-</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>     ▼
-</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>Public server (e.g. localtunnel.me)
-</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>     │  TCP connection maintained by your tunnel client
-</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>     ▼
-</span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>Your machine (localhost:3000)
+<h2 id="part-1-what-is-a-reverse-proxy-tunnel-nat-traversal">Part 1 — What Is a Reverse Proxy Tunnel? (NAT Traversal)<a class="headerlink" href="#part-1-what-is-a-reverse-proxy-tunnel-nat-traversal" title="Permanent link">&para;</a></h2>
+<p>When you run a web server on <code>localhost:3000</code>, external visitors cannot connect to it because your computer sits behind a router using Network Address Translation (NAT) with a private IP address (e.g., <code>192.168.1.X</code>).</p>
+<p>A <strong>reverse proxy tunnel</strong> solves this by flipping the direction of connection: <strong>your local machine initiates an outbound TCP connection to a public relay server.</strong> Because stateful firewalls automatically permit outbound traffic and its return packets, this outbound socket bypasses NAT and firewall restrictions without requiring port forwarding or router configuration.</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a> ┌────────────────┐          ┌───────────────────────┐          ┌──────────────┐
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a> │ Internet User  │ ──HTTP─► │  Public Relay Server  │ ◄──TCP── │ Local Client │ ──HTTP─► localhost:3000
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a> └────────────────┘          │  (e.g. VPS / Relay)   │          └──────────────┘
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>                             └───────────────────────┘           (Expose Client)
 </span></code></pre></div>
-<p>The flow for every request:</p>
+<h3 id="the-request-lifecycle">The Request Lifecycle<a class="headerlink" href="#the-request-lifecycle" title="Permanent link">&para;</a></h3>
 <ol>
-<li>User hits <code>https://xyz.loca.lt</code></li>
-<li>Public server forwards request down the open TCP connection to your client</li>
-<li>Your client proxies it to <code>localhost:3000</code></li>
-<li>Response travels back the same path</li>
+<li><strong>Registration:</strong> Your client contacts the relay server and requests a public endpoint (e.g., <code>https://my-app.relay.com</code>).</li>
+<li><strong>Persistent Control Connection:</strong> The client establishes an outbound TCP connection to the relay and keeps it open.</li>
+<li><strong>Incoming Traffic:</strong> A public user visits <code>https://my-app.relay.com</code>.</li>
+<li><strong>Data Multiplexing:</strong> The relay forwards raw HTTP bytes down the active TCP connection to your client.</li>
+<li><strong>Local Proxying:</strong> Your client dials <code>localhost:3000</code>, writes the HTTP bytes, reads the local server's response, and pumps it back to the relay.</li>
 </ol>
-<h3 id="localtunnel-protocol">LocalTunnel Protocol<a class="headerlink" href="#localtunnel-protocol" title="Permanent link">&para;</a></h3>
-<div class="language-text highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>1. Register    POST https://localtunnel.me/?new
-</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>               ← { id, url, port }
-</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>
-</span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>2. Connect     net.Dial("tcp", "localtunnel.me:PORT")
-</span><span id="__span-1-5"><a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>
-</span><span id="__span-1-6"><a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>3. Per request  request  → [TCP conn] → dial localhost:3000
-</span><span id="__span-1-7"><a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a>                response ← [TCP conn] ← local server
-</span></code></pre></div>
 <hr />
-<h2 id="part-2-basic-tunnel-client">Part 2 — Basic Tunnel Client<a class="headerlink" href="#part-2-basic-tunnel-client" title="Permanent link">&para;</a></h2>
-<p>Let's build a minimal, working tunnel client step by step.</p>
-<h3 id="register-a-tunnel">Register a tunnel<a class="headerlink" href="#register-a-tunnel" title="Permanent link">&para;</a></h3>
-<div class="language-go highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="kn">package</span><span class="w"> </span><span class="nx">main</span>
+<h2 id="part-2-building-a-minimal-tunnel-client">Part 2 — Building a Minimal Tunnel Client<a class="headerlink" href="#part-2-building-a-minimal-tunnel-client" title="Permanent link">&para;</a></h2>
+<p>Let's build a standalone, working tunnel client in Go in under 60 lines of code.</p>
+<h3 id="step-1-request-a-tunnel-endpoint">Step 1: Request a Tunnel Endpoint<a class="headerlink" href="#step-1-request-a-tunnel-endpoint" title="Permanent link">&para;</a></h3>
+<p>First, we ask the relay for an assigned subdomain and a dedicated TCP data port:</p>
+<div class="language-go highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="kn">package</span><span class="w"> </span><span class="nx">main</span>
+</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>
+</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="kn">import</span><span class="w"> </span><span class="p">(</span>
+</span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="w">    </span><span class="s">"encoding/json"</span>
+</span><span id="__span-1-5"><a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="w">    </span><span class="s">"fmt"</span>
+</span><span id="__span-1-6"><a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a><span class="w">    </span><span class="s">"net/http"</span>
+</span><span id="__span-1-7"><a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a><span class="p">)</span>
+</span><span id="__span-1-8"><a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a>
+</span><span id="__span-1-9"><a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a><span class="kd">type</span><span class="w"> </span><span class="nx">TunnelInfo</span><span class="w"> </span><span class="kd">struct</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-1-10"><a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a><span class="w">    </span><span class="nx">URL</span><span class="w">  </span><span class="kt">string</span><span class="w"> </span><span class="s">`json:"url"`</span>
+</span><span id="__span-1-11"><a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a><span class="w">    </span><span class="nx">Port</span><span class="w"> </span><span class="kt">int</span><span class="w">    </span><span class="s">`json:"port"`</span>
+</span><span id="__span-1-12"><a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a><span class="p">}</span>
+</span><span id="__span-1-13"><a id="__codelineno-1-13" name="__codelineno-1-13" href="#__codelineno-1-13"></a>
+</span><span id="__span-1-14"><a id="__codelineno-1-14" name="__codelineno-1-14" href="#__codelineno-1-14"></a><span class="kd">func</span><span class="w"> </span><span class="nx">requestTunnel</span><span class="p">()</span><span class="w"> </span><span class="p">(</span><span class="o">*</span><span class="nx">TunnelInfo</span><span class="p">,</span><span class="w"> </span><span class="kt">error</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-1-15"><a id="__codelineno-1-15" name="__codelineno-1-15" href="#__codelineno-1-15"></a><span class="w">    </span><span class="nx">resp</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">http</span><span class="p">.</span><span class="nx">Get</span><span class="p">(</span><span class="s">"https://localtunnel.me/?new"</span><span class="p">)</span>
+</span><span id="__span-1-16"><a id="__codelineno-1-16" name="__codelineno-1-16" href="#__codelineno-1-16"></a><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">nil</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-1-17"><a id="__codelineno-1-17" name="__codelineno-1-17" href="#__codelineno-1-17"></a><span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="kc">nil</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span>
+</span><span id="__span-1-18"><a id="__codelineno-1-18" name="__codelineno-1-18" href="#__codelineno-1-18"></a><span class="w">    </span><span class="p">}</span>
+</span><span id="__span-1-19"><a id="__codelineno-1-19" name="__codelineno-1-19" href="#__codelineno-1-19"></a><span class="w">    </span><span class="k">defer</span><span class="w"> </span><span class="nx">resp</span><span class="p">.</span><span class="nx">Body</span><span class="p">.</span><span class="nx">Close</span><span class="p">()</span>
+</span><span id="__span-1-20"><a id="__codelineno-1-20" name="__codelineno-1-20" href="#__codelineno-1-20"></a>
+</span><span id="__span-1-21"><a id="__codelineno-1-21" name="__codelineno-1-21" href="#__codelineno-1-21"></a><span class="w">    </span><span class="kd">var</span><span class="w"> </span><span class="nx">info</span><span class="w"> </span><span class="nx">TunnelInfo</span>
+</span><span id="__span-1-22"><a id="__codelineno-1-22" name="__codelineno-1-22" href="#__codelineno-1-22"></a><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">json</span><span class="p">.</span><span class="nx">NewDecoder</span><span class="p">(</span><span class="nx">resp</span><span class="p">.</span><span class="nx">Body</span><span class="p">).</span><span class="nx">Decode</span><span class="p">(</span><span class="o">&amp;</span><span class="nx">info</span><span class="p">);</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">nil</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-1-23"><a id="__codelineno-1-23" name="__codelineno-1-23" href="#__codelineno-1-23"></a><span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="kc">nil</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span>
+</span><span id="__span-1-24"><a id="__codelineno-1-24" name="__codelineno-1-24" href="#__codelineno-1-24"></a><span class="w">    </span><span class="p">}</span>
+</span><span id="__span-1-25"><a id="__codelineno-1-25" name="__codelineno-1-25" href="#__codelineno-1-25"></a>
+</span><span id="__span-1-26"><a id="__codelineno-1-26" name="__codelineno-1-26" href="#__codelineno-1-26"></a><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="o">&amp;</span><span class="nx">info</span><span class="p">,</span><span class="w"> </span><span class="kc">nil</span>
+</span><span id="__span-1-27"><a id="__codelineno-1-27" name="__codelineno-1-27" href="#__codelineno-1-27"></a><span class="p">}</span>
+</span></code></pre></div>
+<h3 id="step-2-establish-the-tcp-relay-connection">Step 2: Establish the TCP Relay Connection<a class="headerlink" href="#step-2-establish-the-tcp-relay-connection" title="Permanent link">&para;</a></h3>
+<p>Next, we open an outbound TCP socket to the relay host on the assigned port:</p>
+<div class="language-go highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="kn">import</span><span class="w"> </span><span class="s">"net"</span>
 </span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>
-</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="kn">import</span><span class="w"> </span><span class="p">(</span>
-</span><span id="__span-2-4"><a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="w">    </span><span class="s">"encoding/json"</span>
-</span><span id="__span-2-5"><a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="w">    </span><span class="s">"fmt"</span>
-</span><span id="__span-2-6"><a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a><span class="w">    </span><span class="s">"net/http"</span>
-</span><span id="__span-2-7"><a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a><span class="p">)</span>
-</span><span id="__span-2-8"><a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a>
-</span><span id="__span-2-9"><a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a><span class="kd">type</span><span class="w"> </span><span class="nx">TunnelInfo</span><span class="w"> </span><span class="kd">struct</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__span-2-10"><a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a><span class="w">    </span><span class="nx">URL</span><span class="w">  </span><span class="kt">string</span><span class="w"> </span><span class="s">`json:"url"`</span>
-</span><span id="__span-2-11"><a id="__codelineno-2-11" name="__codelineno-2-11" href="#__codelineno-2-11"></a><span class="w">    </span><span class="nx">Port</span><span class="w"> </span><span class="kt">int</span><span class="w">    </span><span class="s">`json:"port"`</span>
-</span><span id="__span-2-12"><a id="__codelineno-2-12" name="__codelineno-2-12" href="#__codelineno-2-12"></a><span class="p">}</span>
-</span><span id="__span-2-13"><a id="__codelineno-2-13" name="__codelineno-2-13" href="#__codelineno-2-13"></a>
-</span><span id="__span-2-14"><a id="__codelineno-2-14" name="__codelineno-2-14" href="#__codelineno-2-14"></a><span class="kd">func</span><span class="w"> </span><span class="nx">requestTunnel</span><span class="p">()</span><span class="w"> </span><span class="p">(</span><span class="o">*</span><span class="nx">TunnelInfo</span><span class="p">,</span><span class="w"> </span><span class="kt">error</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__span-2-15"><a id="__codelineno-2-15" name="__codelineno-2-15" href="#__codelineno-2-15"></a><span class="w">    </span><span class="nx">resp</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">http</span><span class="p">.</span><span class="nx">Get</span><span class="p">(</span><span class="s">"https://localtunnel.me/?new"</span><span class="p">)</span>
-</span><span id="__span-2-16"><a id="__codelineno-2-16" name="__codelineno-2-16" href="#__codelineno-2-16"></a><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">nil</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__span-2-17"><a id="__codelineno-2-17" name="__codelineno-2-17" href="#__codelineno-2-17"></a><span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="kc">nil</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span>
-</span><span id="__span-2-18"><a id="__codelineno-2-18" name="__codelineno-2-18" href="#__codelineno-2-18"></a><span class="w">    </span><span class="p">}</span>
-</span><span id="__span-2-19"><a id="__codelineno-2-19" name="__codelineno-2-19" href="#__codelineno-2-19"></a><span class="w">    </span><span class="k">defer</span><span class="w"> </span><span class="nx">resp</span><span class="p">.</span><span class="nx">Body</span><span class="p">.</span><span class="nx">Close</span><span class="p">()</span>
-</span><span id="__span-2-20"><a id="__codelineno-2-20" name="__codelineno-2-20" href="#__codelineno-2-20"></a>
-</span><span id="__span-2-21"><a id="__codelineno-2-21" name="__codelineno-2-21" href="#__codelineno-2-21"></a><span class="w">    </span><span class="kd">var</span><span class="w"> </span><span class="nx">info</span><span class="w"> </span><span class="nx">TunnelInfo</span>
-</span><span id="__span-2-22"><a id="__codelineno-2-22" name="__codelineno-2-22" href="#__codelineno-2-22"></a><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">json</span><span class="p">.</span><span class="nx">NewDecoder</span><span class="p">(</span><span class="nx">resp</span><span class="p">.</span><span class="nx">Body</span><span class="p">).</span><span class="nx">Decode</span><span class="p">(</span><span class="o">&amp;</span><span class="nx">info</span><span class="p">);</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">nil</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__span-2-23"><a id="__codelineno-2-23" name="__codelineno-2-23" href="#__codelineno-2-23"></a><span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="kc">nil</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span>
-</span><span id="__span-2-24"><a id="__codelineno-2-24" name="__codelineno-2-24" href="#__codelineno-2-24"></a><span class="w">    </span><span class="p">}</span>
-</span><span id="__span-2-25"><a id="__codelineno-2-25" name="__codelineno-2-25" href="#__codelineno-2-25"></a>
-</span><span id="__span-2-26"><a id="__codelineno-2-26" name="__codelineno-2-26" href="#__codelineno-2-26"></a><span class="w">    </span><span class="nx">fmt</span><span class="p">.</span><span class="nx">Printf</span><span class="p">(</span><span class="s">"Tunnel assigned: %s (relay port %d)\n"</span><span class="p">,</span><span class="w"> </span><span class="nx">info</span><span class="p">.</span><span class="nx">URL</span><span class="p">,</span><span class="w"> </span><span class="nx">info</span><span class="p">.</span><span class="nx">Port</span><span class="p">)</span>
-</span><span id="__span-2-27"><a id="__codelineno-2-27" name="__codelineno-2-27" href="#__codelineno-2-27"></a><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="o">&amp;</span><span class="nx">info</span><span class="p">,</span><span class="w"> </span><span class="kc">nil</span>
-</span><span id="__span-2-28"><a id="__codelineno-2-28" name="__codelineno-2-28" href="#__codelineno-2-28"></a><span class="p">}</span>
+</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="kd">func</span><span class="w"> </span><span class="nx">dialTunnel</span><span class="p">(</span><span class="nx">info</span><span class="w"> </span><span class="o">*</span><span class="nx">TunnelInfo</span><span class="p">)</span><span class="w"> </span><span class="p">(</span><span class="nx">net</span><span class="p">.</span><span class="nx">Conn</span><span class="p">,</span><span class="w"> </span><span class="kt">error</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-2-4"><a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="w">    </span><span class="nx">address</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">fmt</span><span class="p">.</span><span class="nx">Sprintf</span><span class="p">(</span><span class="s">"localtunnel.me:%d"</span><span class="p">,</span><span class="w"> </span><span class="nx">info</span><span class="p">.</span><span class="nx">Port</span><span class="p">)</span>
+</span><span id="__span-2-5"><a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="nx">net</span><span class="p">.</span><span class="nx">Dial</span><span class="p">(</span><span class="s">"tcp"</span><span class="p">,</span><span class="w"> </span><span class="nx">address</span><span class="p">)</span>
+</span><span id="__span-2-6"><a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a><span class="p">}</span>
 </span></code></pre></div>
-<h3 id="connect-to-the-relay-server">Connect to the relay server<a class="headerlink" href="#connect-to-the-relay-server" title="Permanent link">&para;</a></h3>
-<div class="language-go highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="kn">import</span><span class="w"> </span><span class="s">"net"</span>
-</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>
-</span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="kd">func</span><span class="w"> </span><span class="nx">connectTunnel</span><span class="p">(</span><span class="nx">info</span><span class="w"> </span><span class="o">*</span><span class="nx">TunnelInfo</span><span class="p">)</span><span class="w"> </span><span class="p">(</span><span class="nx">net</span><span class="p">.</span><span class="nx">Conn</span><span class="p">,</span><span class="w"> </span><span class="kt">error</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__span-3-4"><a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="w">    </span><span class="nx">address</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">fmt</span><span class="p">.</span><span class="nx">Sprintf</span><span class="p">(</span><span class="s">"localtunnel.me:%d"</span><span class="p">,</span><span class="w"> </span><span class="nx">info</span><span class="p">.</span><span class="nx">Port</span><span class="p">)</span>
-</span><span id="__span-3-5"><a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="nx">net</span><span class="p">.</span><span class="nx">Dial</span><span class="p">(</span><span class="s">"tcp"</span><span class="p">,</span><span class="w"> </span><span class="nx">address</span><span class="p">)</span>
-</span><span id="__span-3-6"><a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a><span class="p">}</span>
+<h3 id="step-3-bidirectional-socket-proxying">Step 3: Bidirectional Socket Proxying<a class="headerlink" href="#step-3-bidirectional-socket-proxying" title="Permanent link">&para;</a></h3>
+<p>When the relay sends an incoming HTTP request down the connection, we dial our local application and stream raw bytes using full-duplex piping with <code>io.Copy</code>:</p>
+<div class="language-go highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="kn">import</span><span class="w"> </span><span class="p">(</span>
+</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="w">    </span><span class="s">"fmt"</span>
+</span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="w">    </span><span class="s">"io"</span>
+</span><span id="__span-3-4"><a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="w">    </span><span class="s">"net"</span>
+</span><span id="__span-3-5"><a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span class="p">)</span>
+</span><span id="__span-3-6"><a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a>
+</span><span id="__span-3-7"><a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a><span class="kd">func</span><span class="w"> </span><span class="nx">proxyRequest</span><span class="p">(</span><span class="nx">tunnelConn</span><span class="w"> </span><span class="nx">net</span><span class="p">.</span><span class="nx">Conn</span><span class="p">,</span><span class="w"> </span><span class="nx">localPort</span><span class="w"> </span><span class="kt">int</span><span class="p">)</span><span class="w"> </span><span class="kt">error</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-3-8"><a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a><span class="w">    </span><span class="nx">localConn</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">net</span><span class="p">.</span><span class="nx">Dial</span><span class="p">(</span><span class="s">"tcp"</span><span class="p">,</span><span class="w"> </span><span class="nx">fmt</span><span class="p">.</span><span class="nx">Sprintf</span><span class="p">(</span><span class="s">"localhost:%d"</span><span class="p">,</span><span class="w"> </span><span class="nx">localPort</span><span class="p">))</span>
+</span><span id="__span-3-9"><a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">nil</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-3-10"><a id="__codelineno-3-10" name="__codelineno-3-10" href="#__codelineno-3-10"></a><span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="nx">fmt</span><span class="p">.</span><span class="nx">Errorf</span><span class="p">(</span><span class="s">"local server offline: %w"</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span><span class="p">)</span>
+</span><span id="__span-3-11"><a id="__codelineno-3-11" name="__codelineno-3-11" href="#__codelineno-3-11"></a><span class="w">    </span><span class="p">}</span>
+</span><span id="__span-3-12"><a id="__codelineno-3-12" name="__codelineno-3-12" href="#__codelineno-3-12"></a><span class="w">    </span><span class="k">defer</span><span class="w"> </span><span class="nx">localConn</span><span class="p">.</span><span class="nx">Close</span><span class="p">()</span>
+</span><span id="__span-3-13"><a id="__codelineno-3-13" name="__codelineno-3-13" href="#__codelineno-3-13"></a>
+</span><span id="__span-3-14"><a id="__codelineno-3-14" name="__codelineno-3-14" href="#__codelineno-3-14"></a><span class="w">    </span><span class="c1">// Dual-direction stream pump: visitor -&gt; local, local -&gt; visitor</span>
+</span><span id="__span-3-15"><a id="__codelineno-3-15" name="__codelineno-3-15" href="#__codelineno-3-15"></a><span class="w">    </span><span class="nx">done</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nb">make</span><span class="p">(</span><span class="kt">chan</span><span class="w"> </span><span class="kt">error</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">)</span>
+</span><span id="__span-3-16"><a id="__codelineno-3-16" name="__codelineno-3-16" href="#__codelineno-3-16"></a><span class="w">    </span><span class="k">go</span><span class="w"> </span><span class="kd">func</span><span class="p">()</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">_</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">io</span><span class="p">.</span><span class="nx">Copy</span><span class="p">(</span><span class="nx">localConn</span><span class="p">,</span><span class="w"> </span><span class="nx">tunnelConn</span><span class="p">);</span><span class="w"> </span><span class="nx">done</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="p">}()</span>
+</span><span id="__span-3-17"><a id="__codelineno-3-17" name="__codelineno-3-17" href="#__codelineno-3-17"></a><span class="w">    </span><span class="k">go</span><span class="w"> </span><span class="kd">func</span><span class="p">()</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">_</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">io</span><span class="p">.</span><span class="nx">Copy</span><span class="p">(</span><span class="nx">tunnelConn</span><span class="p">,</span><span class="w"> </span><span class="nx">localConn</span><span class="p">);</span><span class="w"> </span><span class="nx">done</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="p">}()</span>
+</span><span id="__span-3-18"><a id="__codelineno-3-18" name="__codelineno-3-18" href="#__codelineno-3-18"></a>
+</span><span id="__span-3-19"><a id="__codelineno-3-19" name="__codelineno-3-19" href="#__codelineno-3-19"></a><span class="w">    </span><span class="c1">// Return when either stream ends; defer closes sockets and unblocks the sibling routine</span>
+</span><span id="__span-3-20"><a id="__codelineno-3-20" name="__codelineno-3-20" href="#__codelineno-3-20"></a><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="o">&lt;-</span><span class="nx">done</span>
+</span><span id="__span-3-21"><a id="__codelineno-3-21" name="__codelineno-3-21" href="#__codelineno-3-21"></a><span class="p">}</span>
 </span></code></pre></div>
-<h3 id="proxy-a-single-request">Proxy a single request<a class="headerlink" href="#proxy-a-single-request" title="Permanent link">&para;</a></h3>
-<div class="language-go highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="kn">import</span><span class="w"> </span><span class="s">"io"</span>
+<h3 id="step-4-putting-it-all-together">Step 4: Putting It All Together<a class="headerlink" href="#step-4-putting-it-all-together" title="Permanent link">&para;</a></h3>
+<p>Here is the complete runnable program:</p>
+<div class="language-go highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="kn">package</span><span class="w"> </span><span class="nx">main</span>
 </span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>
-</span><span id="__span-4-3"><a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="kd">func</span><span class="w"> </span><span class="nx">proxyRequest</span><span class="p">(</span><span class="nx">tunnelConn</span><span class="w"> </span><span class="nx">net</span><span class="p">.</span><span class="nx">Conn</span><span class="p">,</span><span class="w"> </span><span class="nx">localPort</span><span class="w"> </span><span class="kt">int</span><span class="p">)</span><span class="w"> </span><span class="kt">error</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__span-4-4"><a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="w">    </span><span class="nx">localConn</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">net</span><span class="p">.</span><span class="nx">Dial</span><span class="p">(</span><span class="s">"tcp"</span><span class="p">,</span><span class="w"> </span><span class="nx">fmt</span><span class="p">.</span><span class="nx">Sprintf</span><span class="p">(</span><span class="s">"localhost:%d"</span><span class="p">,</span><span class="w"> </span><span class="nx">localPort</span><span class="p">))</span>
-</span><span id="__span-4-5"><a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">nil</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__span-4-6"><a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a><span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="nx">err</span>
-</span><span id="__span-4-7"><a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a><span class="w">    </span><span class="p">}</span>
-</span><span id="__span-4-8"><a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a><span class="w">    </span><span class="k">defer</span><span class="w"> </span><span class="nx">localConn</span><span class="p">.</span><span class="nx">Close</span><span class="p">()</span>
-</span><span id="__span-4-9"><a id="__codelineno-4-9" name="__codelineno-4-9" href="#__codelineno-4-9"></a>
-</span><span id="__span-4-10"><a id="__codelineno-4-10" name="__codelineno-4-10" href="#__codelineno-4-10"></a><span class="w">    </span><span class="nx">done</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nb">make</span><span class="p">(</span><span class="kt">chan</span><span class="w"> </span><span class="kt">error</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">)</span>
-</span><span id="__span-4-11"><a id="__codelineno-4-11" name="__codelineno-4-11" href="#__codelineno-4-11"></a>
-</span><span id="__span-4-12"><a id="__codelineno-4-12" name="__codelineno-4-12" href="#__codelineno-4-12"></a><span class="w">    </span><span class="k">go</span><span class="w"> </span><span class="kd">func</span><span class="p">()</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">_</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">io</span><span class="p">.</span><span class="nx">Copy</span><span class="p">(</span><span class="nx">localConn</span><span class="p">,</span><span class="w"> </span><span class="nx">tunnelConn</span><span class="p">);</span><span class="w"> </span><span class="nx">done</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="p">}()</span>
-</span><span id="__span-4-13"><a id="__codelineno-4-13" name="__codelineno-4-13" href="#__codelineno-4-13"></a><span class="w">    </span><span class="k">go</span><span class="w"> </span><span class="kd">func</span><span class="p">()</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">_</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">io</span><span class="p">.</span><span class="nx">Copy</span><span class="p">(</span><span class="nx">tunnelConn</span><span class="p">,</span><span class="w"> </span><span class="nx">localConn</span><span class="p">);</span><span class="w"> </span><span class="nx">done</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="p">}()</span>
-</span><span id="__span-4-14"><a id="__codelineno-4-14" name="__codelineno-4-14" href="#__codelineno-4-14"></a>
-</span><span id="__span-4-15"><a id="__codelineno-4-15" name="__codelineno-4-15" href="#__codelineno-4-15"></a><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="o">&lt;-</span><span class="nx">done</span><span class="w"> </span><span class="c1">// return when either direction closes</span>
-</span><span id="__span-4-16"><a id="__codelineno-4-16" name="__codelineno-4-16" href="#__codelineno-4-16"></a><span class="p">}</span>
+</span><span id="__span-4-3"><a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="kn">import</span><span class="w"> </span><span class="p">(</span>
+</span><span id="__span-4-4"><a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="w">    </span><span class="s">"fmt"</span>
+</span><span id="__span-4-5"><a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a><span class="w">    </span><span class="s">"log"</span>
+</span><span id="__span-4-6"><a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a><span class="p">)</span>
+</span><span id="__span-4-7"><a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a>
+</span><span id="__span-4-8"><a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a><span class="kd">func</span><span class="w"> </span><span class="nx">main</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-4-9"><a id="__codelineno-4-9" name="__codelineno-4-9" href="#__codelineno-4-9"></a><span class="w">    </span><span class="nx">localPort</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="mi">3000</span>
+</span><span id="__span-4-10"><a id="__codelineno-4-10" name="__codelineno-4-10" href="#__codelineno-4-10"></a>
+</span><span id="__span-4-11"><a id="__codelineno-4-11" name="__codelineno-4-11" href="#__codelineno-4-11"></a><span class="w">    </span><span class="nx">info</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">requestTunnel</span><span class="p">()</span>
+</span><span id="__span-4-12"><a id="__codelineno-4-12" name="__codelineno-4-12" href="#__codelineno-4-12"></a><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">nil</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-4-13"><a id="__codelineno-4-13" name="__codelineno-4-13" href="#__codelineno-4-13"></a><span class="w">        </span><span class="nx">log</span><span class="p">.</span><span class="nx">Fatalf</span><span class="p">(</span><span class="s">"Failed to register tunnel: %v"</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span><span class="p">)</span>
+</span><span id="__span-4-14"><a id="__codelineno-4-14" name="__codelineno-4-14" href="#__codelineno-4-14"></a><span class="w">    </span><span class="p">}</span>
+</span><span id="__span-4-15"><a id="__codelineno-4-15" name="__codelineno-4-15" href="#__codelineno-4-15"></a>
+</span><span id="__span-4-16"><a id="__codelineno-4-16" name="__codelineno-4-16" href="#__codelineno-4-16"></a><span class="w">    </span><span class="nx">fmt</span><span class="p">.</span><span class="nx">Printf</span><span class="p">(</span><span class="s">"✓ Public URL:    %s\n"</span><span class="p">,</span><span class="w"> </span><span class="nx">info</span><span class="p">.</span><span class="nx">URL</span><span class="p">)</span>
+</span><span id="__span-4-17"><a id="__codelineno-4-17" name="__codelineno-4-17" href="#__codelineno-4-17"></a><span class="w">    </span><span class="nx">fmt</span><span class="p">.</span><span class="nx">Printf</span><span class="p">(</span><span class="s">"✓ Forwarding to: http://localhost:%d\n"</span><span class="p">,</span><span class="w"> </span><span class="nx">localPort</span><span class="p">)</span>
+</span><span id="__span-4-18"><a id="__codelineno-4-18" name="__codelineno-4-18" href="#__codelineno-4-18"></a>
+</span><span id="__span-4-19"><a id="__codelineno-4-19" name="__codelineno-4-19" href="#__codelineno-4-19"></a><span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-4-20"><a id="__codelineno-4-20" name="__codelineno-4-20" href="#__codelineno-4-20"></a><span class="w">        </span><span class="nx">conn</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">dialTunnel</span><span class="p">(</span><span class="nx">info</span><span class="p">)</span>
+</span><span id="__span-4-21"><a id="__codelineno-4-21" name="__codelineno-4-21" href="#__codelineno-4-21"></a><span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">nil</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-4-22"><a id="__codelineno-4-22" name="__codelineno-4-22" href="#__codelineno-4-22"></a><span class="w">            </span><span class="nx">log</span><span class="p">.</span><span class="nx">Printf</span><span class="p">(</span><span class="s">"Tunnel connection error: %v"</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span><span class="p">)</span>
+</span><span id="__span-4-23"><a id="__codelineno-4-23" name="__codelineno-4-23" href="#__codelineno-4-23"></a><span class="w">            </span><span class="k">break</span>
+</span><span id="__span-4-24"><a id="__codelineno-4-24" name="__codelineno-4-24" href="#__codelineno-4-24"></a><span class="w">        </span><span class="p">}</span>
+</span><span id="__span-4-25"><a id="__codelineno-4-25" name="__codelineno-4-25" href="#__codelineno-4-25"></a>
+</span><span id="__span-4-26"><a id="__codelineno-4-26" name="__codelineno-4-26" href="#__codelineno-4-26"></a><span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">proxyRequest</span><span class="p">(</span><span class="nx">conn</span><span class="p">,</span><span class="w"> </span><span class="nx">localPort</span><span class="p">);</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">nil</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-4-27"><a id="__codelineno-4-27" name="__codelineno-4-27" href="#__codelineno-4-27"></a><span class="w">            </span><span class="nx">log</span><span class="p">.</span><span class="nx">Printf</span><span class="p">(</span><span class="s">"Proxy stream closed: %v"</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span><span class="p">)</span>
+</span><span id="__span-4-28"><a id="__codelineno-4-28" name="__codelineno-4-28" href="#__codelineno-4-28"></a><span class="w">        </span><span class="p">}</span>
+</span><span id="__span-4-29"><a id="__codelineno-4-29" name="__codelineno-4-29" href="#__codelineno-4-29"></a><span class="w">        </span><span class="nx">conn</span><span class="p">.</span><span class="nx">Close</span><span class="p">()</span>
+</span><span id="__span-4-30"><a id="__codelineno-4-30" name="__codelineno-4-30" href="#__codelineno-4-30"></a><span class="w">    </span><span class="p">}</span>
+</span><span id="__span-4-31"><a id="__codelineno-4-31" name="__codelineno-4-31" href="#__codelineno-4-31"></a><span class="p">}</span>
 </span></code></pre></div>
-<h3 id="wire-it-together">Wire it together<a class="headerlink" href="#wire-it-together" title="Permanent link">&para;</a></h3>
-<div class="language-go highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="kd">func</span><span class="w"> </span><span class="nx">main</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="w">    </span><span class="nx">localPort</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="mi">3000</span>
+<p>To test it:
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="c1"># Terminal 1: Start any local web server</span>
+</span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>python3<span class="w"> </span>-m<span class="w"> </span>http.server<span class="w"> </span><span class="m">3000</span>
 </span><span id="__span-5-3"><a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>
-</span><span id="__span-5-4"><a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a><span class="w">    </span><span class="nx">info</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">requestTunnel</span><span class="p">()</span>
-</span><span id="__span-5-5"><a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">nil</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__span-5-6"><a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a><span class="w">        </span><span class="nb">panic</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span>
-</span><span id="__span-5-7"><a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a><span class="w">    </span><span class="p">}</span>
-</span><span id="__span-5-8"><a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a>
-</span><span id="__span-5-9"><a id="__codelineno-5-9" name="__codelineno-5-9" href="#__codelineno-5-9"></a><span class="w">    </span><span class="nx">fmt</span><span class="p">.</span><span class="nx">Printf</span><span class="p">(</span><span class="s">"Public URL:     %s\n"</span><span class="p">,</span><span class="w"> </span><span class="nx">info</span><span class="p">.</span><span class="nx">URL</span><span class="p">)</span>
-</span><span id="__span-5-10"><a id="__codelineno-5-10" name="__codelineno-5-10" href="#__codelineno-5-10"></a><span class="w">    </span><span class="nx">fmt</span><span class="p">.</span><span class="nx">Printf</span><span class="p">(</span><span class="s">"Forwarding to:  localhost:%d\n"</span><span class="p">,</span><span class="w"> </span><span class="nx">localPort</span><span class="p">)</span>
-</span><span id="__span-5-11"><a id="__codelineno-5-11" name="__codelineno-5-11" href="#__codelineno-5-11"></a>
-</span><span id="__span-5-12"><a id="__codelineno-5-12" name="__codelineno-5-12" href="#__codelineno-5-12"></a><span class="w">    </span><span class="nx">conn</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">connectTunnel</span><span class="p">(</span><span class="nx">info</span><span class="p">)</span>
-</span><span id="__span-5-13"><a id="__codelineno-5-13" name="__codelineno-5-13" href="#__codelineno-5-13"></a><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">nil</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__span-5-14"><a id="__codelineno-5-14" name="__codelineno-5-14" href="#__codelineno-5-14"></a><span class="w">        </span><span class="nb">panic</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span>
-</span><span id="__span-5-15"><a id="__codelineno-5-15" name="__codelineno-5-15" href="#__codelineno-5-15"></a><span class="w">    </span><span class="p">}</span>
-</span><span id="__span-5-16"><a id="__codelineno-5-16" name="__codelineno-5-16" href="#__codelineno-5-16"></a><span class="w">    </span><span class="k">defer</span><span class="w"> </span><span class="nx">conn</span><span class="p">.</span><span class="nx">Close</span><span class="p">()</span>
-</span><span id="__span-5-17"><a id="__codelineno-5-17" name="__codelineno-5-17" href="#__codelineno-5-17"></a>
-</span><span id="__span-5-18"><a id="__codelineno-5-18" name="__codelineno-5-18" href="#__codelineno-5-18"></a><span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__span-5-19"><a id="__codelineno-5-19" name="__codelineno-5-19" href="#__codelineno-5-19"></a><span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">proxyRequest</span><span class="p">(</span><span class="nx">conn</span><span class="p">,</span><span class="w"> </span><span class="nx">localPort</span><span class="p">);</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">nil</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__span-5-20"><a id="__codelineno-5-20" name="__codelineno-5-20" href="#__codelineno-5-20"></a><span class="w">            </span><span class="nx">fmt</span><span class="p">.</span><span class="nx">Printf</span><span class="p">(</span><span class="s">"error: %v\n"</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span><span class="p">)</span>
-</span><span id="__span-5-21"><a id="__codelineno-5-21" name="__codelineno-5-21" href="#__codelineno-5-21"></a><span class="w">            </span><span class="k">break</span>
-</span><span id="__span-5-22"><a id="__codelineno-5-22" name="__codelineno-5-22" href="#__codelineno-5-22"></a><span class="w">        </span><span class="p">}</span>
-</span><span id="__span-5-23"><a id="__codelineno-5-23" name="__codelineno-5-23" href="#__codelineno-5-23"></a><span class="w">    </span><span class="p">}</span>
-</span><span id="__span-5-24"><a id="__codelineno-5-24" name="__codelineno-5-24" href="#__codelineno-5-24"></a><span class="p">}</span>
-</span></code></pre></div>
-<p>Try it:</p>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>python<span class="w"> </span>-m<span class="w"> </span>http.server<span class="w"> </span><span class="m">3000</span><span class="w">   </span><span class="c1"># local server</span>
-</span><span id="__span-6-2"><a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>go<span class="w"> </span>run<span class="w"> </span>basic-tunnel.go<span class="w">       </span><span class="c1"># your tunnel client</span>
-</span></code></pre></div>
+</span><span id="__span-5-4"><a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a><span class="c1"># Terminal 2: Run your tunnel client</span>
+</span><span id="__span-5-5"><a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a>go<span class="w"> </span>run<span class="w"> </span>main.go
+</span></code></pre></div></p>
+<div class="admonition note">
+<p class="admonition-title">Handling Traffic Concurrency</p>
+<p>This introductory script handles requests sequentially. In <strong>Part 5</strong>, we show how Expose uses pre-warmed connection pools to serve concurrent requests simultaneously.</p>
+</div>
 <hr />
-<h2 id="part-3-provider-abstraction">Part 3 — Provider Abstraction<a class="headerlink" href="#part-3-provider-abstraction" title="Permanent link">&para;</a></h2>
-<p>The real Expose supports multiple providers (LocalTunnel, Cloudflare, self-hosted). We use Go interfaces to make switching seamless.</p>
-<h3 id="the-provider-interface">The Provider interface<a class="headerlink" href="#the-provider-interface" title="Permanent link">&para;</a></h3>
-<div class="language-go highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="c1">// internal/tunnel/provider.go</span>
+<h2 id="part-3-the-provider-abstraction-pattern">Part 3 — The Provider Abstraction Pattern<a class="headerlink" href="#part-3-the-provider-abstraction-pattern" title="Permanent link">&para;</a></h2>
+<p>Production systems like Expose support multiple relays (LocalTunnel, Cloudflare, private VPS). Moving from our standalone script to a production codebase introduces two crucial Go patterns:
+- <strong><code>context.Context</code></strong>: For dial timeouts, cancellation, and leak-free shutdowns that our 50-line script omitted.
+- <strong><code>Provider</code> Interfaces</strong>: To switch transports with zero changes to CLI or business logic.</p>
+<h3 id="the-provider-interface">The <code>Provider</code> Interface<a class="headerlink" href="#the-provider-interface" title="Permanent link">&para;</a></h3>
+<div class="language-go highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="c1">// internal/tunnel/provider.go</span>
+</span><span id="__span-6-2"><a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="kn">package</span><span class="w"> </span><span class="nx">tunnel</span>
+</span><span id="__span-6-3"><a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>
+</span><span id="__span-6-4"><a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a><span class="kn">import</span><span class="w"> </span><span class="s">"context"</span>
+</span><span id="__span-6-5"><a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a>
+</span><span id="__span-6-6"><a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a><span class="kd">type</span><span class="w"> </span><span class="nx">Provider</span><span class="w"> </span><span class="kd">interface</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-6-7"><a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a><span class="w">    </span><span class="c1">// Connect starts the tunnel for the given local port and returns the public URL</span>
+</span><span id="__span-6-8"><a id="__codelineno-6-8" name="__codelineno-6-8" href="#__codelineno-6-8"></a><span class="w">    </span><span class="nx">Connect</span><span class="p">(</span><span class="nx">ctx</span><span class="w"> </span><span class="nx">context</span><span class="p">.</span><span class="nx">Context</span><span class="p">,</span><span class="w"> </span><span class="nx">localPort</span><span class="w"> </span><span class="kt">int</span><span class="p">)</span><span class="w"> </span><span class="p">(</span><span class="kt">string</span><span class="p">,</span><span class="w"> </span><span class="kt">error</span><span class="p">)</span>
+</span><span id="__span-6-9"><a id="__codelineno-6-9" name="__codelineno-6-9" href="#__codelineno-6-9"></a><span class="w">    </span><span class="c1">// Close terminates the tunnel and cleans up socket descriptors</span>
+</span><span id="__span-6-10"><a id="__codelineno-6-10" name="__codelineno-6-10" href="#__codelineno-6-10"></a><span class="w">    </span><span class="nx">Close</span><span class="p">()</span><span class="w"> </span><span class="kt">error</span>
+</span><span id="__span-6-11"><a id="__codelineno-6-11" name="__codelineno-6-11" href="#__codelineno-6-11"></a><span class="w">    </span><span class="c1">// IsConnected reports whether the tunnel transport is currently alive</span>
+</span><span id="__span-6-12"><a id="__codelineno-6-12" name="__codelineno-6-12" href="#__codelineno-6-12"></a><span class="w">    </span><span class="nx">IsConnected</span><span class="p">()</span><span class="w"> </span><span class="kt">bool</span>
+</span><span id="__span-6-13"><a id="__codelineno-6-13" name="__codelineno-6-13" href="#__codelineno-6-13"></a><span class="w">    </span><span class="c1">// PublicURL returns the public HTTP address assigned by the relay</span>
+</span><span id="__span-6-14"><a id="__codelineno-6-14" name="__codelineno-6-14" href="#__codelineno-6-14"></a><span class="w">    </span><span class="nx">PublicURL</span><span class="p">()</span><span class="w"> </span><span class="kt">string</span>
+</span><span id="__span-6-15"><a id="__codelineno-6-15" name="__codelineno-6-15" href="#__codelineno-6-15"></a><span class="w">    </span><span class="c1">// Name returns the provider identifier (e.g. "localtunnel", "selfhosted", "cloudflare")</span>
+</span><span id="__span-6-16"><a id="__codelineno-6-16" name="__codelineno-6-16" href="#__codelineno-6-16"></a><span class="w">    </span><span class="nx">Name</span><span class="p">()</span><span class="w"> </span><span class="kt">string</span>
+</span><span id="__span-6-17"><a id="__codelineno-6-17" name="__codelineno-6-17" href="#__codelineno-6-17"></a><span class="p">}</span>
+</span></code></pre></div>
+<h3 id="thread-safe-service-lifecycle">Thread-Safe Service Lifecycle<a class="headerlink" href="#thread-safe-service-lifecycle" title="Permanent link">&para;</a></h3>
+<p>In real applications, multiple goroutines query tunnel state concurrently (e.g., CLI printers, health probes, shutdown hooks). </p>
+<p>Expose wraps the active provider in a <code>Service</code> struct synchronized by <code>sync.RWMutex</code> and channels:</p>
+<div class="language-go highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="c1">// internal/tunnel/service.go</span>
 </span><span id="__span-7-2"><a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a><span class="kn">package</span><span class="w"> </span><span class="nx">tunnel</span>
 </span><span id="__span-7-3"><a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a>
-</span><span id="__span-7-4"><a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a><span class="kn">import</span><span class="w"> </span><span class="s">"context"</span>
-</span><span id="__span-7-5"><a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a>
-</span><span id="__span-7-6"><a id="__codelineno-7-6" name="__codelineno-7-6" href="#__codelineno-7-6"></a><span class="kd">type</span><span class="w"> </span><span class="nx">Provider</span><span class="w"> </span><span class="kd">interface</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__span-7-7"><a id="__codelineno-7-7" name="__codelineno-7-7" href="#__codelineno-7-7"></a><span class="w">    </span><span class="nx">Connect</span><span class="p">(</span><span class="nx">ctx</span><span class="w"> </span><span class="nx">context</span><span class="p">.</span><span class="nx">Context</span><span class="p">,</span><span class="w"> </span><span class="nx">localPort</span><span class="w"> </span><span class="kt">int</span><span class="p">)</span><span class="w"> </span><span class="p">(</span><span class="kt">string</span><span class="p">,</span><span class="w"> </span><span class="kt">error</span><span class="p">)</span>
-</span><span id="__span-7-8"><a id="__codelineno-7-8" name="__codelineno-7-8" href="#__codelineno-7-8"></a><span class="w">    </span><span class="nx">Close</span><span class="p">()</span><span class="w"> </span><span class="kt">error</span>
-</span><span id="__span-7-9"><a id="__codelineno-7-9" name="__codelineno-7-9" href="#__codelineno-7-9"></a><span class="w">    </span><span class="nx">IsConnected</span><span class="p">()</span><span class="w"> </span><span class="kt">bool</span>
-</span><span id="__span-7-10"><a id="__codelineno-7-10" name="__codelineno-7-10" href="#__codelineno-7-10"></a><span class="w">    </span><span class="nx">PublicURL</span><span class="p">()</span><span class="w"> </span><span class="kt">string</span>
-</span><span id="__span-7-11"><a id="__codelineno-7-11" name="__codelineno-7-11" href="#__codelineno-7-11"></a><span class="w">    </span><span class="nx">Name</span><span class="p">()</span><span class="w"> </span><span class="kt">string</span>
-</span><span id="__span-7-12"><a id="__codelineno-7-12" name="__codelineno-7-12" href="#__codelineno-7-12"></a><span class="p">}</span>
+</span><span id="__span-7-4"><a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a><span class="kn">import</span><span class="w"> </span><span class="p">(</span>
+</span><span id="__span-7-5"><a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a><span class="w">    </span><span class="s">"context"</span>
+</span><span id="__span-7-6"><a id="__codelineno-7-6" name="__codelineno-7-6" href="#__codelineno-7-6"></a><span class="w">    </span><span class="s">"fmt"</span>
+</span><span id="__span-7-7"><a id="__codelineno-7-7" name="__codelineno-7-7" href="#__codelineno-7-7"></a><span class="w">    </span><span class="s">"sync"</span>
+</span><span id="__span-7-8"><a id="__codelineno-7-8" name="__codelineno-7-8" href="#__codelineno-7-8"></a><span class="p">)</span>
+</span><span id="__span-7-9"><a id="__codelineno-7-9" name="__codelineno-7-9" href="#__codelineno-7-9"></a>
+</span><span id="__span-7-10"><a id="__codelineno-7-10" name="__codelineno-7-10" href="#__codelineno-7-10"></a><span class="kd">type</span><span class="w"> </span><span class="nx">Service</span><span class="w"> </span><span class="kd">struct</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-7-11"><a id="__codelineno-7-11" name="__codelineno-7-11" href="#__codelineno-7-11"></a><span class="w">    </span><span class="nx">provider</span><span class="w"> </span><span class="nx">Provider</span>
+</span><span id="__span-7-12"><a id="__codelineno-7-12" name="__codelineno-7-12" href="#__codelineno-7-12"></a><span class="w">    </span><span class="nx">ready</span><span class="w">    </span><span class="kt">chan</span><span class="w"> </span><span class="kd">struct</span><span class="p">{}</span>
+</span><span id="__span-7-13"><a id="__codelineno-7-13" name="__codelineno-7-13" href="#__codelineno-7-13"></a><span class="w">    </span><span class="nx">mu</span><span class="w">       </span><span class="nx">sync</span><span class="p">.</span><span class="nx">RWMutex</span>
+</span><span id="__span-7-14"><a id="__codelineno-7-14" name="__codelineno-7-14" href="#__codelineno-7-14"></a><span class="w">    </span><span class="nx">started</span><span class="w">  </span><span class="kt">bool</span>
+</span><span id="__span-7-15"><a id="__codelineno-7-15" name="__codelineno-7-15" href="#__codelineno-7-15"></a><span class="p">}</span>
+</span><span id="__span-7-16"><a id="__codelineno-7-16" name="__codelineno-7-16" href="#__codelineno-7-16"></a>
+</span><span id="__span-7-17"><a id="__codelineno-7-17" name="__codelineno-7-17" href="#__codelineno-7-17"></a><span class="kd">func</span><span class="w"> </span><span class="nx">NewService</span><span class="p">(</span><span class="nx">p</span><span class="w"> </span><span class="nx">Provider</span><span class="p">)</span><span class="w"> </span><span class="o">*</span><span class="nx">Service</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-7-18"><a id="__codelineno-7-18" name="__codelineno-7-18" href="#__codelineno-7-18"></a><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="o">&amp;</span><span class="nx">Service</span><span class="p">{</span>
+</span><span id="__span-7-19"><a id="__codelineno-7-19" name="__codelineno-7-19" href="#__codelineno-7-19"></a><span class="w">        </span><span class="nx">provider</span><span class="p">:</span><span class="w"> </span><span class="nx">p</span><span class="p">,</span>
+</span><span id="__span-7-20"><a id="__codelineno-7-20" name="__codelineno-7-20" href="#__codelineno-7-20"></a><span class="w">        </span><span class="nx">ready</span><span class="p">:</span><span class="w">    </span><span class="nb">make</span><span class="p">(</span><span class="kt">chan</span><span class="w"> </span><span class="kd">struct</span><span class="p">{}),</span>
+</span><span id="__span-7-21"><a id="__codelineno-7-21" name="__codelineno-7-21" href="#__codelineno-7-21"></a><span class="w">    </span><span class="p">}</span>
+</span><span id="__span-7-22"><a id="__codelineno-7-22" name="__codelineno-7-22" href="#__codelineno-7-22"></a><span class="p">}</span>
+</span><span id="__span-7-23"><a id="__codelineno-7-23" name="__codelineno-7-23" href="#__codelineno-7-23"></a>
+</span><span id="__span-7-24"><a id="__codelineno-7-24" name="__codelineno-7-24" href="#__codelineno-7-24"></a><span class="kd">func</span><span class="w"> </span><span class="p">(</span><span class="nx">s</span><span class="w"> </span><span class="o">*</span><span class="nx">Service</span><span class="p">)</span><span class="w"> </span><span class="nx">Start</span><span class="p">(</span><span class="nx">ctx</span><span class="w"> </span><span class="nx">context</span><span class="p">.</span><span class="nx">Context</span><span class="p">,</span><span class="w"> </span><span class="nx">localPort</span><span class="w"> </span><span class="kt">int</span><span class="p">)</span><span class="w"> </span><span class="kt">error</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-7-25"><a id="__codelineno-7-25" name="__codelineno-7-25" href="#__codelineno-7-25"></a><span class="w">    </span><span class="nx">s</span><span class="p">.</span><span class="nx">mu</span><span class="p">.</span><span class="nx">Lock</span><span class="p">()</span>
+</span><span id="__span-7-26"><a id="__codelineno-7-26" name="__codelineno-7-26" href="#__codelineno-7-26"></a><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="nx">s</span><span class="p">.</span><span class="nx">started</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-7-27"><a id="__codelineno-7-27" name="__codelineno-7-27" href="#__codelineno-7-27"></a><span class="w">        </span><span class="nx">s</span><span class="p">.</span><span class="nx">mu</span><span class="p">.</span><span class="nx">Unlock</span><span class="p">()</span>
+</span><span id="__span-7-28"><a id="__codelineno-7-28" name="__codelineno-7-28" href="#__codelineno-7-28"></a><span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="nx">fmt</span><span class="p">.</span><span class="nx">Errorf</span><span class="p">(</span><span class="s">"tunnel already started"</span><span class="p">)</span>
+</span><span id="__span-7-29"><a id="__codelineno-7-29" name="__codelineno-7-29" href="#__codelineno-7-29"></a><span class="w">    </span><span class="p">}</span>
+</span><span id="__span-7-30"><a id="__codelineno-7-30" name="__codelineno-7-30" href="#__codelineno-7-30"></a><span class="w">    </span><span class="nx">s</span><span class="p">.</span><span class="nx">started</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">true</span>
+</span><span id="__span-7-31"><a id="__codelineno-7-31" name="__codelineno-7-31" href="#__codelineno-7-31"></a><span class="w">    </span><span class="nx">s</span><span class="p">.</span><span class="nx">mu</span><span class="p">.</span><span class="nx">Unlock</span><span class="p">()</span>
+</span><span id="__span-7-32"><a id="__codelineno-7-32" name="__codelineno-7-32" href="#__codelineno-7-32"></a>
+</span><span id="__span-7-33"><a id="__codelineno-7-33" name="__codelineno-7-33" href="#__codelineno-7-33"></a><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="nx">_</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">s</span><span class="p">.</span><span class="nx">provider</span><span class="p">.</span><span class="nx">Connect</span><span class="p">(</span><span class="nx">ctx</span><span class="p">,</span><span class="w"> </span><span class="nx">localPort</span><span class="p">);</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">nil</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-7-34"><a id="__codelineno-7-34" name="__codelineno-7-34" href="#__codelineno-7-34"></a><span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="nx">err</span>
+</span><span id="__span-7-35"><a id="__codelineno-7-35" name="__codelineno-7-35" href="#__codelineno-7-35"></a><span class="w">    </span><span class="p">}</span>
+</span><span id="__span-7-36"><a id="__codelineno-7-36" name="__codelineno-7-36" href="#__codelineno-7-36"></a>
+</span><span id="__span-7-37"><a id="__codelineno-7-37" name="__codelineno-7-37" href="#__codelineno-7-37"></a><span class="w">    </span><span class="nb">close</span><span class="p">(</span><span class="nx">s</span><span class="p">.</span><span class="nx">ready</span><span class="p">)</span><span class="w"> </span><span class="c1">// Deterministically signals CLI and caller routines that the URL is live</span>
+</span><span id="__span-7-38"><a id="__codelineno-7-38" name="__codelineno-7-38" href="#__codelineno-7-38"></a><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="kc">nil</span>
+</span><span id="__span-7-39"><a id="__codelineno-7-39" name="__codelineno-7-39" href="#__codelineno-7-39"></a><span class="p">}</span>
+</span><span id="__span-7-40"><a id="__codelineno-7-40" name="__codelineno-7-40" href="#__codelineno-7-40"></a>
+</span><span id="__span-7-41"><a id="__codelineno-7-41" name="__codelineno-7-41" href="#__codelineno-7-41"></a><span class="kd">func</span><span class="w"> </span><span class="p">(</span><span class="nx">s</span><span class="w"> </span><span class="o">*</span><span class="nx">Service</span><span class="p">)</span><span class="w"> </span><span class="nx">Ready</span><span class="p">()</span><span class="w"> </span><span class="o">&lt;-</span><span class="kt">chan</span><span class="w"> </span><span class="kd">struct</span><span class="p">{}</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="nx">s</span><span class="p">.</span><span class="nx">ready</span><span class="w"> </span><span class="p">}</span>
+</span><span id="__span-7-42"><a id="__codelineno-7-42" name="__codelineno-7-42" href="#__codelineno-7-42"></a><span class="kd">func</span><span class="w"> </span><span class="p">(</span><span class="nx">s</span><span class="w"> </span><span class="o">*</span><span class="nx">Service</span><span class="p">)</span><span class="w"> </span><span class="nx">PublicURL</span><span class="p">()</span><span class="w"> </span><span class="kt">string</span><span class="w">     </span><span class="p">{</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="nx">s</span><span class="p">.</span><span class="nx">provider</span><span class="p">.</span><span class="nx">PublicURL</span><span class="p">()</span><span class="w"> </span><span class="p">}</span>
+</span><span id="__span-7-43"><a id="__codelineno-7-43" name="__codelineno-7-43" href="#__codelineno-7-43"></a><span class="kd">func</span><span class="w"> </span><span class="p">(</span><span class="nx">s</span><span class="w"> </span><span class="o">*</span><span class="nx">Service</span><span class="p">)</span><span class="w"> </span><span class="nx">Close</span><span class="p">()</span><span class="w"> </span><span class="kt">error</span><span class="w">          </span><span class="p">{</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="nx">s</span><span class="p">.</span><span class="nx">provider</span><span class="p">.</span><span class="nx">Close</span><span class="p">()</span><span class="w"> </span><span class="p">}</span>
 </span></code></pre></div>
-<p>Any struct implementing these five methods can be a provider — no other changes needed in the CLI or service layer.</p>
-<h3 id="localtunnel-implementation">LocalTunnel implementation<a class="headerlink" href="#localtunnel-implementation" title="Permanent link">&para;</a></h3>
-<div class="language-go highlight"><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="c1">// internal/provider/localtunnel.go</span>
-</span><span id="__span-8-2"><a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a><span class="kd">type</span><span class="w"> </span><span class="nx">LocalTunnel</span><span class="w"> </span><span class="kd">struct</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__span-8-3"><a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a><span class="w">    </span><span class="nx">publicURL</span><span class="w"> </span><span class="kt">string</span>
-</span><span id="__span-8-4"><a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a><span class="w">    </span><span class="nx">localPort</span><span class="w"> </span><span class="kt">int</span>
-</span><span id="__span-8-5"><a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a><span class="w">    </span><span class="nx">conn</span><span class="w">      </span><span class="nx">net</span><span class="p">.</span><span class="nx">Conn</span>
-</span><span id="__span-8-6"><a id="__codelineno-8-6" name="__codelineno-8-6" href="#__codelineno-8-6"></a><span class="w">    </span><span class="nx">mu</span><span class="w">        </span><span class="nx">sync</span><span class="p">.</span><span class="nx">RWMutex</span>
-</span><span id="__span-8-7"><a id="__codelineno-8-7" name="__codelineno-8-7" href="#__codelineno-8-7"></a><span class="p">}</span>
-</span><span id="__span-8-8"><a id="__codelineno-8-8" name="__codelineno-8-8" href="#__codelineno-8-8"></a>
-</span><span id="__span-8-9"><a id="__codelineno-8-9" name="__codelineno-8-9" href="#__codelineno-8-9"></a><span class="kd">func</span><span class="w"> </span><span class="p">(</span><span class="nx">lt</span><span class="w"> </span><span class="o">*</span><span class="nx">LocalTunnel</span><span class="p">)</span><span class="w"> </span><span class="nx">Connect</span><span class="p">(</span><span class="nx">ctx</span><span class="w"> </span><span class="nx">context</span><span class="p">.</span><span class="nx">Context</span><span class="p">,</span><span class="w"> </span><span class="nx">localPort</span><span class="w"> </span><span class="kt">int</span><span class="p">)</span><span class="w"> </span><span class="p">(</span><span class="kt">string</span><span class="p">,</span><span class="w"> </span><span class="kt">error</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__span-8-10"><a id="__codelineno-8-10" name="__codelineno-8-10" href="#__codelineno-8-10"></a><span class="w">    </span><span class="nx">lt</span><span class="p">.</span><span class="nx">mu</span><span class="p">.</span><span class="nx">Lock</span><span class="p">()</span>
-</span><span id="__span-8-11"><a id="__codelineno-8-11" name="__codelineno-8-11" href="#__codelineno-8-11"></a><span class="w">    </span><span class="nx">lt</span><span class="p">.</span><span class="nx">localPort</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">localPort</span>
-</span><span id="__span-8-12"><a id="__codelineno-8-12" name="__codelineno-8-12" href="#__codelineno-8-12"></a><span class="w">    </span><span class="nx">lt</span><span class="p">.</span><span class="nx">mu</span><span class="p">.</span><span class="nx">Unlock</span><span class="p">()</span>
-</span><span id="__span-8-13"><a id="__codelineno-8-13" name="__codelineno-8-13" href="#__codelineno-8-13"></a>
-</span><span id="__span-8-14"><a id="__codelineno-8-14" name="__codelineno-8-14" href="#__codelineno-8-14"></a><span class="w">    </span><span class="nx">info</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">lt</span><span class="p">.</span><span class="nx">requestTunnel</span><span class="p">()</span>
-</span><span id="__span-8-15"><a id="__codelineno-8-15" name="__codelineno-8-15" href="#__codelineno-8-15"></a><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">nil</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__span-8-16"><a id="__codelineno-8-16" name="__codelineno-8-16" href="#__codelineno-8-16"></a><span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="s">""</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span>
-</span><span id="__span-8-17"><a id="__codelineno-8-17" name="__codelineno-8-17" href="#__codelineno-8-17"></a><span class="w">    </span><span class="p">}</span>
-</span><span id="__span-8-18"><a id="__codelineno-8-18" name="__codelineno-8-18" href="#__codelineno-8-18"></a>
-</span><span id="__span-8-19"><a id="__codelineno-8-19" name="__codelineno-8-19" href="#__codelineno-8-19"></a><span class="w">    </span><span class="nx">conn</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">net</span><span class="p">.</span><span class="nx">Dial</span><span class="p">(</span><span class="s">"tcp"</span><span class="p">,</span><span class="w"> </span><span class="nx">fmt</span><span class="p">.</span><span class="nx">Sprintf</span><span class="p">(</span><span class="s">"localtunnel.me:%d"</span><span class="p">,</span><span class="w"> </span><span class="nx">info</span><span class="p">.</span><span class="nx">Port</span><span class="p">))</span>
-</span><span id="__span-8-20"><a id="__codelineno-8-20" name="__codelineno-8-20" href="#__codelineno-8-20"></a><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">nil</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__span-8-21"><a id="__codelineno-8-21" name="__codelineno-8-21" href="#__codelineno-8-21"></a><span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="s">""</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span>
-</span><span id="__span-8-22"><a id="__codelineno-8-22" name="__codelineno-8-22" href="#__codelineno-8-22"></a><span class="w">    </span><span class="p">}</span>
-</span><span id="__span-8-23"><a id="__codelineno-8-23" name="__codelineno-8-23" href="#__codelineno-8-23"></a>
-</span><span id="__span-8-24"><a id="__codelineno-8-24" name="__codelineno-8-24" href="#__codelineno-8-24"></a><span class="w">    </span><span class="nx">lt</span><span class="p">.</span><span class="nx">mu</span><span class="p">.</span><span class="nx">Lock</span><span class="p">()</span>
-</span><span id="__span-8-25"><a id="__codelineno-8-25" name="__codelineno-8-25" href="#__codelineno-8-25"></a><span class="w">    </span><span class="nx">lt</span><span class="p">.</span><span class="nx">conn</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">conn</span>
-</span><span id="__span-8-26"><a id="__codelineno-8-26" name="__codelineno-8-26" href="#__codelineno-8-26"></a><span class="w">    </span><span class="nx">lt</span><span class="p">.</span><span class="nx">publicURL</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">info</span><span class="p">.</span><span class="nx">URL</span>
-</span><span id="__span-8-27"><a id="__codelineno-8-27" name="__codelineno-8-27" href="#__codelineno-8-27"></a><span class="w">    </span><span class="nx">lt</span><span class="p">.</span><span class="nx">mu</span><span class="p">.</span><span class="nx">Unlock</span><span class="p">()</span>
+<hr />
+<h2 id="part-4-modern-cli-ergonomics-with-cobra">Part 4 — Modern CLI Ergonomics with Cobra<a class="headerlink" href="#part-4-modern-cli-ergonomics-with-cobra" title="Permanent link">&para;</a></h2>
+<p>Expose uses <a href="https://github.com/spf13/cobra">Cobra</a> to offer an intuitive CLI supporting positional arguments (<code>expose tunnel 3000</code>), configuration defaults, and custom flags:</p>
+<div class="language-go highlight"><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="c1">// internal/cli/tunnel.go</span>
+</span><span id="__span-8-2"><a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a><span class="kn">package</span><span class="w"> </span><span class="nx">cli</span>
+</span><span id="__span-8-3"><a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a>
+</span><span id="__span-8-4"><a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a><span class="kn">import</span><span class="w"> </span><span class="p">(</span>
+</span><span id="__span-8-5"><a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a><span class="w">    </span><span class="s">"context"</span>
+</span><span id="__span-8-6"><a id="__codelineno-8-6" name="__codelineno-8-6" href="#__codelineno-8-6"></a><span class="w">    </span><span class="s">"fmt"</span>
+</span><span id="__span-8-7"><a id="__codelineno-8-7" name="__codelineno-8-7" href="#__codelineno-8-7"></a><span class="w">    </span><span class="s">"os"</span>
+</span><span id="__span-8-8"><a id="__codelineno-8-8" name="__codelineno-8-8" href="#__codelineno-8-8"></a><span class="w">    </span><span class="s">"os/signal"</span>
+</span><span id="__span-8-9"><a id="__codelineno-8-9" name="__codelineno-8-9" href="#__codelineno-8-9"></a><span class="w">    </span><span class="s">"syscall"</span>
+</span><span id="__span-8-10"><a id="__codelineno-8-10" name="__codelineno-8-10" href="#__codelineno-8-10"></a><span class="w">    </span><span class="s">"github.com/spf13/cobra"</span>
+</span><span id="__span-8-11"><a id="__codelineno-8-11" name="__codelineno-8-11" href="#__codelineno-8-11"></a><span class="p">)</span>
+</span><span id="__span-8-12"><a id="__codelineno-8-12" name="__codelineno-8-12" href="#__codelineno-8-12"></a>
+</span><span id="__span-8-13"><a id="__codelineno-8-13" name="__codelineno-8-13" href="#__codelineno-8-13"></a><span class="kd">func</span><span class="w"> </span><span class="nx">NewTunnelCommand</span><span class="p">()</span><span class="w"> </span><span class="o">*</span><span class="nx">cobra</span><span class="p">.</span><span class="nx">Command</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-8-14"><a id="__codelineno-8-14" name="__codelineno-8-14" href="#__codelineno-8-14"></a><span class="w">    </span><span class="nx">cmd</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="o">&amp;</span><span class="nx">cobra</span><span class="p">.</span><span class="nx">Command</span><span class="p">{</span>
+</span><span id="__span-8-15"><a id="__codelineno-8-15" name="__codelineno-8-15" href="#__codelineno-8-15"></a><span class="w">        </span><span class="nx">Use</span><span class="p">:</span><span class="w">   </span><span class="s">"tunnel [port]"</span><span class="p">,</span>
+</span><span id="__span-8-16"><a id="__codelineno-8-16" name="__codelineno-8-16" href="#__codelineno-8-16"></a><span class="w">        </span><span class="nx">Short</span><span class="p">:</span><span class="w"> </span><span class="s">"Expose local server via tunnel"</span><span class="p">,</span>
+</span><span id="__span-8-17"><a id="__codelineno-8-17" name="__codelineno-8-17" href="#__codelineno-8-17"></a><span class="w">        </span><span class="nx">Args</span><span class="p">:</span><span class="w">  </span><span class="nx">cobra</span><span class="p">.</span><span class="nx">MaximumNArgs</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span>
+</span><span id="__span-8-18"><a id="__codelineno-8-18" name="__codelineno-8-18" href="#__codelineno-8-18"></a><span class="w">        </span><span class="nx">RunE</span><span class="p">:</span><span class="w">  </span><span class="nx">runTunnel</span><span class="p">,</span>
+</span><span id="__span-8-19"><a id="__codelineno-8-19" name="__codelineno-8-19" href="#__codelineno-8-19"></a><span class="w">    </span><span class="p">}</span>
+</span><span id="__span-8-20"><a id="__codelineno-8-20" name="__codelineno-8-20" href="#__codelineno-8-20"></a>
+</span><span id="__span-8-21"><a id="__codelineno-8-21" name="__codelineno-8-21" href="#__codelineno-8-21"></a><span class="w">    </span><span class="nx">cmd</span><span class="p">.</span><span class="nx">Flags</span><span class="p">().</span><span class="nx">IntP</span><span class="p">(</span><span class="s">"port"</span><span class="p">,</span><span class="w"> </span><span class="s">"p"</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="s">"Local port to expose"</span><span class="p">)</span>
+</span><span id="__span-8-22"><a id="__codelineno-8-22" name="__codelineno-8-22" href="#__codelineno-8-22"></a><span class="w">    </span><span class="nx">cmd</span><span class="p">.</span><span class="nx">Flags</span><span class="p">().</span><span class="nx">StringP</span><span class="p">(</span><span class="s">"provider"</span><span class="p">,</span><span class="w"> </span><span class="s">"P"</span><span class="p">,</span><span class="w"> </span><span class="s">"localtunnel"</span><span class="p">,</span><span class="w"> </span><span class="s">"Provider: localtunnel, cloudflare, selfhosted"</span><span class="p">)</span>
+</span><span id="__span-8-23"><a id="__codelineno-8-23" name="__codelineno-8-23" href="#__codelineno-8-23"></a><span class="w">    </span><span class="nx">cmd</span><span class="p">.</span><span class="nx">Flags</span><span class="p">().</span><span class="nx">StringP</span><span class="p">(</span><span class="s">"server"</span><span class="p">,</span><span class="w"> </span><span class="s">"s"</span><span class="p">,</span><span class="w"> </span><span class="s">""</span><span class="p">,</span><span class="w"> </span><span class="s">"Self-hosted server relay (e.g. tunnel.mysite.com:7890)"</span><span class="p">)</span>
+</span><span id="__span-8-24"><a id="__codelineno-8-24" name="__codelineno-8-24" href="#__codelineno-8-24"></a><span class="w">    </span><span class="nx">cmd</span><span class="p">.</span><span class="nx">Flags</span><span class="p">().</span><span class="nx">StringP</span><span class="p">(</span><span class="s">"subdomain"</span><span class="p">,</span><span class="w"> </span><span class="s">"d"</span><span class="p">,</span><span class="w"> </span><span class="s">""</span><span class="p">,</span><span class="w"> </span><span class="s">"Request a custom subdomain"</span><span class="p">)</span>
+</span><span id="__span-8-25"><a id="__codelineno-8-25" name="__codelineno-8-25" href="#__codelineno-8-25"></a>
+</span><span id="__span-8-26"><a id="__codelineno-8-26" name="__codelineno-8-26" href="#__codelineno-8-26"></a><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="nx">cmd</span>
+</span><span id="__span-8-27"><a id="__codelineno-8-27" name="__codelineno-8-27" href="#__codelineno-8-27"></a><span class="p">}</span>
 </span><span id="__span-8-28"><a id="__codelineno-8-28" name="__codelineno-8-28" href="#__codelineno-8-28"></a>
-</span><span id="__span-8-29"><a id="__codelineno-8-29" name="__codelineno-8-29" href="#__codelineno-8-29"></a><span class="w">    </span><span class="k">go</span><span class="w"> </span><span class="nx">lt</span><span class="p">.</span><span class="nx">handleConnections</span><span class="p">()</span>
-</span><span id="__span-8-30"><a id="__codelineno-8-30" name="__codelineno-8-30" href="#__codelineno-8-30"></a><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="nx">info</span><span class="p">.</span><span class="nx">URL</span><span class="p">,</span><span class="w"> </span><span class="kc">nil</span>
-</span><span id="__span-8-31"><a id="__codelineno-8-31" name="__codelineno-8-31" href="#__codelineno-8-31"></a><span class="p">}</span>
+</span><span id="__span-8-29"><a id="__codelineno-8-29" name="__codelineno-8-29" href="#__codelineno-8-29"></a><span class="kd">func</span><span class="w"> </span><span class="nx">runTunnel</span><span class="p">(</span><span class="nx">cmd</span><span class="w"> </span><span class="o">*</span><span class="nx">cobra</span><span class="p">.</span><span class="nx">Command</span><span class="p">,</span><span class="w"> </span><span class="nx">args</span><span class="w"> </span><span class="p">[]</span><span class="kt">string</span><span class="p">)</span><span class="w"> </span><span class="kt">error</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-8-30"><a id="__codelineno-8-30" name="__codelineno-8-30" href="#__codelineno-8-30"></a><span class="w">    </span><span class="nx">ctx</span><span class="p">,</span><span class="w"> </span><span class="nx">cancel</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">context</span><span class="p">.</span><span class="nx">WithCancel</span><span class="p">(</span><span class="nx">context</span><span class="p">.</span><span class="nx">Background</span><span class="p">())</span>
+</span><span id="__span-8-31"><a id="__codelineno-8-31" name="__codelineno-8-31" href="#__codelineno-8-31"></a><span class="w">    </span><span class="k">defer</span><span class="w"> </span><span class="nx">cancel</span><span class="p">()</span>
+</span><span id="__span-8-32"><a id="__codelineno-8-32" name="__codelineno-8-32" href="#__codelineno-8-32"></a>
+</span><span id="__span-8-33"><a id="__codelineno-8-33" name="__codelineno-8-33" href="#__codelineno-8-33"></a><span class="w">    </span><span class="c1">// Listen for SIGINT / SIGTERM for clean teardown</span>
+</span><span id="__span-8-34"><a id="__codelineno-8-34" name="__codelineno-8-34" href="#__codelineno-8-34"></a><span class="w">    </span><span class="nx">sigCh</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nb">make</span><span class="p">(</span><span class="kt">chan</span><span class="w"> </span><span class="nx">os</span><span class="p">.</span><span class="nx">Signal</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span>
+</span><span id="__span-8-35"><a id="__codelineno-8-35" name="__codelineno-8-35" href="#__codelineno-8-35"></a><span class="w">    </span><span class="nx">signal</span><span class="p">.</span><span class="nx">Notify</span><span class="p">(</span><span class="nx">sigCh</span><span class="p">,</span><span class="w"> </span><span class="nx">os</span><span class="p">.</span><span class="nx">Interrupt</span><span class="p">,</span><span class="w"> </span><span class="nx">syscall</span><span class="p">.</span><span class="nx">SIGTERM</span><span class="p">)</span>
+</span><span id="__span-8-36"><a id="__codelineno-8-36" name="__codelineno-8-36" href="#__codelineno-8-36"></a><span class="w">    </span><span class="k">go</span><span class="w"> </span><span class="kd">func</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-8-37"><a id="__codelineno-8-37" name="__codelineno-8-37" href="#__codelineno-8-37"></a><span class="w">        </span><span class="o">&lt;-</span><span class="nx">sigCh</span>
+</span><span id="__span-8-38"><a id="__codelineno-8-38" name="__codelineno-8-38" href="#__codelineno-8-38"></a><span class="w">        </span><span class="nx">fmt</span><span class="p">.</span><span class="nx">Println</span><span class="p">(</span><span class="s">"\nGracefully shutting down tunnel..."</span><span class="p">)</span>
+</span><span id="__span-8-39"><a id="__codelineno-8-39" name="__codelineno-8-39" href="#__codelineno-8-39"></a><span class="w">        </span><span class="nx">cancel</span><span class="p">()</span>
+</span><span id="__span-8-40"><a id="__codelineno-8-40" name="__codelineno-8-40" href="#__codelineno-8-40"></a><span class="w">    </span><span class="p">}()</span>
+</span><span id="__span-8-41"><a id="__codelineno-8-41" name="__codelineno-8-41" href="#__codelineno-8-41"></a>
+</span><span id="__span-8-42"><a id="__codelineno-8-42" name="__codelineno-8-42" href="#__codelineno-8-42"></a><span class="w">    </span><span class="nx">port</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="mi">3000</span><span class="w"> </span><span class="c1">// Resolved from args, flags, or .expose.yml</span>
+</span><span id="__span-8-43"><a id="__codelineno-8-43" name="__codelineno-8-43" href="#__codelineno-8-43"></a><span class="w">    </span><span class="nx">svc</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">tunnel</span><span class="p">.</span><span class="nx">NewService</span><span class="p">(</span><span class="nx">selectedProvider</span><span class="p">)</span>
+</span><span id="__span-8-44"><a id="__codelineno-8-44" name="__codelineno-8-44" href="#__codelineno-8-44"></a>
+</span><span id="__span-8-45"><a id="__codelineno-8-45" name="__codelineno-8-45" href="#__codelineno-8-45"></a><span class="w">    </span><span class="k">go</span><span class="w"> </span><span class="nx">svc</span><span class="p">.</span><span class="nx">Start</span><span class="p">(</span><span class="nx">ctx</span><span class="p">,</span><span class="w"> </span><span class="nx">port</span><span class="p">)</span>
+</span><span id="__span-8-46"><a id="__codelineno-8-46" name="__codelineno-8-46" href="#__codelineno-8-46"></a>
+</span><span id="__span-8-47"><a id="__codelineno-8-47" name="__codelineno-8-47" href="#__codelineno-8-47"></a><span class="w">    </span><span class="k">select</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-8-48"><a id="__codelineno-8-48" name="__codelineno-8-48" href="#__codelineno-8-48"></a><span class="w">    </span><span class="k">case</span><span class="w"> </span><span class="o">&lt;-</span><span class="nx">svc</span><span class="p">.</span><span class="nx">Ready</span><span class="p">():</span>
+</span><span id="__span-8-49"><a id="__codelineno-8-49" name="__codelineno-8-49" href="#__codelineno-8-49"></a><span class="w">        </span><span class="nx">fmt</span><span class="p">.</span><span class="nx">Printf</span><span class="p">(</span><span class="s">"✓ Public URL:    %s\n"</span><span class="p">,</span><span class="w"> </span><span class="nx">svc</span><span class="p">.</span><span class="nx">PublicURL</span><span class="p">())</span>
+</span><span id="__span-8-50"><a id="__codelineno-8-50" name="__codelineno-8-50" href="#__codelineno-8-50"></a><span class="w">        </span><span class="nx">fmt</span><span class="p">.</span><span class="nx">Printf</span><span class="p">(</span><span class="s">"✓ Forwarding to: http://localhost:%d\n"</span><span class="p">,</span><span class="w"> </span><span class="nx">port</span><span class="p">)</span>
+</span><span id="__span-8-51"><a id="__codelineno-8-51" name="__codelineno-8-51" href="#__codelineno-8-51"></a><span class="w">    </span><span class="k">case</span><span class="w"> </span><span class="o">&lt;-</span><span class="nx">ctx</span><span class="p">.</span><span class="nx">Done</span><span class="p">():</span>
+</span><span id="__span-8-52"><a id="__codelineno-8-52" name="__codelineno-8-52" href="#__codelineno-8-52"></a><span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="nx">ctx</span><span class="p">.</span><span class="nx">Err</span><span class="p">()</span>
+</span><span id="__span-8-53"><a id="__codelineno-8-53" name="__codelineno-8-53" href="#__codelineno-8-53"></a><span class="w">    </span><span class="p">}</span>
+</span><span id="__span-8-54"><a id="__codelineno-8-54" name="__codelineno-8-54" href="#__codelineno-8-54"></a>
+</span><span id="__span-8-55"><a id="__codelineno-8-55" name="__codelineno-8-55" href="#__codelineno-8-55"></a><span class="w">    </span><span class="o">&lt;-</span><span class="nx">ctx</span><span class="p">.</span><span class="nx">Done</span><span class="p">()</span>
+</span><span id="__span-8-56"><a id="__codelineno-8-56" name="__codelineno-8-56" href="#__codelineno-8-56"></a><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="nx">svc</span><span class="p">.</span><span class="nx">Close</span><span class="p">()</span>
+</span><span id="__span-8-57"><a id="__codelineno-8-57" name="__codelineno-8-57" href="#__codelineno-8-57"></a><span class="p">}</span>
 </span></code></pre></div>
-<div class="admonition info">
-<p class="admonition-title">Why <code>sync.RWMutex</code>?</p>
-<p>The tunnel connection is accessed from multiple goroutines (the handler loop and the CLI layer reading the URL). A <code>RWMutex</code> allows concurrent reads while serializing writes — the standard Go pattern for shared state.</p>
-</div>
-<h3 id="service-wrapper">Service wrapper<a class="headerlink" href="#service-wrapper" title="Permanent link">&para;</a></h3>
-<div class="language-go highlight"><pre><span></span><code><span id="__span-9-1"><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="c1">// internal/tunnel/service.go</span>
-</span><span id="__span-9-2"><a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a><span class="kd">type</span><span class="w"> </span><span class="nx">Service</span><span class="w"> </span><span class="kd">struct</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__span-9-3"><a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a><span class="w">    </span><span class="nx">provider</span><span class="w"> </span><span class="nx">Provider</span>
-</span><span id="__span-9-4"><a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a><span class="w">    </span><span class="nx">ready</span><span class="w">    </span><span class="kt">chan</span><span class="w"> </span><span class="kd">struct</span><span class="p">{}</span>
-</span><span id="__span-9-5"><a id="__codelineno-9-5" name="__codelineno-9-5" href="#__codelineno-9-5"></a><span class="w">    </span><span class="nx">mu</span><span class="w">       </span><span class="nx">sync</span><span class="p">.</span><span class="nx">RWMutex</span>
-</span><span id="__span-9-6"><a id="__codelineno-9-6" name="__codelineno-9-6" href="#__codelineno-9-6"></a><span class="w">    </span><span class="nx">started</span><span class="w">  </span><span class="kt">bool</span>
-</span><span id="__span-9-7"><a id="__codelineno-9-7" name="__codelineno-9-7" href="#__codelineno-9-7"></a><span class="p">}</span>
-</span><span id="__span-9-8"><a id="__codelineno-9-8" name="__codelineno-9-8" href="#__codelineno-9-8"></a>
-</span><span id="__span-9-9"><a id="__codelineno-9-9" name="__codelineno-9-9" href="#__codelineno-9-9"></a><span class="kd">func</span><span class="w"> </span><span class="nx">NewService</span><span class="p">(</span><span class="nx">p</span><span class="w"> </span><span class="nx">Provider</span><span class="p">)</span><span class="w"> </span><span class="o">*</span><span class="nx">Service</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__span-9-10"><a id="__codelineno-9-10" name="__codelineno-9-10" href="#__codelineno-9-10"></a><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="o">&amp;</span><span class="nx">Service</span><span class="p">{</span>
-</span><span id="__span-9-11"><a id="__codelineno-9-11" name="__codelineno-9-11" href="#__codelineno-9-11"></a><span class="w">        </span><span class="nx">provider</span><span class="p">:</span><span class="w"> </span><span class="nx">p</span><span class="p">,</span>
-</span><span id="__span-9-12"><a id="__codelineno-9-12" name="__codelineno-9-12" href="#__codelineno-9-12"></a><span class="w">        </span><span class="nx">ready</span><span class="p">:</span><span class="w">    </span><span class="nb">make</span><span class="p">(</span><span class="kt">chan</span><span class="w"> </span><span class="kd">struct</span><span class="p">{}),</span>
+<hr />
+<h2 id="part-5-advanced-tunneling-patterns">Part 5 — Advanced Tunneling Patterns<a class="headerlink" href="#part-5-advanced-tunneling-patterns" title="Permanent link">&para;</a></h2>
+<p>Production tunnel clients must handle connection drops, high traffic spikes, and custom routing. Expose solves these through three core architectural patterns:</p>
+<h3 id="1-pre-warmed-connection-pooling">1. Pre-Warmed Connection Pooling<a class="headerlink" href="#1-pre-warmed-connection-pooling" title="Permanent link">&para;</a></h3>
+<p>Dialing a new TCP connection on every incoming request introduces 50–150ms of latency. To achieve high throughput, the client maintains a pool of pre-warmed idle TCP sockets ready to handle requests instantly:</p>
+<div class="language-go highlight"><pre><span></span><code><span id="__span-9-1"><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="kd">func</span><span class="w"> </span><span class="p">(</span><span class="nx">lt</span><span class="w"> </span><span class="o">*</span><span class="nx">LocalTunnel</span><span class="p">)</span><span class="w"> </span><span class="nx">maintainPool</span><span class="p">(</span><span class="nx">port</span><span class="w"> </span><span class="kt">int</span><span class="p">,</span><span class="w"> </span><span class="nx">maxConn</span><span class="w"> </span><span class="kt">int</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-9-2"><a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a><span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="nx">i</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="nx">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="nx">maxConn</span><span class="p">;</span><span class="w"> </span><span class="nx">i</span><span class="o">++</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-9-3"><a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a><span class="w">        </span><span class="k">go</span><span class="w"> </span><span class="kd">func</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-9-4"><a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a><span class="w">            </span><span class="k">for</span><span class="w"> </span><span class="nx">lt</span><span class="p">.</span><span class="nx">IsConnected</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-9-5"><a id="__codelineno-9-5" name="__codelineno-9-5" href="#__codelineno-9-5"></a><span class="w">                </span><span class="nx">conn</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">net</span><span class="p">.</span><span class="nx">Dial</span><span class="p">(</span><span class="s">"tcp"</span><span class="p">,</span><span class="w"> </span><span class="nx">fmt</span><span class="p">.</span><span class="nx">Sprintf</span><span class="p">(</span><span class="s">"localtunnel.me:%d"</span><span class="p">,</span><span class="w"> </span><span class="nx">port</span><span class="p">))</span>
+</span><span id="__span-9-6"><a id="__codelineno-9-6" name="__codelineno-9-6" href="#__codelineno-9-6"></a><span class="w">                </span><span class="k">if</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">nil</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-9-7"><a id="__codelineno-9-7" name="__codelineno-9-7" href="#__codelineno-9-7"></a><span class="w">                    </span><span class="nx">time</span><span class="p">.</span><span class="nx">Sleep</span><span class="p">(</span><span class="nx">time</span><span class="p">.</span><span class="nx">Second</span><span class="p">)</span>
+</span><span id="__span-9-8"><a id="__codelineno-9-8" name="__codelineno-9-8" href="#__codelineno-9-8"></a><span class="w">                    </span><span class="k">continue</span>
+</span><span id="__span-9-9"><a id="__codelineno-9-9" name="__codelineno-9-9" href="#__codelineno-9-9"></a><span class="w">                </span><span class="p">}</span>
+</span><span id="__span-9-10"><a id="__codelineno-9-10" name="__codelineno-9-10" href="#__codelineno-9-10"></a><span class="w">                </span><span class="nx">lt</span><span class="p">.</span><span class="nx">handleTraffic</span><span class="p">(</span><span class="nx">conn</span><span class="p">)</span><span class="w"> </span><span class="c1">// Handles request and automatically replenishes socket</span>
+</span><span id="__span-9-11"><a id="__codelineno-9-11" name="__codelineno-9-11" href="#__codelineno-9-11"></a><span class="w">            </span><span class="p">}</span>
+</span><span id="__span-9-12"><a id="__codelineno-9-12" name="__codelineno-9-12" href="#__codelineno-9-12"></a><span class="w">        </span><span class="p">}()</span>
 </span><span id="__span-9-13"><a id="__codelineno-9-13" name="__codelineno-9-13" href="#__codelineno-9-13"></a><span class="w">    </span><span class="p">}</span>
 </span><span id="__span-9-14"><a id="__codelineno-9-14" name="__codelineno-9-14" href="#__codelineno-9-14"></a><span class="p">}</span>
-</span><span id="__span-9-15"><a id="__codelineno-9-15" name="__codelineno-9-15" href="#__codelineno-9-15"></a>
-</span><span id="__span-9-16"><a id="__codelineno-9-16" name="__codelineno-9-16" href="#__codelineno-9-16"></a><span class="kd">func</span><span class="w"> </span><span class="p">(</span><span class="nx">s</span><span class="w"> </span><span class="o">*</span><span class="nx">Service</span><span class="p">)</span><span class="w"> </span><span class="nx">Start</span><span class="p">(</span><span class="nx">ctx</span><span class="w"> </span><span class="nx">context</span><span class="p">.</span><span class="nx">Context</span><span class="p">,</span><span class="w"> </span><span class="nx">localPort</span><span class="w"> </span><span class="kt">int</span><span class="p">)</span><span class="w"> </span><span class="kt">error</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__span-9-17"><a id="__codelineno-9-17" name="__codelineno-9-17" href="#__codelineno-9-17"></a><span class="w">    </span><span class="nx">s</span><span class="p">.</span><span class="nx">mu</span><span class="p">.</span><span class="nx">Lock</span><span class="p">()</span>
-</span><span id="__span-9-18"><a id="__codelineno-9-18" name="__codelineno-9-18" href="#__codelineno-9-18"></a><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="nx">s</span><span class="p">.</span><span class="nx">started</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__span-9-19"><a id="__codelineno-9-19" name="__codelineno-9-19" href="#__codelineno-9-19"></a><span class="w">        </span><span class="nx">s</span><span class="p">.</span><span class="nx">mu</span><span class="p">.</span><span class="nx">Unlock</span><span class="p">()</span>
-</span><span id="__span-9-20"><a id="__codelineno-9-20" name="__codelineno-9-20" href="#__codelineno-9-20"></a><span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="nx">fmt</span><span class="p">.</span><span class="nx">Errorf</span><span class="p">(</span><span class="s">"already started"</span><span class="p">)</span>
-</span><span id="__span-9-21"><a id="__codelineno-9-21" name="__codelineno-9-21" href="#__codelineno-9-21"></a><span class="w">    </span><span class="p">}</span>
-</span><span id="__span-9-22"><a id="__codelineno-9-22" name="__codelineno-9-22" href="#__codelineno-9-22"></a><span class="w">    </span><span class="nx">s</span><span class="p">.</span><span class="nx">started</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">true</span>
-</span><span id="__span-9-23"><a id="__codelineno-9-23" name="__codelineno-9-23" href="#__codelineno-9-23"></a><span class="w">    </span><span class="nx">s</span><span class="p">.</span><span class="nx">mu</span><span class="p">.</span><span class="nx">Unlock</span><span class="p">()</span>
-</span><span id="__span-9-24"><a id="__codelineno-9-24" name="__codelineno-9-24" href="#__codelineno-9-24"></a>
-</span><span id="__span-9-25"><a id="__codelineno-9-25" name="__codelineno-9-25" href="#__codelineno-9-25"></a><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="nx">_</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">s</span><span class="p">.</span><span class="nx">provider</span><span class="p">.</span><span class="nx">Connect</span><span class="p">(</span><span class="nx">ctx</span><span class="p">,</span><span class="w"> </span><span class="nx">localPort</span><span class="p">);</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">nil</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__span-9-26"><a id="__codelineno-9-26" name="__codelineno-9-26" href="#__codelineno-9-26"></a><span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="nx">err</span>
-</span><span id="__span-9-27"><a id="__codelineno-9-27" name="__codelineno-9-27" href="#__codelineno-9-27"></a><span class="w">    </span><span class="p">}</span>
-</span><span id="__span-9-28"><a id="__codelineno-9-28" name="__codelineno-9-28" href="#__codelineno-9-28"></a>
-</span><span id="__span-9-29"><a id="__codelineno-9-29" name="__codelineno-9-29" href="#__codelineno-9-29"></a><span class="w">    </span><span class="nb">close</span><span class="p">(</span><span class="nx">s</span><span class="p">.</span><span class="nx">ready</span><span class="p">)</span><span class="w"> </span><span class="c1">// signal readiness to callers</span>
-</span><span id="__span-9-30"><a id="__codelineno-9-30" name="__codelineno-9-30" href="#__codelineno-9-30"></a><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="kc">nil</span>
-</span><span id="__span-9-31"><a id="__codelineno-9-31" name="__codelineno-9-31" href="#__codelineno-9-31"></a><span class="p">}</span>
-</span><span id="__span-9-32"><a id="__codelineno-9-32" name="__codelineno-9-32" href="#__codelineno-9-32"></a>
-</span><span id="__span-9-33"><a id="__codelineno-9-33" name="__codelineno-9-33" href="#__codelineno-9-33"></a><span class="kd">func</span><span class="w"> </span><span class="p">(</span><span class="nx">s</span><span class="w"> </span><span class="o">*</span><span class="nx">Service</span><span class="p">)</span><span class="w"> </span><span class="nx">Ready</span><span class="p">()</span><span class="w"> </span><span class="o">&lt;-</span><span class="kt">chan</span><span class="w"> </span><span class="kd">struct</span><span class="p">{}</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="nx">s</span><span class="p">.</span><span class="nx">ready</span><span class="w"> </span><span class="p">}</span>
-</span><span id="__span-9-34"><a id="__codelineno-9-34" name="__codelineno-9-34" href="#__codelineno-9-34"></a><span class="kd">func</span><span class="w"> </span><span class="p">(</span><span class="nx">s</span><span class="w"> </span><span class="o">*</span><span class="nx">Service</span><span class="p">)</span><span class="w"> </span><span class="nx">PublicURL</span><span class="p">()</span><span class="w"> </span><span class="kt">string</span><span class="w">     </span><span class="p">{</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="nx">s</span><span class="p">.</span><span class="nx">provider</span><span class="p">.</span><span class="nx">PublicURL</span><span class="p">()</span><span class="w"> </span><span class="p">}</span>
-</span><span id="__span-9-35"><a id="__codelineno-9-35" name="__codelineno-9-35" href="#__codelineno-9-35"></a><span class="kd">func</span><span class="w"> </span><span class="p">(</span><span class="nx">s</span><span class="w"> </span><span class="o">*</span><span class="nx">Service</span><span class="p">)</span><span class="w"> </span><span class="nx">ProviderName</span><span class="p">()</span><span class="w"> </span><span class="kt">string</span><span class="w">  </span><span class="p">{</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="nx">s</span><span class="p">.</span><span class="nx">provider</span><span class="p">.</span><span class="nx">Name</span><span class="p">()</span><span class="w"> </span><span class="p">}</span>
-</span><span id="__span-9-36"><a id="__codelineno-9-36" name="__codelineno-9-36" href="#__codelineno-9-36"></a><span class="kd">func</span><span class="w"> </span><span class="p">(</span><span class="nx">s</span><span class="w"> </span><span class="o">*</span><span class="nx">Service</span><span class="p">)</span><span class="w"> </span><span class="nx">Close</span><span class="p">()</span><span class="w"> </span><span class="kt">error</span><span class="w">          </span><span class="p">{</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="nx">s</span><span class="p">.</span><span class="nx">provider</span><span class="p">.</span><span class="nx">Close</span><span class="p">()</span><span class="w"> </span><span class="p">}</span>
 </span></code></pre></div>
-<p>Usage:</p>
-<div class="language-go highlight"><pre><span></span><code><span id="__span-10-1"><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="nx">provider</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">NewLocalTunnel</span><span class="p">()</span>
-</span><span id="__span-10-2"><a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a><span class="nx">svc</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">NewService</span><span class="p">(</span><span class="nx">provider</span><span class="p">)</span>
-</span><span id="__span-10-3"><a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a>
-</span><span id="__span-10-4"><a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a><span class="k">go</span><span class="w"> </span><span class="nx">svc</span><span class="p">.</span><span class="nx">Start</span><span class="p">(</span><span class="nx">ctx</span><span class="p">,</span><span class="w"> </span><span class="mi">3000</span><span class="p">)</span>
-</span><span id="__span-10-5"><a id="__codelineno-10-5" name="__codelineno-10-5" href="#__codelineno-10-5"></a>
-</span><span id="__span-10-6"><a id="__codelineno-10-6" name="__codelineno-10-6" href="#__codelineno-10-6"></a><span class="o">&lt;-</span><span class="nx">svc</span><span class="p">.</span><span class="nx">Ready</span><span class="p">()</span>
-</span><span id="__span-10-7"><a id="__codelineno-10-7" name="__codelineno-10-7" href="#__codelineno-10-7"></a><span class="nx">fmt</span><span class="p">.</span><span class="nx">Println</span><span class="p">(</span><span class="s">"Tunnel ready:"</span><span class="p">,</span><span class="w"> </span><span class="nx">svc</span><span class="p">.</span><span class="nx">PublicURL</span><span class="p">())</span>
+<h3 id="2-native-self-hosted-relays-heartbeat-ping-pong">2. Native Self-Hosted Relays &amp; Heartbeat Ping-Pong<a class="headerlink" href="#2-native-self-hosted-relays-heartbeat-ping-pong" title="Permanent link">&para;</a></h3>
+<p>Rather than relying on third-party servers, Expose implements its own pure-Go relay protocol (<code>internal/server</code>):</p>
+<ol>
+<li><strong>JSON Control Channel:</strong> The client opens a single persistent TCP connection to the server (<code>expose server</code>) and sends a <code>protocol.TunnelRequest</code>:
+   <div class="language-json highlight"><pre><span></span><code><span id="__span-10-1"><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="p">{</span><span class="nt">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"control"</span><span class="p">,</span><span class="w"> </span><span class="nt">"subdomain"</span><span class="p">:</span><span class="w"> </span><span class="s2">"my-api"</span><span class="p">}</span>
+</span></code></pre></div></li>
+<li><strong>Heartbeat Eviction:</strong> The client transmits a lightweight <code>PING\n</code> every 20 seconds. If silent packet loss or a Wi-Fi drop occurs, the server's read deadline (60s) evicts the zombie registration to prevent stale port binding.</li>
+<li><strong>On-Demand Data Sockets:</strong> When an external HTTP visitor arrives at the relay, the server signals the client over the control channel to establish a separate data socket for that request.</li>
+</ol>
+<h3 id="3-subprocess-orchestration-cloudflare-quick-tunnels">3. Subprocess Orchestration (Cloudflare Quick Tunnels)<a class="headerlink" href="#3-subprocess-orchestration-cloudflare-quick-tunnels" title="Permanent link">&para;</a></h3>
+<p>When using Cloudflare, Expose does not dial raw TCP sockets. Instead, it manages the lifecycle of the official <code>cloudflared</code> binary as a child process and streams logs:</p>
+<div class="language-go highlight"><pre><span></span><code><span id="__span-11-1"><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a><span class="nx">cmd</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">exec</span><span class="p">.</span><span class="nx">CommandContext</span><span class="p">(</span><span class="nx">ctx</span><span class="p">,</span><span class="w"> </span><span class="s">"cloudflared"</span><span class="p">,</span><span class="w"> </span><span class="s">"tunnel"</span><span class="p">,</span><span class="w"> </span><span class="s">"--url"</span><span class="p">,</span><span class="w"> </span><span class="nx">fmt</span><span class="p">.</span><span class="nx">Sprintf</span><span class="p">(</span><span class="s">"http://localhost:%d"</span><span class="p">,</span><span class="w"> </span><span class="nx">port</span><span class="p">))</span>
+</span><span id="__span-11-2"><a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a><span class="nx">stderr</span><span class="p">,</span><span class="w"> </span><span class="nx">_</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">cmd</span><span class="p">.</span><span class="nx">StderrPipe</span><span class="p">()</span>
+</span><span id="__span-11-3"><a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a><span class="c1">// Read stderr stream to extract the generated trycloudflare.com URL</span>
 </span></code></pre></div>
 <hr />
-<h2 id="part-4-building-the-cli">Part 4 — Building the CLI<a class="headerlink" href="#part-4-building-the-cli" title="Permanent link">&para;</a></h2>
-<p>Expose uses <a href="https://github.com/spf13/cobra">Cobra</a> for the CLI layer.</p>
-<h3 id="root-command">Root command<a class="headerlink" href="#root-command" title="Permanent link">&para;</a></h3>
-<div class="language-go highlight"><pre><span></span><code><span id="__span-11-1"><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a><span class="c1">// internal/cli/root.go</span>
-</span><span id="__span-11-2"><a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a><span class="kd">var</span><span class="w"> </span><span class="nx">rootCmd</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">&amp;</span><span class="nx">cobra</span><span class="p">.</span><span class="nx">Command</span><span class="p">{</span>
-</span><span id="__span-11-3"><a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a><span class="w">    </span><span class="nx">Use</span><span class="p">:</span><span class="w">   </span><span class="s">"expose"</span><span class="p">,</span>
-</span><span id="__span-11-4"><a id="__codelineno-11-4" name="__codelineno-11-4" href="#__codelineno-11-4"></a><span class="w">    </span><span class="nx">Short</span><span class="p">:</span><span class="w"> </span><span class="s">"Expose localhost to the internet"</span><span class="p">,</span>
-</span><span id="__span-11-5"><a id="__codelineno-11-5" name="__codelineno-11-5" href="#__codelineno-11-5"></a><span class="p">}</span>
-</span><span id="__span-11-6"><a id="__codelineno-11-6" name="__codelineno-11-6" href="#__codelineno-11-6"></a>
-</span><span id="__span-11-7"><a id="__codelineno-11-7" name="__codelineno-11-7" href="#__codelineno-11-7"></a><span class="kd">func</span><span class="w"> </span><span class="nx">Execute</span><span class="p">()</span><span class="w"> </span><span class="kt">error</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__span-11-8"><a id="__codelineno-11-8" name="__codelineno-11-8" href="#__codelineno-11-8"></a><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="nx">rootCmd</span><span class="p">.</span><span class="nx">Execute</span><span class="p">()</span>
-</span><span id="__span-11-9"><a id="__codelineno-11-9" name="__codelineno-11-9" href="#__codelineno-11-9"></a><span class="p">}</span>
-</span></code></pre></div>
-<h3 id="tunnel-command">Tunnel command<a class="headerlink" href="#tunnel-command" title="Permanent link">&para;</a></h3>
-<div class="language-go highlight"><pre><span></span><code><span id="__span-12-1"><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a><span class="c1">// internal/cli/tunnel.go</span>
-</span><span id="__span-12-2"><a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a><span class="kd">var</span><span class="w"> </span><span class="nx">tunnelCmd</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">&amp;</span><span class="nx">cobra</span><span class="p">.</span><span class="nx">Command</span><span class="p">{</span>
-</span><span id="__span-12-3"><a id="__codelineno-12-3" name="__codelineno-12-3" href="#__codelineno-12-3"></a><span class="w">    </span><span class="nx">Use</span><span class="p">:</span><span class="w">   </span><span class="s">"tunnel"</span><span class="p">,</span>
-</span><span id="__span-12-4"><a id="__codelineno-12-4" name="__codelineno-12-4" href="#__codelineno-12-4"></a><span class="w">    </span><span class="nx">Short</span><span class="p">:</span><span class="w"> </span><span class="s">"Start a tunnel to localhost"</span><span class="p">,</span>
-</span><span id="__span-12-5"><a id="__codelineno-12-5" name="__codelineno-12-5" href="#__codelineno-12-5"></a><span class="w">    </span><span class="nx">RunE</span><span class="p">:</span><span class="w">  </span><span class="nx">runTunnel</span><span class="p">,</span>
-</span><span id="__span-12-6"><a id="__codelineno-12-6" name="__codelineno-12-6" href="#__codelineno-12-6"></a><span class="p">}</span>
-</span><span id="__span-12-7"><a id="__codelineno-12-7" name="__codelineno-12-7" href="#__codelineno-12-7"></a>
-</span><span id="__span-12-8"><a id="__codelineno-12-8" name="__codelineno-12-8" href="#__codelineno-12-8"></a><span class="kd">func</span><span class="w"> </span><span class="nx">init</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__span-12-9"><a id="__codelineno-12-9" name="__codelineno-12-9" href="#__codelineno-12-9"></a><span class="w">    </span><span class="nx">tunnelCmd</span><span class="p">.</span><span class="nx">Flags</span><span class="p">().</span><span class="nx">IntVarP</span><span class="p">(</span><span class="o">&amp;</span><span class="nx">port</span><span class="p">,</span><span class="w"> </span><span class="s">"port"</span><span class="p">,</span><span class="w"> </span><span class="s">"p"</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="s">"Local port (overrides config)"</span><span class="p">)</span>
-</span><span id="__span-12-10"><a id="__codelineno-12-10" name="__codelineno-12-10" href="#__codelineno-12-10"></a><span class="w">    </span><span class="nx">tunnelCmd</span><span class="p">.</span><span class="nx">Flags</span><span class="p">().</span><span class="nx">StringVarP</span><span class="p">(</span><span class="o">&amp;</span><span class="nx">providerName</span><span class="p">,</span><span class="w"> </span><span class="s">"provider"</span><span class="p">,</span><span class="w"> </span><span class="s">"P"</span><span class="p">,</span><span class="w"> </span><span class="s">"localtunnel"</span><span class="p">,</span><span class="w"> </span><span class="s">"Provider"</span><span class="p">)</span>
-</span><span id="__span-12-11"><a id="__codelineno-12-11" name="__codelineno-12-11" href="#__codelineno-12-11"></a><span class="w">    </span><span class="nx">rootCmd</span><span class="p">.</span><span class="nx">AddCommand</span><span class="p">(</span><span class="nx">tunnelCmd</span><span class="p">)</span>
-</span><span id="__span-12-12"><a id="__codelineno-12-12" name="__codelineno-12-12" href="#__codelineno-12-12"></a><span class="p">}</span>
-</span><span id="__span-12-13"><a id="__codelineno-12-13" name="__codelineno-12-13" href="#__codelineno-12-13"></a>
-</span><span id="__span-12-14"><a id="__codelineno-12-14" name="__codelineno-12-14" href="#__codelineno-12-14"></a><span class="kd">func</span><span class="w"> </span><span class="nx">runTunnel</span><span class="p">(</span><span class="nx">cmd</span><span class="w"> </span><span class="o">*</span><span class="nx">cobra</span><span class="p">.</span><span class="nx">Command</span><span class="p">,</span><span class="w"> </span><span class="nx">_</span><span class="w"> </span><span class="p">[]</span><span class="kt">string</span><span class="p">)</span><span class="w"> </span><span class="kt">error</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__span-12-15"><a id="__codelineno-12-15" name="__codelineno-12-15" href="#__codelineno-12-15"></a><span class="w">    </span><span class="nx">ctx</span><span class="p">,</span><span class="w"> </span><span class="nx">cancel</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">context</span><span class="p">.</span><span class="nx">WithCancel</span><span class="p">(</span><span class="nx">context</span><span class="p">.</span><span class="nx">Background</span><span class="p">())</span>
-</span><span id="__span-12-16"><a id="__codelineno-12-16" name="__codelineno-12-16" href="#__codelineno-12-16"></a><span class="w">    </span><span class="k">defer</span><span class="w"> </span><span class="nx">cancel</span><span class="p">()</span>
-</span><span id="__span-12-17"><a id="__codelineno-12-17" name="__codelineno-12-17" href="#__codelineno-12-17"></a>
-</span><span id="__span-12-18"><a id="__codelineno-12-18" name="__codelineno-12-18" href="#__codelineno-12-18"></a><span class="w">    </span><span class="c1">// Graceful shutdown on Ctrl+C</span>
-</span><span id="__span-12-19"><a id="__codelineno-12-19" name="__codelineno-12-19" href="#__codelineno-12-19"></a><span class="w">    </span><span class="k">go</span><span class="w"> </span><span class="kd">func</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__span-12-20"><a id="__codelineno-12-20" name="__codelineno-12-20" href="#__codelineno-12-20"></a><span class="w">        </span><span class="nx">sig</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nb">make</span><span class="p">(</span><span class="kt">chan</span><span class="w"> </span><span class="nx">os</span><span class="p">.</span><span class="nx">Signal</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span>
-</span><span id="__span-12-21"><a id="__codelineno-12-21" name="__codelineno-12-21" href="#__codelineno-12-21"></a><span class="w">        </span><span class="nx">signal</span><span class="p">.</span><span class="nx">Notify</span><span class="p">(</span><span class="nx">sig</span><span class="p">,</span><span class="w"> </span><span class="nx">os</span><span class="p">.</span><span class="nx">Interrupt</span><span class="p">,</span><span class="w"> </span><span class="nx">syscall</span><span class="p">.</span><span class="nx">SIGTERM</span><span class="p">)</span>
-</span><span id="__span-12-22"><a id="__codelineno-12-22" name="__codelineno-12-22" href="#__codelineno-12-22"></a><span class="w">        </span><span class="o">&lt;-</span><span class="nx">sig</span>
-</span><span id="__span-12-23"><a id="__codelineno-12-23" name="__codelineno-12-23" href="#__codelineno-12-23"></a><span class="w">        </span><span class="nx">fmt</span><span class="p">.</span><span class="nx">Println</span><span class="p">(</span><span class="s">"\nShutting down..."</span><span class="p">)</span>
-</span><span id="__span-12-24"><a id="__codelineno-12-24" name="__codelineno-12-24" href="#__codelineno-12-24"></a><span class="w">        </span><span class="nx">cancel</span><span class="p">()</span>
-</span><span id="__span-12-25"><a id="__codelineno-12-25" name="__codelineno-12-25" href="#__codelineno-12-25"></a><span class="w">    </span><span class="p">}()</span>
-</span><span id="__span-12-26"><a id="__codelineno-12-26" name="__codelineno-12-26" href="#__codelineno-12-26"></a>
-</span><span id="__span-12-27"><a id="__codelineno-12-27" name="__codelineno-12-27" href="#__codelineno-12-27"></a><span class="w">    </span><span class="nx">cfg</span><span class="p">,</span><span class="w"> </span><span class="nx">_</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">config</span><span class="p">.</span><span class="nx">Load</span><span class="p">(</span><span class="s">""</span><span class="p">)</span>
-</span><span id="__span-12-28"><a id="__codelineno-12-28" name="__codelineno-12-28" href="#__codelineno-12-28"></a><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="nx">port</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__span-12-29"><a id="__codelineno-12-29" name="__codelineno-12-29" href="#__codelineno-12-29"></a><span class="w">        </span><span class="nx">port</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">cfg</span><span class="p">.</span><span class="nx">Port</span>
-</span><span id="__span-12-30"><a id="__codelineno-12-30" name="__codelineno-12-30" href="#__codelineno-12-30"></a><span class="w">    </span><span class="p">}</span>
-</span><span id="__span-12-31"><a id="__codelineno-12-31" name="__codelineno-12-31" href="#__codelineno-12-31"></a>
-</span><span id="__span-12-32"><a id="__codelineno-12-32" name="__codelineno-12-32" href="#__codelineno-12-32"></a><span class="w">    </span><span class="nx">svc</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">tunnel</span><span class="p">.</span><span class="nx">NewService</span><span class="p">(</span><span class="nx">providerForName</span><span class="p">(</span><span class="nx">providerName</span><span class="p">))</span>
-</span><span id="__span-12-33"><a id="__codelineno-12-33" name="__codelineno-12-33" href="#__codelineno-12-33"></a>
-</span><span id="__span-12-34"><a id="__codelineno-12-34" name="__codelineno-12-34" href="#__codelineno-12-34"></a><span class="w">    </span><span class="nx">errCh</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nb">make</span><span class="p">(</span><span class="kt">chan</span><span class="w"> </span><span class="kt">error</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span>
-</span><span id="__span-12-35"><a id="__codelineno-12-35" name="__codelineno-12-35" href="#__codelineno-12-35"></a><span class="w">    </span><span class="k">go</span><span class="w"> </span><span class="kd">func</span><span class="p">()</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">errCh</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="nx">svc</span><span class="p">.</span><span class="nx">Start</span><span class="p">(</span><span class="nx">ctx</span><span class="p">,</span><span class="w"> </span><span class="nx">port</span><span class="p">)</span><span class="w"> </span><span class="p">}()</span>
-</span><span id="__span-12-36"><a id="__codelineno-12-36" name="__codelineno-12-36" href="#__codelineno-12-36"></a>
-</span><span id="__span-12-37"><a id="__codelineno-12-37" name="__codelineno-12-37" href="#__codelineno-12-37"></a><span class="w">    </span><span class="k">select</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__span-12-38"><a id="__codelineno-12-38" name="__codelineno-12-38" href="#__codelineno-12-38"></a><span class="w">    </span><span class="k">case</span><span class="w"> </span><span class="o">&lt;-</span><span class="nx">svc</span><span class="p">.</span><span class="nx">Ready</span><span class="p">():</span>
-</span><span id="__span-12-39"><a id="__codelineno-12-39" name="__codelineno-12-39" href="#__codelineno-12-39"></a><span class="w">        </span><span class="nx">fmt</span><span class="p">.</span><span class="nx">Printf</span><span class="p">(</span><span class="s">"✓ Public URL:      %s\n"</span><span class="p">,</span><span class="w"> </span><span class="nx">svc</span><span class="p">.</span><span class="nx">PublicURL</span><span class="p">())</span>
-</span><span id="__span-12-40"><a id="__codelineno-12-40" name="__codelineno-12-40" href="#__codelineno-12-40"></a><span class="w">        </span><span class="nx">fmt</span><span class="p">.</span><span class="nx">Printf</span><span class="p">(</span><span class="s">"✓ Forwarding to:   http://localhost:%d\n"</span><span class="p">,</span><span class="w"> </span><span class="nx">port</span><span class="p">)</span>
-</span><span id="__span-12-41"><a id="__codelineno-12-41" name="__codelineno-12-41" href="#__codelineno-12-41"></a><span class="w">        </span><span class="nx">fmt</span><span class="p">.</span><span class="nx">Printf</span><span class="p">(</span><span class="s">"✓ Provider:        %s\n"</span><span class="p">,</span><span class="w"> </span><span class="nx">svc</span><span class="p">.</span><span class="nx">ProviderName</span><span class="p">())</span>
-</span><span id="__span-12-42"><a id="__codelineno-12-42" name="__codelineno-12-42" href="#__codelineno-12-42"></a><span class="w">        </span><span class="nx">fmt</span><span class="p">.</span><span class="nx">Println</span><span class="p">(</span><span class="s">"  Press Ctrl+C to stop"</span><span class="p">)</span>
-</span><span id="__span-12-43"><a id="__codelineno-12-43" name="__codelineno-12-43" href="#__codelineno-12-43"></a><span class="w">    </span><span class="k">case</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="o">&lt;-</span><span class="nx">errCh</span><span class="p">:</span>
-</span><span id="__span-12-44"><a id="__codelineno-12-44" name="__codelineno-12-44" href="#__codelineno-12-44"></a><span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="nx">err</span>
-</span><span id="__span-12-45"><a id="__codelineno-12-45" name="__codelineno-12-45" href="#__codelineno-12-45"></a><span class="w">    </span><span class="p">}</span>
-</span><span id="__span-12-46"><a id="__codelineno-12-46" name="__codelineno-12-46" href="#__codelineno-12-46"></a>
-</span><span id="__span-12-47"><a id="__codelineno-12-47" name="__codelineno-12-47" href="#__codelineno-12-47"></a><span class="w">    </span><span class="o">&lt;-</span><span class="nx">ctx</span><span class="p">.</span><span class="nx">Done</span><span class="p">()</span>
-</span><span id="__span-12-48"><a id="__codelineno-12-48" name="__codelineno-12-48" href="#__codelineno-12-48"></a><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="nx">svc</span><span class="p">.</span><span class="nx">Close</span><span class="p">()</span>
-</span><span id="__span-12-49"><a id="__codelineno-12-49" name="__codelineno-12-49" href="#__codelineno-12-49"></a><span class="p">}</span>
-</span></code></pre></div>
-<hr />
-<h2 id="part-5-advanced-patterns">Part 5 — Advanced Patterns<a class="headerlink" href="#part-5-advanced-patterns" title="Permanent link">&para;</a></h2>
-<h3 id="connection-pooling">Connection pooling<a class="headerlink" href="#connection-pooling" title="Permanent link">&para;</a></h3>
-<p>LocalTunnel maintains 10 concurrent TCP connections so multiple requests can be handled in parallel without waiting for each connection to finish:</p>
-<div class="language-go highlight"><pre><span></span><code><span id="__span-13-1"><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a><span class="kd">func</span><span class="w"> </span><span class="p">(</span><span class="nx">lt</span><span class="w"> </span><span class="o">*</span><span class="nx">LocalTunnel</span><span class="p">)</span><span class="w"> </span><span class="nx">openPool</span><span class="p">(</span><span class="nx">port</span><span class="w"> </span><span class="kt">int</span><span class="p">)</span><span class="w"> </span><span class="kt">error</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__span-13-2"><a id="__codelineno-13-2" name="__codelineno-13-2" href="#__codelineno-13-2"></a><span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="nx">i</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="nx">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mi">10</span><span class="p">;</span><span class="w"> </span><span class="nx">i</span><span class="o">++</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__span-13-3"><a id="__codelineno-13-3" name="__codelineno-13-3" href="#__codelineno-13-3"></a><span class="w">        </span><span class="nx">conn</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">net</span><span class="p">.</span><span class="nx">Dial</span><span class="p">(</span><span class="s">"tcp"</span><span class="p">,</span><span class="w"> </span><span class="nx">fmt</span><span class="p">.</span><span class="nx">Sprintf</span><span class="p">(</span><span class="s">"localtunnel.me:%d"</span><span class="p">,</span><span class="w"> </span><span class="nx">port</span><span class="p">))</span>
-</span><span id="__span-13-4"><a id="__codelineno-13-4" name="__codelineno-13-4" href="#__codelineno-13-4"></a><span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">nil</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__span-13-5"><a id="__codelineno-13-5" name="__codelineno-13-5" href="#__codelineno-13-5"></a><span class="w">            </span><span class="k">return</span><span class="w"> </span><span class="nx">err</span>
-</span><span id="__span-13-6"><a id="__codelineno-13-6" name="__codelineno-13-6" href="#__codelineno-13-6"></a><span class="w">        </span><span class="p">}</span>
-</span><span id="__span-13-7"><a id="__codelineno-13-7" name="__codelineno-13-7" href="#__codelineno-13-7"></a><span class="w">        </span><span class="k">go</span><span class="w"> </span><span class="nx">lt</span><span class="p">.</span><span class="nx">handleConn</span><span class="p">(</span><span class="nx">conn</span><span class="p">)</span>
-</span><span id="__span-13-8"><a id="__codelineno-13-8" name="__codelineno-13-8" href="#__codelineno-13-8"></a><span class="w">    </span><span class="p">}</span>
-</span><span id="__span-13-9"><a id="__codelineno-13-9" name="__codelineno-13-9" href="#__codelineno-13-9"></a><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="kc">nil</span>
-</span><span id="__span-13-10"><a id="__codelineno-13-10" name="__codelineno-13-10" href="#__codelineno-13-10"></a><span class="p">}</span>
-</span></code></pre></div>
-<h3 id="cloudflare-provider-subprocess-wrapping">Cloudflare provider — subprocess wrapping<a class="headerlink" href="#cloudflare-provider-subprocess-wrapping" title="Permanent link">&para;</a></h3>
-<p>The Cloudflare provider doesn't open raw TCP connections. Instead it shells out to the <code>cloudflared</code> binary and parses the public URL from its stderr:</p>
-<div class="language-go highlight"><pre><span></span><code><span id="__span-14-1"><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a><span class="kd">func</span><span class="w"> </span><span class="p">(</span><span class="nx">c</span><span class="w"> </span><span class="o">*</span><span class="nx">Cloudflare</span><span class="p">)</span><span class="w"> </span><span class="nx">Connect</span><span class="p">(</span><span class="nx">ctx</span><span class="w"> </span><span class="nx">context</span><span class="p">.</span><span class="nx">Context</span><span class="p">,</span><span class="w"> </span><span class="nx">localPort</span><span class="w"> </span><span class="kt">int</span><span class="p">)</span><span class="w"> </span><span class="p">(</span><span class="kt">string</span><span class="p">,</span><span class="w"> </span><span class="kt">error</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__span-14-2"><a id="__codelineno-14-2" name="__codelineno-14-2" href="#__codelineno-14-2"></a><span class="w">    </span><span class="nx">cmd</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">exec</span><span class="p">.</span><span class="nx">CommandContext</span><span class="p">(</span><span class="nx">ctx</span><span class="p">,</span><span class="w"> </span><span class="s">"cloudflared"</span><span class="p">,</span><span class="w"> </span><span class="s">"tunnel"</span><span class="p">,</span>
-</span><span id="__span-14-3"><a id="__codelineno-14-3" name="__codelineno-14-3" href="#__codelineno-14-3"></a><span class="w">        </span><span class="s">"--url"</span><span class="p">,</span><span class="w"> </span><span class="nx">fmt</span><span class="p">.</span><span class="nx">Sprintf</span><span class="p">(</span><span class="s">"http://localhost:%d"</span><span class="p">,</span><span class="w"> </span><span class="nx">localPort</span><span class="p">),</span>
-</span><span id="__span-14-4"><a id="__codelineno-14-4" name="__codelineno-14-4" href="#__codelineno-14-4"></a><span class="w">        </span><span class="s">"--no-autoupdate"</span><span class="p">,</span>
-</span><span id="__span-14-5"><a id="__codelineno-14-5" name="__codelineno-14-5" href="#__codelineno-14-5"></a><span class="w">    </span><span class="p">)</span>
-</span><span id="__span-14-6"><a id="__codelineno-14-6" name="__codelineno-14-6" href="#__codelineno-14-6"></a>
-</span><span id="__span-14-7"><a id="__codelineno-14-7" name="__codelineno-14-7" href="#__codelineno-14-7"></a><span class="w">    </span><span class="nx">stderr</span><span class="p">,</span><span class="w"> </span><span class="nx">_</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">cmd</span><span class="p">.</span><span class="nx">StderrPipe</span><span class="p">()</span>
-</span><span id="__span-14-8"><a id="__codelineno-14-8" name="__codelineno-14-8" href="#__codelineno-14-8"></a><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">cmd</span><span class="p">.</span><span class="nx">Start</span><span class="p">();</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">nil</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__span-14-9"><a id="__codelineno-14-9" name="__codelineno-14-9" href="#__codelineno-14-9"></a><span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="s">""</span><span class="p">,</span><span class="w"> </span><span class="nx">fmt</span><span class="p">.</span><span class="nx">Errorf</span><span class="p">(</span><span class="s">"cloudflared not found: %w"</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span><span class="p">)</span>
-</span><span id="__span-14-10"><a id="__codelineno-14-10" name="__codelineno-14-10" href="#__codelineno-14-10"></a><span class="w">    </span><span class="p">}</span>
-</span><span id="__span-14-11"><a id="__codelineno-14-11" name="__codelineno-14-11" href="#__codelineno-14-11"></a>
-</span><span id="__span-14-12"><a id="__codelineno-14-12" name="__codelineno-14-12" href="#__codelineno-14-12"></a><span class="w">    </span><span class="c1">// Parse the public URL from output like:</span>
-</span><span id="__span-14-13"><a id="__codelineno-14-13" name="__codelineno-14-13" href="#__codelineno-14-13"></a><span class="w">    </span><span class="c1">// "Your quick Tunnel has been created! Visit it at: https://..."</span>
-</span><span id="__span-14-14"><a id="__codelineno-14-14" name="__codelineno-14-14" href="#__codelineno-14-14"></a><span class="w">    </span><span class="nx">scanner</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">bufio</span><span class="p">.</span><span class="nx">NewScanner</span><span class="p">(</span><span class="nx">stderr</span><span class="p">)</span>
-</span><span id="__span-14-15"><a id="__codelineno-14-15" name="__codelineno-14-15" href="#__codelineno-14-15"></a><span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="nx">scanner</span><span class="p">.</span><span class="nx">Scan</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__span-14-16"><a id="__codelineno-14-16" name="__codelineno-14-16" href="#__codelineno-14-16"></a><span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="nx">match</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">urlPattern</span><span class="p">.</span><span class="nx">FindString</span><span class="p">(</span><span class="nx">scanner</span><span class="p">.</span><span class="nx">Text</span><span class="p">());</span><span class="w"> </span><span class="nx">match</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="s">""</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__span-14-17"><a id="__codelineno-14-17" name="__codelineno-14-17" href="#__codelineno-14-17"></a><span class="w">            </span><span class="nx">c</span><span class="p">.</span><span class="nx">publicURL</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">match</span>
-</span><span id="__span-14-18"><a id="__codelineno-14-18" name="__codelineno-14-18" href="#__codelineno-14-18"></a><span class="w">            </span><span class="k">return</span><span class="w"> </span><span class="nx">match</span><span class="p">,</span><span class="w"> </span><span class="kc">nil</span>
-</span><span id="__span-14-19"><a id="__codelineno-14-19" name="__codelineno-14-19" href="#__codelineno-14-19"></a><span class="w">        </span><span class="p">}</span>
-</span><span id="__span-14-20"><a id="__codelineno-14-20" name="__codelineno-14-20" href="#__codelineno-14-20"></a><span class="w">    </span><span class="p">}</span>
-</span><span id="__span-14-21"><a id="__codelineno-14-21" name="__codelineno-14-21" href="#__codelineno-14-21"></a>
-</span><span id="__span-14-22"><a id="__codelineno-14-22" name="__codelineno-14-22" href="#__codelineno-14-22"></a><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="s">""</span><span class="p">,</span><span class="w"> </span><span class="nx">fmt</span><span class="p">.</span><span class="nx">Errorf</span><span class="p">(</span><span class="s">"failed to get tunnel URL from cloudflared"</span><span class="p">)</span>
-</span><span id="__span-14-23"><a id="__codelineno-14-23" name="__codelineno-14-23" href="#__codelineno-14-23"></a><span class="p">}</span>
-</span></code></pre></div>
-<hr />
-<h2 id="summary">Summary<a class="headerlink" href="#summary" title="Permanent link">&para;</a></h2>
+<h2 id="architecture-summary">Architecture Summary<a class="headerlink" href="#architecture-summary" title="Permanent link">&para;</a></h2>
 <table>
 <thead>
 <tr>
-<th>Concept</th>
-<th>Where in Expose</th>
+<th style="text-align: left;">Layer</th>
+<th style="text-align: left;">Responsibility</th>
+<th style="text-align: left;">Location in Expose</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td><code>Provider</code> interface</td>
-<td><code>internal/tunnel/provider.go</code></td>
+<td style="text-align: left;"><strong><code>Provider</code> Interface</strong></td>
+<td style="text-align: left;">Common contract across all tunnel transports</td>
+<td style="text-align: left;"><a href="file:///Users/sam/code/opensource/expose/internal/tunnel/provider.go"><code>internal/tunnel/provider.go</code></a></td>
 </tr>
 <tr>
-<td><code>Service</code> lifecycle</td>
-<td><code>internal/tunnel/service.go</code></td>
+<td style="text-align: left;"><strong><code>Service</code> Wrapper</strong></td>
+<td style="text-align: left;">Channel synchronization &amp; graceful shutdown</td>
+<td style="text-align: left;"><a href="file:///Users/sam/code/opensource/expose/internal/tunnel/service.go"><code>internal/tunnel/service.go</code></a></td>
 </tr>
 <tr>
-<td>LocalTunnel TCP pool</td>
-<td><code>internal/provider/localtunnel.go</code></td>
+<td style="text-align: left;"><strong>Self-Hosted Server</strong></td>
+<td style="text-align: left;">Pure-Go relay, subdomain routing, &amp; heartbeat timeouts</td>
+<td style="text-align: left;"><a href="file:///Users/sam/code/opensource/expose/internal/server/server.go"><code>internal/server/server.go</code></a></td>
 </tr>
 <tr>
-<td>Cloudflare subprocess</td>
-<td><code>internal/provider/cloudflare.go</code></td>
+<td style="text-align: left;"><strong>Self-Hosted Client</strong></td>
+<td style="text-align: left;">JSON control plane, deferred local dial, &amp; custom subdomains</td>
+<td style="text-align: left;"><a href="file:///Users/sam/code/opensource/expose/internal/provider/selfhosted.go"><code>internal/provider/selfhosted.go</code></a></td>
 </tr>
 <tr>
-<td>CLI commands (Cobra)</td>
-<td><code>internal/cli/</code></td>
+<td style="text-align: left;"><strong>LocalTunnel Client</strong></td>
+<td style="text-align: left;">Public zero-config TCP socket connection pool</td>
+<td style="text-align: left;"><a href="file:///Users/sam/code/opensource/expose/internal/provider/localtunnel.go"><code>internal/provider/localtunnel.go</code></a></td>
 </tr>
 <tr>
-<td>Config file (YAML)</td>
-<td><code>internal/config/config.go</code></td>
+<td style="text-align: left;"><strong>Cloudflare Client</strong></td>
+<td style="text-align: left;">Subprocess supervisor for <code>cloudflared</code></td>
+<td style="text-align: left;"><a href="file:///Users/sam/code/opensource/expose/internal/provider/cloudflare.go"><code>internal/provider/cloudflare.go</code></a></td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>CLI &amp; Commands</strong></td>
+<td style="text-align: left;">Cobra flags, positional port parsing, &amp; signal traps</td>
+<td style="text-align: left;"><a href="file:///Users/sam/code/opensource/expose/internal/cli/"><code>internal/cli/</code></a></td>
 </tr>
 </tbody>
 </table>
-<p><strong>Next steps:</strong></p>
-<ul>
-<li>Read <a href="ARCHITECTURE.html">Architecture</a> for the full concurrency model</li>
-<li>Set up a dev environment via <a href="ONBOARDING.html">Onboarding</a></li>
-<li>Add your own provider by implementing the <code>Provider</code> interface</li>
-</ul>
 <hr />
-<p><strong>Questions?</strong> <a href="https://github.com/kernelshard/expose/discussions">Open a discussion on GitHub</a>.</p>
+<h2 id="frequently-asked-questions-faq">Frequently Asked Questions (FAQ)<a class="headerlink" href="#frequently-asked-questions-faq" title="Permanent link">&para;</a></h2>
+<details class="question">
+<summary>Why not just use traditional port forwarding?</summary>
+<p>Port forwarding requires administrative access to the local router, exposes your public home IP address, and fails under Carrier-Grade NAT (CGNAT) where your router lacks a dedicated public IPv4 address. Reverse tunnels bypass NAT transparently by establishing an outbound TCP socket to a public relay.</p>
+</details>
+<details class="question">
+<summary>How does Expose differ from ngrok?</summary>
+<p>While ngrok is a closed-source SaaS requiring accounts and enforcing usage limits, Expose is an Apache 2.0-licensed, pure-Go tool. It supports zero-signup public relays (LocalTunnel, Cloudflare) as well as its own built-in, private self-hosted relay server (<code>expose server</code>).</p>
+</details>
+<details class="question">
+<summary>How does socket teardown work in full-duplex proxies?</summary>
+<p>When either the visitor disconnects or the local server finishes sending the HTTP response, <code>io.Copy</code> unblocks with <code>io.EOF</code> or a closed-socket error. The returned channel immediately executes deferred socket closures (<code>localConn.Close()</code> and <code>tunnelConn.Close()</code>), unblocking the sibling routine and preventing leaked goroutines.</p>
+</details>
+<hr />
+<h2 id="next-steps">Next Steps<a class="headerlink" href="#next-steps" title="Permanent link">&para;</a></h2>
+<ul>
+<li><strong><a href="SELF_HOSTED.html">Self-Hosted Server Guide</a>:</strong> Deploy your own private relay server on a $5/mo VPS.</li>
+<li><strong><a href="ARCHITECTURE.html">Architecture Deep Dive</a>:</strong> Explore detailed state machines and concurrency models.</li>
+<li><strong><a href="CONTRIBUTING.html">Contributing Guide</a>:</strong> Learn how to implement your own custom tunnel provider.</li>
+</ul>
 
 
 
 
 
 
-
-  
-  
 
 
 
