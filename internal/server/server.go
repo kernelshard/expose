@@ -18,19 +18,23 @@ import (
 // Server manages the self-hosted tunnel server.
 // holds the state of the server and handles incoming connections.
 type Server struct {
-	domain          string
-	controlPort     int // port for client connections
-	publicPort      int // port for public http connections
-	tunnels         sync.Map
-	controlTimeout  time.Duration
-	controlListener net.Listener
-	publicListener  net.Listener
-	ready           chan struct{}
+	domain            string
+	controlPort       int // port for client connections
+	publicPort        int // port for public http connections
+	tunnels           sync.Map
+	controlTimeout    time.Duration // after this duration of no client activity, connection is closed
+	handshakeTimeout  time.Duration
+	maxHandshakeBytes int
+	controlListener   net.Listener
+	publicListener    net.Listener
+	ready             chan struct{}
 }
 
 const (
-	defaultDataConnBuffer = 10
-	defaultControlTimeout = 60 * time.Second // after 60 seconds of no client activity, connection is closed
+	defaultDataConnBuffer   = 10
+	defaultControlTimeout   = 60 * time.Second // after this duration of no client activity, connection is closed
+	defaultHandshakeTimeout = 5 * time.Second
+	maxHandshakeBytes       = 4 * 1024 // 4kb max handshake
 )
 
 // ClientConnection represents a connected client
@@ -43,11 +47,13 @@ type ClientConnection struct {
 // NewServer creates a new server.
 func NewServer(domain string, controlPort, publicPort int) *Server {
 	return &Server{
-		domain:         domain, // e.g. localtunnel.me
-		controlPort:    controlPort,
-		publicPort:     publicPort,
-		controlTimeout: defaultControlTimeout,
-		ready:          make(chan struct{}), // Used by Listeners to signal readiness.
+		domain:            domain, // e.g. localtunnel.me
+		controlPort:       controlPort,
+		publicPort:        publicPort,
+		controlTimeout:    defaultControlTimeout,
+		handshakeTimeout:  defaultHandshakeTimeout,
+		maxHandshakeBytes: maxHandshakeBytes,
+		ready:             make(chan struct{}), // Used by Listeners to signal readiness.
 	}
 }
 
@@ -125,11 +131,16 @@ func (s *Server) registerSubdomain(conn net.Conn, requested string) (string, err
 //     and stays open to monitor client lifecycle and detect disconnects.
 func (s *Server) handleControlConnection(conn net.Conn) {
 	// 1. Read the handshake request
+	_ = conn.SetReadDeadline(time.Now().Add(s.handshakeTimeout))
+	limitedReader := io.LimitReader(conn, int64(s.maxHandshakeBytes))
 	var req protocol.TunnelRequest
-	if err := json.NewDecoder(conn).Decode(&req); err != nil {
+	if err := json.NewDecoder(limitedReader).Decode(&req); err != nil {
 		conn.Close()
 		return
 	}
+
+	// reset the read deadline
+	_ = conn.SetReadDeadline(time.Time{})
 
 	// Phase 1: Data socket - park in tenant's buffer and exit
 	if req.Type == protocol.TypeData {
@@ -381,4 +392,9 @@ func (s *Server) ControlAddr() string {
 // SetControlTimeout sets the read deadline for the control connection.
 func (s *Server) SetControlTimeout(d time.Duration) {
 	s.controlTimeout = d
+}
+
+// SetHandshakeTimeout sets the handshake timeout.
+func (s *Server) SetHandshakeTimeout(d time.Duration) {
+	s.handshakeTimeout = d
 }

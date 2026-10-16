@@ -9,6 +9,7 @@ import (
 	"net"
 	"net/http"
 	"net/http/httptest"
+	"strings"
 	"testing"
 	"time"
 
@@ -581,4 +582,56 @@ func Test_HandleControl_HeartbeatTimeout(t *testing.T) {
 		t.Fatal("expected ghost-app to be evicted after heartbeat timeout")
 	}
 
+}
+
+func Test_HandleControl_HandshakeTimeout(t *testing.T) {
+	srv := NewServer("localhost", 7890, 8080)
+	srv.SetHandshakeTimeout(50 * time.Millisecond)
+	clientConn, serverConn := net.Pipe()
+	go srv.handleControlConnection(serverConn)
+
+	// Send raw unclosed '{' without trailing quote or newline:
+	_, _ = clientConn.Write([]byte("{"))
+	time.Sleep(100 * time.Millisecond)
+
+	buf := make([]byte, 10)
+	_, err := clientConn.Read(buf)
+
+	// connection has been closed due to the sleep > handshake timeout
+	if err != io.EOF {
+		t.Fatal("expected connection to be closed after handshake timeout")
+	}
+}
+
+func Test_HandleControl_OversizePayload(t *testing.T) {
+	srv := NewServer("localhost", 7890, 8080)
+
+	clientConn, serverConn := net.Pipe()
+	go srv.handleControlConnection(serverConn)
+
+	// Send an oversized payload (e.g., 5KB of JSON)
+	sub := strings.Repeat("a", 5000)
+	oversizedJSON := fmt.Sprintf(`{"subdomain": "%s"}`, sub)
+
+	// net.Pipe blocks until all 5000 bytes are read, but LimitReader stops at 4096.
+	// so we need to use a goroutine to send the oversized payload
+	go func() {
+		_, _ = clientConn.Write([]byte(oversizedJSON))
+	}()
+
+	// Wait for the server to process the oversized payload
+	time.Sleep(100 * time.Millisecond)
+
+	// Verify the connection is closed
+	buf := make([]byte, 10)
+	_, err := clientConn.Read(buf)
+
+	if err != io.EOF {
+		t.Errorf("expected connection to be closed after oversize payload, got error: %v", err)
+	}
+
+	// Verify the subdomain was not registered
+	if _, ok := srv.tunnels.Load(sub); ok {
+		t.Error("expected subdomain not to be registered for oversize payload")
+	}
 }
