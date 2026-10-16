@@ -1367,10 +1367,10 @@
 <h2 id="part-1-what-is-a-tunnel">Part 1 — What Is a Tunnel?<a class="headerlink" href="#part-1-what-is-a-tunnel" title="Permanent link">&para;</a></h2>
 <p>When you run a web server on <code>localhost:3000</code>, external visitors cannot reach it because your machine sits behind a router using Network Address Translation (NAT) with a private IP.</p>
 <p>A <strong>reverse proxy tunnel</strong> solves this by flipping the connection flow: <strong>your local machine initiates an outbound TCP connection to a public relay server.</strong> Because stateful firewalls permit outbound traffic and its return packets, this connection stays open and acts as a bidirectional bridge.</p>
-<div class="language-text highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a> ┌────────────────┐          ┌───────────────────────┐          ┌──────────────┐
-</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a> │ Internet User  │ ──HTTP─► │  Public Relay Server  │ ◄──TCP── │ Local Client │ ──HTTP─► localhost:3000
-</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a> └────────────────┘          │  (e.g. VPS / Relay)   │          └──────────────┘
-</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>                             └───────────────────────┘           (Expose Client)
+<div class="language-text highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>+---------------+          +-----------------------+          +--------------+
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>| Internet User |          |  Public Relay Server  |          | Local Client |
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>| (Web Visitor) | --HTTP-&gt; |  (e.g. VPS / Relay)   | &lt;--TCP-- | (Expose CLI) | --HTTP-&gt; localhost:3000
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>+---------------+          +-----------------------+          +--------------+
 </span></code></pre></div>
 <h3 id="the-request-lifecycle">The Request Lifecycle<a class="headerlink" href="#the-request-lifecycle" title="Permanent link">&para;</a></h3>
 <ol>
