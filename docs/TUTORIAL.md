@@ -21,10 +21,10 @@ When you run a web server on `localhost:3000`, external visitors cannot reach it
 A **reverse proxy tunnel** solves this by flipping the connection flow: **your local machine initiates an outbound TCP connection to a public relay server.** Because stateful firewalls permit outbound traffic and its return packets, this connection stays open and acts as a bidirectional bridge.
 
 ```text
- ┌────────────────┐          ┌───────────────────────┐          ┌──────────────┐
- │ Internet User  │ ──HTTP─► │  Public Relay Server  │ ◄──TCP── │ Local Client │ ──HTTP─► localhost:3000
- └────────────────┘          │  (e.g. VPS / Relay)   │          └──────────────┘
-                             └───────────────────────┘           (Expose Client)
++---------------+          +-----------------------+          +--------------+
+| Internet User |          |  Public Relay Server  |          | Local Client |
+| (Web Visitor) | --HTTP-> |  (e.g. VPS / Relay)   | <--TCP-- | (Expose CLI) | --HTTP-> localhost:3000
++---------------+          +-----------------------+          +--------------+
 ```
 
 ### The Request Lifecycle
