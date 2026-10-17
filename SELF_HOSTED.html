@@ -1409,6 +1409,14 @@
 <p class="admonition-title">Collision Protection</p>
 <p>If the requested subdomain is already registered by an active tunnel, the server safely rejects the registration request with an error to prevent traffic hijacking or routing conflicts.</p>
 </div>
+<div class="admonition note">
+<p class="admonition-title">Subdomain Format &amp; Reserved Names</p>
+<p>Custom subdomains must comply with standard RFC 1123 DNS hostname specifications:
+- <strong>Length</strong>: 1 to 63 lowercase alphanumeric characters (<code>a-z</code>, <code>0-9</code>) and hyphens (<code>-</code>).
+- <strong>Hyphens</strong>: Cannot start or end with a hyphen (e.g., <code>-app</code> or <code>app-</code>).
+- <strong>Characters</strong>: Dots, underscores, spaces, and uppercase characters are rejected.
+- <strong>Reserved namespaces</strong>: Critical system labels (<code>admin</code>, <code>api</code>, <code>localhost</code>, <code>www</code>, <code>root</code>, <code>internal</code>, <code>dashboard</code>) are reserved and cannot be registered.</p>
+</div>
 <hr />
 <h2 id="run-as-a-background-service-systemd">Run as a Background Service (systemd)<a class="headerlink" href="#run-as-a-background-service-systemd" title="Permanent link">&para;</a></h2>
 <p>To keep the server running after you disconnect from SSH, create a systemd service:</p>
