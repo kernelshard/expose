@@ -91,22 +91,26 @@ func (s *Server) isClosed(err error) bool {
 // It initializes the ClientConnection with a dedicated dataConns buffer
 // and registers it in the tunnels map.
 func (s *Server) registerSubdomain(conn net.Conn, requested string) (string, error) {
-	subdomain := requested
+	subdomain := strings.ToLower(strings.TrimSpace(requested))
 	if subdomain != "" {
+		if err := ValidateSubdomain(subdomain); err != nil {
+			return "", err
+		}
+
 		client := ClientConnection{
 			conn:      conn,
-			subdomain: requested,
+			subdomain: subdomain,
 			dataConns: make(chan net.Conn, defaultDataConnBuffer),
 		}
-		if _, loaded := s.tunnels.LoadOrStore(requested, client); loaded {
-			return "", fmt.Errorf("subdomain '%s' is already in use", requested)
+		if _, loaded := s.tunnels.LoadOrStore(subdomain, client); loaded {
+			return "", fmt.Errorf("subdomain '%s' is already in use", subdomain)
 		}
-		return requested, nil
+		return subdomain, nil
 	}
 
 	// generate random subdomain, retry 5 times in case of collision
 	for range 5 {
-		sub, err := GenerateRandomSubdomain()
+		sub, err := GenerateRandomSubdomain(defaultSubdomainLength)
 		if err != nil {
 			return "", err
 		}
@@ -255,7 +259,7 @@ func (s *Server) Start(ctx context.Context) error {
 func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	// Grab the first available data connection
 	subdomain := extractSubdomain(r.Host, s.domain)
-	if subdomain == "" {
+	if err := ValidateSubdomain(subdomain); err != nil {
 		http.Error(w, "Invalid subdomain", http.StatusBadRequest)
 		return
 	}

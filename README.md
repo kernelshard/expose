@@ -43,7 +43,7 @@ When you run an app on `http://localhost:3000`, only your laptop can access it. 
 | **Open Source** | ✅ Apache 2.0 | ❌ Proprietary | ✅ Apache 2.0 | ✅ MIT |
 | **Self-Hostable Relay** | ✅ `expose server` | ❌ SaaS only | ❌ Cloudflare network | ⚠️ Legacy Node server |
 | **Language & Runtime** | Pure Go (zero CGO) | Go / C | Go daemon | Node.js (V8 heap) |
-| **Free Custom Domains** | 🚧 Planned (#62) | 💲 Paid plan | ✅ Cloudflare DNS | ❌ Not supported |
+| **Free Custom Domains** | 🟡 Partial (Self-Hosted) | 💲 Paid plan | ✅ Cloudflare DNS | ❌ Not supported |
 
 ---
 

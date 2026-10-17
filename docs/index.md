@@ -165,7 +165,7 @@ Output when running `expose tunnel`:
 | Self-Hosted Server | ✅ | ❌ | ❌ | ❌ |
 | Multiple Providers | ✅ | ❌ | ❌ | ❌ |
 | Free | ✅ | Free tier | Free | ✅ |
-| Custom Domains | 🚧 Planned | 💲 Paid | ✅ | ❌ |
+| Custom Domains | 🟡 Partial (Self-Hosted) | 💲 Paid | ✅ | ❌ |
 
 ---
 
