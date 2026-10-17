@@ -140,6 +140,13 @@ Output:
 !!! tip "Collision Protection"
     If the requested subdomain is already registered by an active tunnel, the server safely rejects the registration request with an error to prevent traffic hijacking or routing conflicts.
 
+!!! note "Subdomain Format & Reserved Names"
+    Custom subdomains must comply with standard RFC 1123 DNS hostname specifications:
+    - **Length**: 1 to 63 lowercase alphanumeric characters (`a-z`, `0-9`) and hyphens (`-`).
+    - **Hyphens**: Cannot start or end with a hyphen (e.g., `-app` or `app-`).
+    - **Characters**: Dots, underscores, spaces, and uppercase characters are rejected.
+    - **Reserved namespaces**: Critical system labels (`admin`, `api`, `localhost`, `www`, `root`, `internal`, `dashboard`) are reserved and cannot be registered.
+
 ---
 
 ## Run as a Background Service (systemd)

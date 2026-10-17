@@ -635,3 +635,23 @@ func Test_HandleControl_OversizePayload(t *testing.T) {
 		t.Error("expected subdomain not to be registered for oversize payload")
 	}
 }
+
+func TestServer_HandleControl_RejectInvalidSubdomain(t *testing.T) {
+	srv := NewServer("tunnel.example.com", 7890, 8080)
+	clientConn, serverConn := net.Pipe()
+	go srv.handleControlConnection(serverConn)
+
+	// Attempt to register reserved subdomain "admin"
+	req := protocol.TunnelRequest{Type: protocol.TypeControl, Subdomain: "admin"}
+	_ = json.NewEncoder(clientConn).Encode(req)
+
+	var resp protocol.TunnelResponse
+	_ = json.NewDecoder(clientConn).Decode(&resp)
+
+	if resp.Error == "" {
+		t.Fatal("expected error registering reserved subdomain 'admin', got empty")
+	}
+	if resp.PublicURL != "" {
+		t.Fatalf("expected empty public URL on error, got %q", resp.PublicURL)
+	}
+}
