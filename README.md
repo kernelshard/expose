@@ -79,7 +79,7 @@ curl -fsSL https://raw.githubusercontent.com/kernelshard/expose/main/install.sh 
 Pin a specific version or install to a custom path:
 ```bash
 # Pin version
-VERSION=v0.5.1 curl -fsSL https://raw.githubusercontent.com/kernelshard/expose/main/install.sh | sh
+VERSION=v0.5.2 curl -fsSL https://raw.githubusercontent.com/kernelshard/expose/main/install.sh | sh
 
 # Custom directory
 BINDIR=~/.local/bin curl -fsSL https://raw.githubusercontent.com/kernelshard/expose/main/install.sh | sh
