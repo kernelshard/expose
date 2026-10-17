@@ -9,6 +9,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.5.2] - 2026-10-18
+
+### Security
+- **Control Plane Handshake Read Deadline & Payload Limits**: Added a 5-second handshake deadline on port 7890 to mitigate Slowloris denial-of-service, capped handshake payloads at 4KB using `io.LimitReader` to prevent unbounded memory allocation (OOM), and immediately reset the deadline upon successful handshake so pooled data sockets remain healthy ([#56](https://github.com/kernelshard/expose/issues/56), [#81](https://github.com/kernelshard/expose/pull/81)).
+
+### Fixed
+- **RFC 1123 Hostname Validation & Namespace Protection**: Enforced strict RFC 1123 rules for custom subdomains (1–63 lowercase alphanumeric characters and hyphens, no dots or spaces), blocked reserved infrastructure keywords (`admin`, `api`, `localhost`, `www`, `root`, `internal`, `dashboard`), and added upfront `400 Bad Request` validation for public visitors ([#57](https://github.com/kernelshard/expose/issues/57), [#82](https://github.com/kernelshard/expose/pull/82)).
+
+### Documentation
+- **Feature Matrix & Subdomain Guidelines**: Updated comparison tables in README and docs to reflect partial custom subdomain support on the self-hosted relay, and documented RFC 1123 subdomain format rules and reserved namespaces in the self-hosted guide.
+
 ## [0.5.1] - 2026-10-15
 
 ### Added

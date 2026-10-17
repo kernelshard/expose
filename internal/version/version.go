@@ -1,9 +1,9 @@
 package version
 
 var (
-	Version   = "v0.5.1"
-	GitCommit = "5aa0580"
-	BuildDate = "2026-10-15"
+	Version   = "v0.5.2"
+	GitCommit = "0bcc331"
+	BuildDate = "2026-10-18"
 )
 
 // GetVersion returns just the version string
