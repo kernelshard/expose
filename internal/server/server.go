@@ -12,6 +12,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/kernelshard/expose/internal/pool"
 	"github.com/kernelshard/expose/internal/server/protocol"
 )
 
@@ -338,8 +339,10 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	// Forward the response from the tunnel client to the client
 	// - This copies the raw bytes from the tunnel client to the client
 	// - If this fails, the client will not receive anything
-	go io.Copy(clientConn, dataConn)
-	io.Copy(dataConn, clientConn)
+	go func() {
+		_, _ = pool.Copy(clientConn, dataConn)
+	}()
+	_, _ = pool.Copy(dataConn, clientConn)
 }
 
 // extractSubdomain parses the tenant subdomain from the incoming HTTP Host header.

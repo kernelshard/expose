@@ -4,11 +4,11 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"io"
 	"net"
 	"sync"
 	"time"
 
+	"github.com/kernelshard/expose/internal/pool"
 	"github.com/kernelshard/expose/internal/server/protocol"
 )
 
@@ -220,14 +220,14 @@ func (s *SelfHosted) proxyRequest(ctx context.Context, tunnelConn net.Conn, loca
 
 	// Forward request: stays open until tunnel closes or response completes
 	wg.Go(func() {
-		_, _ = io.Copy(localConn, tunnelConn)
+		_, _ = pool.Copy(localConn, tunnelConn)
 		localConn.Close()
 	})
 
 	// Forward response: when local server finishes (EOF), closing tunnelConn
 	// intentionally unblocks the reader above
 	wg.Go(func() {
-		_, _ = io.Copy(tunnelConn, localConn)
+		_, _ = pool.Copy(tunnelConn, localConn)
 		tunnelConn.Close()
 	})
 
