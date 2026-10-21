@@ -149,6 +149,7 @@ expose/
 | `internal/config` | Configuration file I/O | `gopkg.in/yaml.v3` |
 | `internal/tunnel` | Tunnel lifecycle & service | `internal/provider` |
 | `internal/provider` | Provider implementations | `net`, `http`, `os/exec` |
+| `internal/pool` | Reusable 32 KB I/O buffer pool (`sync.Pool`) | `sync`, `io` |
 | `internal/version` | Version info | None |
 
 ---
