@@ -339,8 +339,10 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	// Forward the response from the tunnel client to the client
 	// - This copies the raw bytes from the tunnel client to the client
 	// - If this fails, the client will not receive anything
-	go pool.Copy(clientConn, dataConn)
-	pool.Copy(dataConn, clientConn)
+	go func() {
+		_, _ = pool.Copy(clientConn, dataConn)
+	}()
+	_, _ = pool.Copy(dataConn, clientConn)
 }
 
 // extractSubdomain parses the tenant subdomain from the incoming HTTP Host header.
