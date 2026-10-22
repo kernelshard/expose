@@ -9,6 +9,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.5.3] - 2026-10-22
+
+### Performance
+- **Zero-Allocation Stream Buffer Recycling**: Implemented `internal/pool` with `sync.Pool` to recycle 32KB copy buffers during bidirectional proxy streaming on both the relay server and self-hosted client. Stored buffer pointers (`*[]byte`) instead of slice values to eliminate Go interface boxing heap allocations, dropping heap allocations by 95.8% (34,209 B/op $\rightarrow$ 1,444 B/op) and boosting throughput by 26% ([#68](https://github.com/kernelshard/expose/issues/68), [#84](https://github.com/kernelshard/expose/pull/84)).
+
+### Fixed
+- **Symmetric Socket Teardown & Descriptor Leak Prevention**: Coordinated bidirectional proxy copy goroutines in `ServeHTTP` using `sync.WaitGroup`, ensuring that when either the public visitor or local tunnel client disconnects (EOF), the opposite socket is immediately closed. This prevents orphaned half-open sockets, blocked goroutines, and file descriptor exhaustion under continuous client churn ([#58](https://github.com/kernelshard/expose/issues/58), [#85](https://github.com/kernelshard/expose/pull/85)).
+- **Connection Variable Naming Clarity**: Renamed ambiguous `clientConn` to `visitorConn` in the relay server proxy pipeline to clearly delineate internet visitor traffic from internal client tunnel sockets.
+
 ## [0.5.2] - 2026-10-18
 
 ### Security
@@ -142,7 +151,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
-[Unreleased]: https://github.com/kernelshard/expose/compare/v0.5.1...HEAD
+[Unreleased]: https://github.com/kernelshard/expose/compare/v0.5.3...HEAD
+[0.5.3]: https://github.com/kernelshard/expose/compare/v0.5.2...v0.5.3
+[0.5.2]: https://github.com/kernelshard/expose/compare/v0.5.1...v0.5.2
 [0.5.1]: https://github.com/kernelshard/expose/compare/v0.5.0...v0.5.1
 [0.5.0]: https://github.com/kernelshard/expose/compare/v0.4.2...v0.5.0
 [0.4.2]: https://github.com/kernelshard/expose/compare/v0.4.1...v0.4.2
