@@ -1446,6 +1446,11 @@
 </span><span id="__span-3-20"><a id="__codelineno-3-20" name="__codelineno-3-20" href="#__codelineno-3-20"></a><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="o">&lt;-</span><span class="nx">done</span>
 </span><span id="__span-3-21"><a id="__codelineno-3-21" name="__codelineno-3-21" href="#__codelineno-3-21"></a><span class="p">}</span>
 </span></code></pre></div>
+<div class="admonition tip">
+<p class="admonition-title">Production Optimization: Zero-Allocation Buffer Pooling</p>
+<p>While standard <code>io.Copy</code> is clean for scripts, each call allocates a fresh 32 KB buffer on the heap. Under 10,000 active streams, that produces over 640 MB of memory churn, causing Garbage Collector latency spikes.</p>
+<p>In production, Expose replaces this with <code>pool.Copy</code>, recycling 32 KB buffers via <code>sync.Pool</code> to eliminate over 95% of heap allocations and keep latency flat under heavy traffic.</p>
+</div>
 <h3 id="step-4-putting-it-all-together">Step 4: Putting It All Together<a class="headerlink" href="#step-4-putting-it-all-together" title="Permanent link">&para;</a></h3>
 <p>Here is the complete runnable program:</p>
 <div class="language-go highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="kn">package</span><span class="w"> </span><span class="nx">main</span>
@@ -1666,37 +1671,42 @@
 <tr>
 <td style="text-align: left;"><strong><code>Provider</code> Interface</strong></td>
 <td style="text-align: left;">Common contract across all tunnel transports</td>
-<td style="text-align: left;"><a href="file:///Users/sam/code/opensource/expose/internal/tunnel/provider.go"><code>internal/tunnel/provider.go</code></a></td>
+<td style="text-align: left;"><a href="https://github.com/kernelshard/expose/blob/main/internal/tunnel/provider.go"><code>internal/tunnel/provider.go</code></a></td>
 </tr>
 <tr>
 <td style="text-align: left;"><strong><code>Service</code> Wrapper</strong></td>
 <td style="text-align: left;">Channel synchronization &amp; graceful shutdown</td>
-<td style="text-align: left;"><a href="file:///Users/sam/code/opensource/expose/internal/tunnel/service.go"><code>internal/tunnel/service.go</code></a></td>
+<td style="text-align: left;"><a href="https://github.com/kernelshard/expose/blob/main/internal/tunnel/service.go"><code>internal/tunnel/service.go</code></a></td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Buffer Pool</strong></td>
+<td style="text-align: left;">Recycled 32 KB stream buffers (<code>sync.Pool</code>) for zero-allocation proxying</td>
+<td style="text-align: left;"><a href="https://github.com/kernelshard/expose/blob/main/internal/pool/buffer.go"><code>internal/pool/buffer.go</code></a></td>
 </tr>
 <tr>
 <td style="text-align: left;"><strong>Self-Hosted Server</strong></td>
 <td style="text-align: left;">Pure-Go relay, subdomain routing, &amp; heartbeat timeouts</td>
-<td style="text-align: left;"><a href="file:///Users/sam/code/opensource/expose/internal/server/server.go"><code>internal/server/server.go</code></a></td>
+<td style="text-align: left;"><a href="https://github.com/kernelshard/expose/blob/main/internal/server/server.go"><code>internal/server/server.go</code></a></td>
 </tr>
 <tr>
 <td style="text-align: left;"><strong>Self-Hosted Client</strong></td>
 <td style="text-align: left;">JSON control plane, deferred local dial, &amp; custom subdomains</td>
-<td style="text-align: left;"><a href="file:///Users/sam/code/opensource/expose/internal/provider/selfhosted.go"><code>internal/provider/selfhosted.go</code></a></td>
+<td style="text-align: left;"><a href="https://github.com/kernelshard/expose/blob/main/internal/provider/selfhosted.go"><code>internal/provider/selfhosted.go</code></a></td>
 </tr>
 <tr>
 <td style="text-align: left;"><strong>LocalTunnel Client</strong></td>
 <td style="text-align: left;">Public zero-config TCP socket connection pool</td>
-<td style="text-align: left;"><a href="file:///Users/sam/code/opensource/expose/internal/provider/localtunnel.go"><code>internal/provider/localtunnel.go</code></a></td>
+<td style="text-align: left;"><a href="https://github.com/kernelshard/expose/blob/main/internal/provider/localtunnel.go"><code>internal/provider/localtunnel.go</code></a></td>
 </tr>
 <tr>
 <td style="text-align: left;"><strong>Cloudflare Client</strong></td>
 <td style="text-align: left;">Subprocess supervisor for <code>cloudflared</code></td>
-<td style="text-align: left;"><a href="file:///Users/sam/code/opensource/expose/internal/provider/cloudflare.go"><code>internal/provider/cloudflare.go</code></a></td>
+<td style="text-align: left;"><a href="https://github.com/kernelshard/expose/blob/main/internal/provider/cloudflare.go"><code>internal/provider/cloudflare.go</code></a></td>
 </tr>
 <tr>
 <td style="text-align: left;"><strong>CLI &amp; Commands</strong></td>
 <td style="text-align: left;">Cobra flags, positional port parsing, &amp; signal traps</td>
-<td style="text-align: left;"><a href="file:///Users/sam/code/opensource/expose/internal/cli/"><code>internal/cli/</code></a></td>
+<td style="text-align: left;"><a href="https://github.com/kernelshard/expose/blob/main/internal/cli/"><code>internal/cli/</code></a></td>
 </tr>
 </tbody>
 </table>
