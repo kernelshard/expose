@@ -1366,7 +1366,7 @@
 <li>Firewall open on your chosen control port and public port</li>
 </ul>
 <h3 id="install-on-the-vps">Install on the VPS<a class="headerlink" href="#install-on-the-vps" title="Permanent link">&para;</a></h3>
-<div class="tabbed-set tabbed-alternate" data-tabs="1:2"><input checked="checked" id="__tabbed_1_1" name="__tabbed_1" type="radio" /><input id="__tabbed_1_2" name="__tabbed_1" type="radio" /><div class="tabbed-labels"><label for="__tabbed_1_1">Go Install</label><label for="__tabbed_1_2">Pre-built Binary</label></div>
+<div class="tabbed-set tabbed-alternate" data-tabs="1:2"><input checked="checked" id="install-on-the-vps-go-install" name="__tabbed_1" type="radio" /><input id="install-on-the-vps-pre-built-binary" name="__tabbed_1" type="radio" /><div class="tabbed-labels"><label for="install-on-the-vps-go-install">Go Install</label><label for="install-on-the-vps-pre-built-binary">Pre-built Binary</label></div>
 <div class="tabbed-content">
 <div class="tabbed-block">
 <div class="language-bash highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>go<span class="w"> </span>install<span class="w"> </span>github.com/kernelshard/expose/cmd/expose@latest
@@ -1508,7 +1508,7 @@
 <hr />
 <h2 id="putting-it-behind-a-domain">Putting It Behind a Domain<a class="headerlink" href="#putting-it-behind-a-domain" title="Permanent link">&para;</a></h2>
 <p>If you want clean URLs like <code>https://tunnel.mysite.com</code> instead of <code>http://tunnel.mysite.com:8080</code>, put Nginx or Caddy in front.</p>
-<div class="tabbed-set tabbed-alternate" data-tabs="2:2"><input checked="checked" id="__tabbed_2_1" name="__tabbed_2" type="radio" /><input id="__tabbed_2_2" name="__tabbed_2" type="radio" /><div class="tabbed-labels"><label for="__tabbed_2_1">Caddy (easiest — auto HTTPS)</label><label for="__tabbed_2_2">Nginx</label></div>
+<div class="tabbed-set tabbed-alternate" data-tabs="2:2"><input checked="checked" id="putting-it-behind-a-domain-caddy-easiest--auto-https" name="__tabbed_2" type="radio" /><input id="putting-it-behind-a-domain-nginx" name="__tabbed_2" type="radio" /><div class="tabbed-labels"><label for="putting-it-behind-a-domain-caddy-easiest--auto-https">Caddy (easiest — auto HTTPS)</label><label for="putting-it-behind-a-domain-nginx">Nginx</label></div>
 <div class="tabbed-content">
 <div class="tabbed-block">
 <div class="language-caddyfile highlight"><span class="filename">/etc/caddy/Caddyfile</span><pre><span></span><code><span id="__span-14-1"><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a>tunnel.mysite.com<span class="w"> </span><span class="p">{</span>
