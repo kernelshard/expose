@@ -314,12 +314,12 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	// 3) The error
 	//
 	// We immediately forward the request to the client connection
-	clientConn, _, err := hj.Hijack()
+	visitorConn, _, err := hj.Hijack()
 	if err != nil {
 		return
 	}
 
-	defer clientConn.Close()
+	defer visitorConn.Close()
 
 	// Write the incoming HTTP request to the tunnel client
 	//
@@ -336,13 +336,24 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Forward the response from the tunnel client to the client
-	// - This copies the raw bytes from the tunnel client to the client
-	// - If this fails, the client will not receive anything
-	go func() {
-		_, _ = pool.Copy(clientConn, dataConn)
-	}()
-	_, _ = pool.Copy(dataConn, clientConn)
+	// Stream bidirectionally between the visitor and the laptop tunnel.
+	// When either side disconnects, closing the socket immediately unblocks
+	// the other routine so neither goroutine or socket hangs open.
+	var wg sync.WaitGroup
+
+	wg.Go(func() {
+		// Response: Laptop (tunnel) -> Public Visitor
+		_, _ = pool.Copy(visitorConn, dataConn)
+		_ = visitorConn.Close() // when laptop response finishes, close visitor socket to signal EOF
+	})
+
+	wg.Go(func() {
+		// Request: Public Visitor -> Laptop (tunnel)
+		_, _ = pool.Copy(dataConn, visitorConn)
+		_ = dataConn.Close() // when visitor request finishes (or disconnects), close laptop socket to unblock
+	})
+
+	wg.Wait()
 }
 
 // extractSubdomain parses the tenant subdomain from the incoming HTTP Host header.

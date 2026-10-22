@@ -655,3 +655,61 @@ func TestServer_HandleControl_RejectInvalidSubdomain(t *testing.T) {
 		t.Fatalf("expected empty public URL on error, got %q", resp.PublicURL)
 	}
 }
+
+func TestServer_ServeHTTP_SymmetricTeardown_VisitorDisconnect(t *testing.T) {
+	srv := NewServer("localhost", 0, 0)
+
+	// Actor 1: The Mock Laptop Tunnel
+	mockLaptop, serverDataConn := net.Pipe()
+	defer mockLaptop.Close()
+
+	// Register "alice"
+	sub, err := srv.registerSubdomain(mockLaptop, "alice")
+	if err != nil {
+		t.Fatalf("failed to register subdomain: %v", err)
+	}
+	val, _ := srv.tunnels.Load(sub)
+	client := val.(ClientConnection)
+	client.dataConns <- serverDataConn
+
+	ts := httptest.NewServer(srv)
+	defer ts.Close()
+
+	// Actor 2: The Public Web Visitor (direct TCP connection to test server)
+	mockVisitor, err := net.Dial("tcp", ts.Listener.Addr().String())
+	if err != nil {
+		t.Fatalf("failed to dial test server: %v", err)
+	}
+
+	// 1. mockVisitor sends the HTTP request headers
+	req := "GET / HTTP/1.1\r\nHost: alice.localhost\r\n\r\n"
+	if _, err := mockVisitor.Write([]byte(req)); err != nil {
+		t.Fatalf("failed to write request: %v", err)
+	}
+
+	// 2. mockLaptop receives the forwarded request
+	buf := make([]byte, 1024)
+	n, err := mockLaptop.Read(buf)
+	if err != nil || n == 0 {
+		t.Fatalf("tunnel failed to read forwarded request: %v", err)
+	}
+
+	// 3. mockVisitor abruptly hangs up / disconnects
+	_ = mockVisitor.Close()
+
+	// 4. With symmetric teardown, the server MUST close serverDataConn so mockLaptop unblocks with EOF
+	readDone := make(chan error, 1)
+	go func() {
+		_, err := mockLaptop.Read(buf)
+		readDone <- err
+	}()
+
+	select {
+	case err := <-readDone:
+		if err != io.EOF && !errors.Is(err, net.ErrClosed) {
+			t.Errorf("expected EOF on laptop socket after visitor disconnect, got: %v", err)
+		}
+	case <-time.After(2 * time.Second):
+		t.Fatal("hung: laptop socket was not closed when visitor disconnected (socket leak!)")
+	}
+}
