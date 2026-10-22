@@ -29,9 +29,17 @@
     "name": "Expose",
     "applicationCategory": "DeveloperApplication",
     "operatingSystem": "macOS, Linux, Windows",
+    "programmingLanguage": "Go",
+    "softwareVersion": "0.5.2",
     "description": "The open-source, single-binary Go (Golang) alternative to ngrok. Expose local ports via LocalTunnel, Cloudflare, or a self-hosted server with zero signup.",
     "url": "https://kernelshard.github.io/expose/",
+    "downloadUrl": "https://github.com/kernelshard/expose/releases",
     "license": "https://www.apache.org/licenses/LICENSE-2.0",
+    "author": {
+      "@type": "Person",
+      "name": "Samiul Sk",
+      "url": "https://github.com/kernelshard"
+    },
     "offers": {
       "@type": "Offer",
       "price": "0",
@@ -39,4 +47,112 @@
     }
   }
   </script>
+
+  {% if page and (page.file.src_path == "FAQ.md" or "FAQ" in page.title) %}
+  <!-- JSON-LD Structured Data for FAQPage (Schema.org) -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "How does Expose compare to ngrok?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Expose is a lightweight, open-source (Apache 2.0) alternative to ngrok compiled as a single static Go binary (<10MB). Unlike ngrok, Expose requires zero signups, no credit cards, no mandatory accounts, and includes a built-in self-hosted server mode for complete traffic privacy without commercial subscription fees."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Does Expose require an account or credit card?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "No. Expose requires zero signup, no email registration, and no API authentication tokens. You can install the binary and run 'expose tunnel 3000' immediately out of the box."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Is Expose related to the PHP Expose tool (beyondcode/expose)?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "No. Expose by @kernelshard is an independent, pure-Go implementation. It is a single standalone executable (<10MB) with zero external runtime dependencies—no PHP, Composer, Node.js, or external interpreters required."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Is Expose completely open source?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Yes. Expose is distributed under the permissive Apache License 2.0. The client, CLI, and self-hosted relay server are 100% open source, free to use, audit, and modify for commercial and personal projects."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Can I run my own private tunnel relay server?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Yes. Expose ships with a built-in server mode in the same binary. Run 'expose server --domain=tunnel.mysite.com --control-port=7890 --public-port=8080' on any Linux VPS ($5/mo) for private traffic routing and custom subdomain support."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Can I request a custom subdomain?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Yes. When connecting to a self-hosted server, use the '--subdomain' flag (e.g. 'expose tunnel 3000 --server=... --subdomain=my-app'). Subdomains are validated against RFC 1123 DNS standards."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "What tunnel providers does Expose support?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Expose supports three backends via a unified interface: LocalTunnel (zero-config default), Cloudflare Quick Tunnels (-P cloudflare), and private Self-Hosted relays (--server)."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Do I need to configure router port forwarding or open inbound ports?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "No. Expose uses reverse tunneling: your local machine initiates an outbound TCP socket to the relay server. Because firewalls and NAT routers permit outbound traffic and its stateful responses, your local app becomes reachable over the public internet without port forwarding."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Does Expose work behind CGNAT and corporate firewalls?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Yes. Because the tunnel connection is established outbound on standard TCP ports, Expose functions seamlessly across cellular data networks (4G/5G mobile tethering), hotel Wi-Fi, CGNAT ISPs, and restrictive corporate firewalls."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Is Expose suitable for webhook testing (Stripe, Twilio, GitHub, PayPal)?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Yes. Webhook testing is a primary use case. Expose provides a secure public HTTPS endpoint that directly forwards third-party webhooks to your local development server in real-time."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "What happens if my local app isn't running yet when I start the tunnel?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Expose features deferred local dialing: it establishes the public endpoint immediately and automatically monitors localhost in the background, updating status when your application comes online without crashing or pegging CPU."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "How do I install Expose?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Install Expose on macOS/Linux via Homebrew with 'brew install kernelshard/tap/expose', using the one-line shell installer 'curl -fsSL https://raw.githubusercontent.com/kernelshard/expose/main/install.sh | sh', or via 'go install github.com/kernelshard/expose/cmd/expose@latest'."
+        }
+      }
+    ]
+  }
+  </script>
+  {% endif %}
 {% endblock %}

@@ -68,6 +68,7 @@ provider: localtunnel
 - [Documentation Home](https://kernelshard.github.io/expose/): Main documentation site.
 - [Getting Started](https://kernelshard.github.io/expose/GETTING_STARTED.html): Installation, prerequisites, and first tunnel workflow.
 - [Self-Hosted Server Guide](https://kernelshard.github.io/expose/SELF_HOSTED.html): End-to-end VPS deployment, reverse proxy setup (Caddy and Nginx), and systemd configuration.
+- [FAQ](https://kernelshard.github.io/expose/FAQ.html): Frequently asked questions, ngrok comparison, self-hosting, and architecture details.
 - [Architecture](https://kernelshard.github.io/expose/ARCHITECTURE.html): Deep dive into Expose networking, protocol specification, and control plane.
 - [Tutorial](https://kernelshard.github.io/expose/TUTORIAL.html): Conceptual guide to how reverse tunnels connect localhost to the internet.
 - [Contributing](https://kernelshard.github.io/expose/CONTRIBUTING.html): Development guide, tests, and contribution workflow.
