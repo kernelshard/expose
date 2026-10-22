@@ -63,6 +63,7 @@ nav:
   - Home: index.md
   - Getting Started: GETTING_STARTED.md
   - Self-Hosted: SELF_HOSTED.md
+  - FAQ: FAQ.md
   - Guides:
       - How Tunnels Work: TUTORIAL.md
       - Advanced Usage: ADVANCED_USAGE.md
