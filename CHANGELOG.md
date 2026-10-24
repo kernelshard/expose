@@ -9,6 +9,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.5.4] - 2026-10-25
+
+### Added
+- **Memorable Adjective-Noun Subdomains**: Replaced 8-character random hex subdomains (`a1b2c3d4`) on the self-hosted relay with human-friendly, readable names (e.g., `swift-falcon-4821`). Built using a curated dictionary of 67 adjectives and 80 nature/animal nouns combined with a 4-digit cryptographic random number via `crypto/rand`, yielding over 51 million unique combinations while strictly enforcing RFC 1123 DNS compliance ([#62](https://github.com/kernelshard/expose/issues/62), [#94](https://github.com/kernelshard/expose/pull/94)).
+
+### Documentation
+- **Readable Subdomain Documentation**: Updated the self-hosted deployment guide, FAQ, README, and reference manuals (`llms.txt`, `llms-full.txt`) documenting default memorable subdomain generation and custom subdomain rules ([#95](https://github.com/kernelshard/expose/pull/95)).
+
 ## [0.5.3] - 2026-10-22
 
 ### Performance
@@ -151,7 +159,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
-[Unreleased]: https://github.com/kernelshard/expose/compare/v0.5.3...HEAD
+[Unreleased]: https://github.com/kernelshard/expose/compare/v0.5.4...HEAD
+[0.5.4]: https://github.com/kernelshard/expose/compare/v0.5.3...v0.5.4
 [0.5.3]: https://github.com/kernelshard/expose/compare/v0.5.2...v0.5.3
 [0.5.2]: https://github.com/kernelshard/expose/compare/v0.5.1...v0.5.2
 [0.5.1]: https://github.com/kernelshard/expose/compare/v0.5.0...v0.5.1
