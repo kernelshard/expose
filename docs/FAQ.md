@@ -90,6 +90,8 @@ expose tunnel 3000 --server=tunnel.mysite.com:7890 --subdomain=my-feature
 
 Your tunnel will be accessible at `http://my-feature.tunnel.mysite.com:8080`.
 
+If you do not specify `--subdomain`, Expose automatically assigns a memorable, human-friendly subdomain (e.g., `swift-falcon-4821.tunnel.mysite.com`) generated from a curated dictionary of adjectives and nouns, rather than unreadable random hex hashes.
+
 !!! note "RFC 1123 Validation & Collision Protection"
     Subdomains must comply with RFC 1123 DNS standards (1–63 lowercase alphanumeric characters and hyphens). If a requested subdomain is already in use by an active tunnel, the server safely rejects the request to prevent traffic hijacking.
 

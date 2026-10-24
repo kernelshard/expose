@@ -110,7 +110,7 @@ Output:
 
 ```text
 ✓ Tunnel (SelfHosted) started for localhost:3000
-✓ Public URL: http://tunnel.mysite.com:8080
+✓ Public URL: http://swift-falcon-4821.tunnel.mysite.com:8080
 ✓ Forwarding to: http://localhost:3000
 ✓ Provider: SelfHosted
   Press Ctrl+C to stop
@@ -119,9 +119,11 @@ Output:
 !!! note
     When `--server` is provided, Expose automatically selects the `selfhosted` provider — you don't need to pass `-P selfhosted` separately.
 
-### Requesting a Custom Subdomain
+### Subdomain Assignment & Custom Requests
 
-By default, the server generates a random unique subdomain. You can request a specific subdomain using `--subdomain` (or `-d`):
+By default, the relay server automatically assigns a memorable, human-friendly subdomain (e.g., `swift-falcon-4821`) from a curated dictionary of adjectives and nouns, providing over 51 million unique combinations with zero collision risk.
+
+You can also request a specific custom subdomain using `--subdomain` (or `-d`):
 
 ```bash
 expose tunnel --server=tunnel.mysite.com:7890 --subdomain=my-app 3000
