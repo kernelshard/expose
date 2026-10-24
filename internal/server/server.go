@@ -111,7 +111,7 @@ func (s *Server) registerSubdomain(conn net.Conn, requested string) (string, err
 
 	// generate random subdomain, retry 5 times in case of collision
 	for range 5 {
-		sub, err := GenerateRandomSubdomain(defaultSubdomainLength)
+		sub, err := GenerateReadableSubdomain()
 		if err != nil {
 			return "", err
 		}
