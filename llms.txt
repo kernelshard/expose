@@ -10,7 +10,7 @@ Expose serves as a lightweight, privacy-focused alternative to commercial tunnel
 - **Multiple Tunnel Backends**:
   - `localtunnel` (default): Free public tunnel infrastructure via localtunnel.me.
   - `cloudflare`: High-performance Quick Tunnels powered by the Cloudflare global network (requires `cloudflared`).
-  - `selfhosted`: Private tunneling control plane running on your own VPS with custom domain routing.
+  - `selfhosted`: Private tunneling control plane running on your own VPS with custom and memorable human-friendly subdomains.
 - **Cross-Platform**: Prebuilt releases for macOS (Darwin arm64/x86_64), Linux (arm64/x86_64), and Windows (arm64/x86_64).
 
 ## Quickstart

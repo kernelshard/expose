@@ -44,6 +44,7 @@ When you run an app on `http://localhost:3000`, only your laptop can access it. 
 | **Self-Hostable Relay** | ✅ `expose server` | ❌ SaaS only | ❌ Cloudflare network | ⚠️ Legacy Node server |
 | **Language & Runtime** | Pure Go (zero CGO) | Go / C | Go daemon | Node.js (V8 heap) |
 | **Free Custom Domains** | 🟡 Partial (Self-Hosted) | 💲 Paid plan | ✅ Cloudflare DNS | ❌ Not supported |
+| **Memorable Subdomains** | ✅ Auto-assigned (`swift-falcon-4821`) | ❌ Random hex (free tier) | ❌ Random hex | ⚠️ Limited words |
 
 ---
 
@@ -56,7 +57,7 @@ expose tunnel 3000
 # Tunnel via Cloudflare Quick Tunnels
 expose tunnel -P cloudflare -p 8080
 
-# Connect to your private self-hosted relay gateway
+# Connect to your self-hosted relay (auto-assigns memorable subdomain: swift-falcon-4821)
 expose tunnel 3000 --server=tunnel.mysite.com:7890
 ```
 
