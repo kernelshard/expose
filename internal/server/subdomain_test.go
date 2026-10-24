@@ -5,24 +5,34 @@ import (
 	"testing"
 )
 
-func TestGenerateRandomSubdomain(t *testing.T) {
-	// Generate two random subdomains and check if they are different
-	sub1, err := GenerateRandomSubdomain(7)
+func TestGenerateReadableSubdomain(t *testing.T) {
+	sub1, err := GenerateReadableSubdomain()
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
-	sub2, err := GenerateRandomSubdomain(8)
+	sub2, err := GenerateReadableSubdomain()
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
 	if sub1 == sub2 {
 		t.Fatalf("subdomains are not random")
 	}
-	if len(sub2) != 8 {
-		t.Fatalf("expected 8 characters, got %d", len(sub2))
+
+	// Must satisfy RFC 1123 validation
+	if err := ValidateSubdomain(sub1); err != nil {
+		t.Fatalf("sub1 %q failed validation: %v", sub1, err)
 	}
-	if len(sub1) != 7 {
-		t.Fatalf("expected 7 characters, got %d", len(sub1))
+	if err := ValidateSubdomain(sub2); err != nil {
+		t.Fatalf("sub2 %q failed validation: %v", sub2, err)
+	}
+
+	// Must match expected adjective-noun-4digits structure
+	parts := strings.Split(sub1, "-")
+	if len(parts) != 3 {
+		t.Fatalf("expected 3 parts (adjective-noun-number), got %q", sub1)
+	}
+	if len(parts[0]) == 0 || len(parts[1]) == 0 || len(parts[2]) != 4 {
+		t.Fatalf("invalid format in %q", sub1)
 	}
 }
 

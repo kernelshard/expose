@@ -2,9 +2,9 @@ package server
 
 import (
 	"crypto/rand"
-	"encoding/hex"
 	"errors"
 	"fmt"
+	"math/big"
 	"regexp"
 )
 
@@ -20,7 +20,6 @@ var (
 		"root":      {},
 		"www":       {},
 	}
-	defaultSubdomainLength = 8
 )
 
 // ValidateSubdomain checkes if a subdomain compiles with RFC 1123 and is not reserved
@@ -40,15 +39,37 @@ func ValidateSubdomain(sub string) error {
 	return nil
 }
 
-// GenerateRandomSubdomain generates a random alphanumeric subdomain
-func GenerateRandomSubdomain(length int) (string, error) {
-	if length <= 0 || length > 63 {
-		return "", fmt.Errorf("length must be between 1 and 63, got %d", length)
+func GenerateReadableSubdomain() (string, error) {
+	adjective, err := randomWord(adjectives)
+	if err != nil {
+		return "", fmt.Errorf("failed to pick random adjective: %w", err)
 	}
 
-	bytes := make([]byte, length)
-	if _, err := rand.Read(bytes); err != nil {
+	noun, err := randomWord(nouns)
+	if err != nil {
+		return "", fmt.Errorf("failed to pick random noun: %w", err)
+	}
+
+	suffix, err := cryptoRandInt(9000)
+	if err != nil {
+		return "", fmt.Errorf("failed to pick random number: %w", err)
+	}
+
+	return fmt.Sprintf("%s-%s-%d", adjective, noun, suffix+1000), nil
+}
+
+func randomWord(words []string) (string, error) {
+	index, err := cryptoRandInt(int64(len(words)))
+	if err != nil {
 		return "", err
 	}
-	return hex.EncodeToString(bytes)[:length], nil
+	return words[index], nil
+}
+
+func cryptoRandInt(max int64) (int64, error) {
+	nBig, err := rand.Int(rand.Reader, big.NewInt(max))
+	if err != nil {
+		return 0, err
+	}
+	return nBig.Int64(), nil
 }
