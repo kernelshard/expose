@@ -13,6 +13,7 @@ Expose is designed as a modern, lightweight, privacy-focused alternative to comm
 - **Single Static Binary**: Compiled standalone Go binary under 10MB with zero external runtime dependencies (no Node.js or Python runtime required).
 - **Multiple Providers**: Supports free community tunnels (LocalTunnel), Cloudflare Quick Tunnels, and private self-hosted servers.
 - **Self-Hosted Mode**: Built-in `expose server` turns any VPS into a multi-tenant tunneling relay in seconds.
+- **Memorable Subdomains**: Automatic assignment of human-friendly adjective-noun subdomains (e.g., `swift-falcon-4821`) from a curated 51M-combination dictionary when a custom subdomain is not specified.
 - **High Concurrency & Safety**: Built with strict concurrency safety (`go test -race` passing with zero races) and statement coverage above 80%.
 
 ---
@@ -32,7 +33,7 @@ curl -fsSL https://raw.githubusercontent.com/kernelshard/expose/main/install.sh 
 Options for the installer script:
 ```bash
 # Pin a specific release version
-VERSION=v0.5.3 curl -fsSL https://raw.githubusercontent.com/kernelshard/expose/main/install.sh | sh
+VERSION=v0.5.4 curl -fsSL https://raw.githubusercontent.com/kernelshard/expose/main/install.sh | sh
 
 # Customize installation directory (defaults to /usr/local/bin or ~/.local/bin)
 BINDIR=~/.local/bin curl -fsSL https://raw.githubusercontent.com/kernelshard/expose/main/install.sh | sh
@@ -231,9 +232,9 @@ expose config show
    ```json
    {"type": "control", "subdomain": "my-subdomain"}
    ```
-2. **Subdomain Reservation**: The server atomically registers the subdomain using `sync.Map.LoadOrStore` and replies with the public URL:
+2. **Subdomain Reservation**: The server atomically registers the subdomain using `sync.Map.LoadOrStore`. If no custom subdomain is specified, it automatically generates a human-friendly adjective-noun-number identifier (e.g., `swift-falcon-4821`, over 51 million combinations) rather than unreadable random hex. It then replies with the public URL:
    ```json
-   {"public_url": "http://my-subdomain.tunnel.yourdomain.com:8080", "subdomain": "my-subdomain"}
+   {"public_url": "http://swift-falcon-4821.tunnel.yourdomain.com:8080", "subdomain": "swift-falcon-4821"}
    ```
 3. **Data Connection**: When public HTTP requests arrive at `:8080`, the server pairs the request with an active data connection stream (`{"type": "data", "subdomain": "my-subdomain"}`) and pipes the raw TCP stream bidirectionally to `localhost:3000`.
 
@@ -245,5 +246,5 @@ expose version
 ```
 Prints the semantic version, git commit hash, and build timestamp injected at compilation via Go linker flags:
 ```text
-expose version v0.5.3 (commit: 8ef1f80, built: 2026-10-22)
+expose version v0.5.4 (commit: 5851d47, built: 2026-10-25)
 ```
