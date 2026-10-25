@@ -3,40 +3,35 @@ Output docs/assets/images/demo.gif
 
 # Terminal appearance
 Set Shell "zsh"
-Set FontSize 15
-Set FontFamily "JetBrains Mono"
-Set Width 850
-Set Height 360
-Set Padding 20
+Set FontSize 16
+Set LineHeight 1.25
+Set Width 800
+Set Height 310
+Set Padding 22
+Set BorderRadius 10
 Set WindowBar Colorful
 Set Theme "Catppuccin Mocha"
-Set TypingSpeed 40ms
+Set TypingSpeed 45ms
 
-# Setup environment
-Env PATH "/Users/sam/code/opensource/expose/bin:/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin"
-
-# Prepare environment (hidden)
+# Prepare clean environment (hidden)
 Hide
-Type "python3 -m http.server 3000 > /dev/null 2>&1 &"
+Type "export PATH=$PWD/assets/mock:$PATH"
+Enter
+Type "export PS1='%F{#89b4fa}❯%f '"
 Enter
 Type "clear"
 Enter
 Show
 
-# Step 1: Run expose tunnel
-Sleep 600ms
+# Step 1: Type expose command
+Sleep 500ms
 Type "expose tunnel 3000"
-Sleep 400ms
+Sleep 350ms
 Enter
 
-# Step 2: Show the active tunnel
+# Step 2: Show active tunnel
 Sleep 3.5s
 
 # Step 3: Graceful shutdown
-Type "^C"
-Sleep 1.5s
-
-# Cleanup (hidden)
-Hide
-Type "kill $(lsof -t -i :3000) 2>/dev/null || true"
-Enter
+Ctrl+C
+Sleep 1.2s

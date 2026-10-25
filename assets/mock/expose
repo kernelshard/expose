@@ -1,0 +1,11 @@
+#!/bin/bash
+PORT="${2:-3000}"
+echo "🚀 Tunnel[LocalTunnel] started for localhost:${PORT}"
+echo "✓ Public URL: https://swift-falcon.loca.lt"
+echo "✓ Forwarding to: http://localhost:${PORT} (Ready)"
+echo "✓ Provider: LocalTunnel"
+echo "Press Ctrl+C to stop"
+trap 'echo ""; echo "✓ Tunnel closed"; exit 0' INT TERM
+while true; do
+  sleep 0.1
+done
