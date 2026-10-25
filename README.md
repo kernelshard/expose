@@ -1,6 +1,6 @@
 # Expose – Pure Go Localhost Tunneling CLI
 
-![Expose Social Preview](docs/social-preview.png)
+![Expose Terminal Demo](docs/assets/images/demo.gif)
 
 [![Downloads](https://img.shields.io/github/downloads/kernelshard/expose/total?color=blue&logo=github)](https://github.com/kernelshard/expose/releases)
 [![Documentation](https://img.shields.io/badge/docs-mkdocs--material-blue.svg)](https://kernelshard.github.io/expose/)
