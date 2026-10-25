@@ -27,3 +27,4 @@ site/
 
 # OS
 .DS_Store
+!assets/mock/**
