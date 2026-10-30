@@ -15,6 +15,7 @@ vendor/
 # Config
 .expose/
 .env*
+!.env.example
 .expose.yml
 
 # IDEs

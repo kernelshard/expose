@@ -1,0 +1,16 @@
+# Expose Relay - Caddy Reverse Proxy Configuration
+# Handles public web traffic on ports 80 (HTTP) and 443 (HTTPS)
+# and routes requests to the Expose server container.
+
+:80, :443 {
+	# Generates a self-signed certificate for port 443.
+	# When combined with Cloudflare's free wildcard proxy (Orange Cloud),
+	# this provides 100% free wildcard HTTPS at the edge with zero API keys.
+	tls internal
+
+	# Forward web visitor traffic to the Expose server container
+	reverse_proxy expose-server:8080 {
+		header_up Host {host}
+		header_up X-Real-IP {remote_host}
+	}
+}

@@ -1,0 +1,43 @@
+services:
+  expose-server:
+    build:
+      context: ..
+      dockerfile: Dockerfile
+    image: ghcr.io/kernelshard/expose:latest
+    restart: unless-stopped
+    ports:
+      # Control plane: tunnel clients dial this port from their laptops
+      - "${CONTROL_PORT:-7890}:7890"
+    command:
+      - "server"
+      - "--domain=${DOMAIN:-localhost}"
+      - "--control-port=7890"
+      - "--public-port=8080"
+    networks:
+      - expose-net
+
+  caddy:
+    image: caddy:2-alpine
+    restart: unless-stopped
+    ports:
+      # Public HTTP and HTTPS visitor traffic
+      - "80:80"
+      - "443:443"
+    environment:
+      - DOMAIN=${DOMAIN:-localhost}
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      - expose-server
+    networks:
+      - expose-net
+
+networks:
+  expose-net:
+    driver: bridge
+
+volumes:
+  caddy_data:
+  caddy_config:
