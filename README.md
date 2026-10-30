@@ -8,8 +8,8 @@
 [![Go Report Card](https://goreportcard.com/badge/github.com/kernelshard/expose)](https://goreportcard.com/report/github.com/kernelshard/expose)
 [![License: Apache 2.0](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://github.com/kernelshard/expose/blob/main/LICENSE)
 
-> **Turn your `localhost` into a public shareable URL in one command — zero config, zero signups, and a single <10MB binary.**  
-> The lightweight, open-source Go alternative to ngrok for webhook testing, mobile previews, and remote debugging.
+> **The drop-in, open-source Go alternative to ngrok.**  
+> Start instantly on free public relays with zero config and zero signups, or graduate to your own self-hosted relay on a $5 VPS in a single <10MB binary. Zero lock-in.
 
 **Install via Homebrew:**
 ```bash
@@ -48,17 +48,28 @@ When you run an app on `http://localhost:3000`, only your laptop can access it. 
 
 ---
 
-## ⚡ Quick Examples
+## ⚡ Quickstart
+
+### Option A: Instant Public Tunnel (Zero Setup)
+Expose your local development server in seconds without creating an account:
 
 ```bash
-# Tunnel a local development server (defaults to port 3000)
+# Public relay (default)
 expose tunnel 3000
 
-# Tunnel via Cloudflare Quick Tunnels
-expose tunnel -P cloudflare -p 8080
+# Or via Cloudflare Quick Tunnels
+expose tunnel 3000 --provider=cloudflare
+```
 
-# Connect to your self-hosted relay (auto-assigns memorable subdomain: swift-falcon-4821)
-expose tunnel 3000 --server=tunnel.mysite.com:7890
+### Option B: Sovereign Mode (Self-Hosted on Your VPS)
+Want permanent custom subdomains, full privacy, and zero rate limits? Run the same binary on your server:
+
+```bash
+# 1. On your VPS (relay server)
+expose server --domain=tunnel.yourdomain.com --control-port=7890 --public-port=8080
+
+# 2. On your laptop
+expose tunnel 3000 --server=tunnel.yourdomain.com:7890 --subdomain=api
 ```
 
 ---
