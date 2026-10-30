@@ -33,7 +33,7 @@ curl -fsSL https://raw.githubusercontent.com/kernelshard/expose/main/install.sh 
 Options for the installer script:
 ```bash
 # Pin a specific release version
-VERSION=v0.5.4 curl -fsSL https://raw.githubusercontent.com/kernelshard/expose/main/install.sh | sh
+VERSION=v0.6.0 curl -fsSL https://raw.githubusercontent.com/kernelshard/expose/main/install.sh | sh
 
 # Customize installation directory (defaults to /usr/local/bin or ~/.local/bin)
 BINDIR=~/.local/bin curl -fsSL https://raw.githubusercontent.com/kernelshard/expose/main/install.sh | sh
@@ -129,7 +129,16 @@ expose server --domain=<domain> [flags]
 - `--control-port <int>`: Port for tunnel client control connections (default: `7890`).
 - `--public-port <int>`: Port for public inbound HTTP traffic (default: `8080`).
 
-### Minimal VPS Startup
+### Turnkey Docker Compose Setup (Recommended)
+```bash
+git clone https://github.com/kernelshard/expose.git && cd expose/deploy
+cp .env.example .env
+# Set DOMAIN=tunnel.yourdomain.com in .env
+docker compose up -d
+```
+Runs `expose-server` and `caddy` with automatic TLS reverse-proxying.
+
+### Minimal VPS Startup (Standalone Binary)
 ```bash
 # On your VPS
 expose server --domain=tunnel.yourdomain.com --control-port=7890 --public-port=8080
@@ -246,5 +255,5 @@ expose version
 ```
 Prints the semantic version, git commit hash, and build timestamp injected at compilation via Go linker flags:
 ```text
-expose version v0.5.4 (commit: 5851d47, built: 2026-10-25)
+expose version v0.6.0 (commit: 5ab3678, built: 2026-10-30)
 ```

@@ -62,11 +62,12 @@ expose tunnel 3000 --provider=cloudflare
 ```
 
 ### Option B: Sovereign Mode (Self-Hosted on Your VPS)
-Want permanent custom subdomains, full privacy, and zero rate limits? Run the same binary on your server:
+Want permanent custom subdomains, full privacy, and zero rate limits? Run your private relay on any $5 VPS:
 
 ```bash
-# 1. On your VPS (relay server)
-expose server --domain=tunnel.yourdomain.com --control-port=7890 --public-port=8080
+# 1. On your VPS (Turnkey Docker + Caddy Auto-TLS)
+git clone https://github.com/kernelshard/expose.git && cd expose/deploy
+cp .env.example .env && docker compose up -d
 
 # 2. On your laptop
 expose tunnel 3000 --server=tunnel.yourdomain.com:7890 --subdomain=api
@@ -91,7 +92,7 @@ curl -fsSL https://raw.githubusercontent.com/kernelshard/expose/main/install.sh 
 Pin a specific version or install to a custom path:
 ```bash
 # Pin version
-VERSION=v0.5.4 curl -fsSL https://raw.githubusercontent.com/kernelshard/expose/main/install.sh | sh
+VERSION=v0.6.0 curl -fsSL https://raw.githubusercontent.com/kernelshard/expose/main/install.sh | sh
 
 # Custom directory
 BINDIR=~/.local/bin curl -fsSL https://raw.githubusercontent.com/kernelshard/expose/main/install.sh | sh
@@ -119,14 +120,29 @@ go build -o expose ./cmd/expose
 
 ## 🏠 Self-Hosted Relay Server
 
-Need complete privacy and zero third-party relay dependence? Run your own tunnel gateway on any $5 VPS with a single command:
+Need complete privacy, permanent custom subdomains, and zero third-party relay dependence? Run your own private tunnel gateway on any $5 VPS (DigitalOcean, Hetzner, AWS Lightsail).
+
+### Option 1: Turnkey Docker Compose + Caddy Auto-TLS (Recommended)
+The fastest path to production with automated TLS termination and edge reverse-proxying:
+
+```bash
+git clone https://github.com/kernelshard/expose.git
+cd expose/deploy
+cp .env.example .env
+# Set DOMAIN=tunnel.yourdomain.com in .env
+docker compose up -d
+```
+See [deploy/README.md](deploy/README.md) for DNS setup and configuration options.
+
+### Option 2: Standalone Binary
+Run the native compiled binary directly on bare metal:
 
 ```bash
 # Start your private relay server
 expose server --domain=tunnel.mysite.com --control-port=7890 --public-port=8080
 ```
 
-Connect your client to your VPS (supports custom subdomains):
+### Connect From Your Laptop
 ```bash
 expose tunnel 3000 --server=tunnel.mysite.com:7890 --subdomain=my-app
 ```
