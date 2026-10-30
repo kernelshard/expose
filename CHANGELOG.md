@@ -9,6 +9,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.6.1] - 2026-10-31
+
+### Fixed
+- **LocalTunnel Relay Handshake Timeout & Fallback Retry**: Bumped LocalTunnel provider API timeout from 10s to 12s and added an immediate fallback retry attempt to withstand upstream traffic congestion on localtunnel.me ([#104](https://github.com/kernelshard/expose/issues/104), [#105](https://github.com/kernelshard/expose/pull/105)).
+
 ## [0.6.0] - 2026-10-30
 
 ### Added
@@ -174,7 +179,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
-[Unreleased]: https://github.com/kernelshard/expose/compare/v0.6.0...HEAD
+[Unreleased]: https://github.com/kernelshard/expose/compare/v0.6.1...HEAD
+[0.6.1]: https://github.com/kernelshard/expose/compare/v0.6.0...v0.6.1
 [0.6.0]: https://github.com/kernelshard/expose/compare/v0.5.4...v0.6.0
 [0.5.4]: https://github.com/kernelshard/expose/compare/v0.5.3...v0.5.4
 [0.5.3]: https://github.com/kernelshard/expose/compare/v0.5.2...v0.5.3
