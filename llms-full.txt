@@ -33,7 +33,7 @@ curl -fsSL https://raw.githubusercontent.com/kernelshard/expose/main/install.sh 
 Options for the installer script:
 ```bash
 # Pin a specific release version
-VERSION=v0.6.0 curl -fsSL https://raw.githubusercontent.com/kernelshard/expose/main/install.sh | sh
+VERSION=v0.6.1 curl -fsSL https://raw.githubusercontent.com/kernelshard/expose/main/install.sh | sh
 
 # Customize installation directory (defaults to /usr/local/bin or ~/.local/bin)
 BINDIR=~/.local/bin curl -fsSL https://raw.githubusercontent.com/kernelshard/expose/main/install.sh | sh
@@ -255,5 +255,5 @@ expose version
 ```
 Prints the semantic version, git commit hash, and build timestamp injected at compilation via Go linker flags:
 ```text
-expose version v0.6.0 (commit: 5ab3678, built: 2026-10-30)
+expose version v0.6.1 (commit: 741ec5d, built: 2026-10-31)
 ```

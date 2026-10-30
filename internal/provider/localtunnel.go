@@ -22,7 +22,7 @@ const (
 	// override if tunnel api sends their limit
 	clientMaxConn = 10
 
-	httpClientTimeout = 10 * time.Second
+	httpClientTimeout = 12 * time.Second
 	tcpDialTimeout    = 10 * time.Second
 )
 
@@ -113,11 +113,24 @@ func (lt *localTunnel) Connect(ctx context.Context, localPort int) (string, erro
 
 }
 
-// requestTunnel request a tunnel from localtunnel.me API and returns the TunnelInfo.
-// we make an HTTP GET request to localtunnel.me/?new
-// localtunnel.me opens a tcp port for us and responds with the port
-// and url info(to be used for accessing the local server)
+// requestTunnel requests a tunnel from localtunnel.me API with a retry and returns the TunnelInfo.
 func (lt *localTunnel) requestTunnel(ctx context.Context) (*TunnelInfo, error) {
+	var lastErr error
+	for attempt := 1; attempt <= 2; attempt++ {
+		if err := ctx.Err(); err != nil {
+			return nil, err
+		}
+
+		info, err := lt.doRequestTunnel(ctx)
+		if err == nil {
+			return info, nil
+		}
+		lastErr = err
+	}
+	return nil, fmt.Errorf("relay unavailable after 2 attempts: %w", lastErr)
+}
+
+func (lt *localTunnel) doRequestTunnel(ctx context.Context) (*TunnelInfo, error) {
 	localTunnelReqURL := lt.serverAPIEndpoint + "/?new"
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, localTunnelReqURL, nil)
 

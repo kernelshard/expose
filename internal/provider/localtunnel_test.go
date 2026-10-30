@@ -170,6 +170,43 @@ func Test_requestTunnel(t *testing.T) {
 			t.Fatal("expected error for cancelled context")
 		}
 	})
+
+	t.Run("retry succeeds on second attempt", func(t *testing.T) {
+		attempts := 0
+		server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			attempts++
+			if attempts == 1 {
+				w.WriteHeader(http.StatusServiceUnavailable)
+				w.Write([]byte("busy"))
+				return
+			}
+			w.WriteHeader(http.StatusOK)
+			json.NewEncoder(w).Encode(TunnelInfo{
+				ID:      "retry-ok",
+				URL:     "https://retry-ok.example.com",
+				Port:    12345,
+				MaxConn: 2,
+			})
+		}))
+		defer server.Close()
+
+		lt := &localTunnel{
+			httpClient:        server.Client(),
+			serverAPIEndpoint: server.URL,
+		}
+
+		info, err := lt.requestTunnel(context.Background())
+		if err != nil {
+			t.Fatalf("expected success on second attempt, got: %v", err)
+		}
+
+		if attempts != 2 {
+			t.Errorf("expected 2 attempts, got %d", attempts)
+		}
+		if info.ID != "retry-ok" {
+			t.Errorf("expected ID retry-ok, got %s", info.ID)
+		}
+	})
 }
 
 // TestLocalTunnel_Name
