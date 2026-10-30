@@ -1,6 +1,6 @@
 # Expose – Pure Go Localhost Tunneling CLI
 
-![Expose Social Preview](docs/social-preview.png)
+![Expose Terminal Demo](docs/assets/images/demo.gif)
 
 [![Downloads](https://img.shields.io/github/downloads/kernelshard/expose/total?color=blue&logo=github)](https://github.com/kernelshard/expose/releases)
 [![Documentation](https://img.shields.io/badge/docs-mkdocs--material-blue.svg)](https://kernelshard.github.io/expose/)
@@ -8,8 +8,8 @@
 [![Go Report Card](https://goreportcard.com/badge/github.com/kernelshard/expose)](https://goreportcard.com/report/github.com/kernelshard/expose)
 [![License: Apache 2.0](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://github.com/kernelshard/expose/blob/main/LICENSE)
 
-> **Turn your `localhost` into a public shareable URL in one command — zero config, zero signups, and a single <10MB binary.**  
-> The lightweight, open-source Go alternative to ngrok for webhook testing, mobile previews, and remote debugging.
+> **The drop-in, open-source Go alternative to ngrok.**  
+> Start instantly on free public relays with zero config and zero signups, or graduate to your own self-hosted relay on a $5 VPS in a single <10MB binary. Zero lock-in.
 
 **Install via Homebrew:**
 ```bash
@@ -48,17 +48,29 @@ When you run an app on `http://localhost:3000`, only your laptop can access it. 
 
 ---
 
-## ⚡ Quick Examples
+## ⚡ Quickstart
+
+### Option A: Instant Public Tunnel (Zero Setup)
+Expose your local development server in seconds without creating an account:
 
 ```bash
-# Tunnel a local development server (defaults to port 3000)
+# Public relay (default)
 expose tunnel 3000
 
-# Tunnel via Cloudflare Quick Tunnels
-expose tunnel -P cloudflare -p 8080
+# Or via Cloudflare Quick Tunnels
+expose tunnel 3000 --provider=cloudflare
+```
 
-# Connect to your self-hosted relay (auto-assigns memorable subdomain: swift-falcon-4821)
-expose tunnel 3000 --server=tunnel.mysite.com:7890
+### Option B: Sovereign Mode (Self-Hosted on Your VPS)
+Want permanent custom subdomains, full privacy, and zero rate limits? Run your private relay on any $5 VPS:
+
+```bash
+# 1. On your VPS (Turnkey Docker + Caddy Auto-TLS)
+git clone https://github.com/kernelshard/expose.git && cd expose/deploy
+cp .env.example .env && docker compose up -d
+
+# 2. On your laptop
+expose tunnel 3000 --server=tunnel.yourdomain.com:7890 --subdomain=api
 ```
 
 ---
@@ -80,7 +92,7 @@ curl -fsSL https://raw.githubusercontent.com/kernelshard/expose/main/install.sh 
 Pin a specific version or install to a custom path:
 ```bash
 # Pin version
-VERSION=v0.5.4 curl -fsSL https://raw.githubusercontent.com/kernelshard/expose/main/install.sh | sh
+VERSION=v0.6.0 curl -fsSL https://raw.githubusercontent.com/kernelshard/expose/main/install.sh | sh
 
 # Custom directory
 BINDIR=~/.local/bin curl -fsSL https://raw.githubusercontent.com/kernelshard/expose/main/install.sh | sh
@@ -108,14 +120,29 @@ go build -o expose ./cmd/expose
 
 ## 🏠 Self-Hosted Relay Server
 
-Need complete privacy and zero third-party relay dependence? Run your own tunnel gateway on any $5 VPS with a single command:
+Need complete privacy, permanent custom subdomains, and zero third-party relay dependence? Run your own private tunnel gateway on any $5 VPS (DigitalOcean, Hetzner, AWS Lightsail).
+
+### Option 1: Turnkey Docker Compose + Caddy Auto-TLS (Recommended)
+The fastest path to production with automated TLS termination and edge reverse-proxying:
+
+```bash
+git clone https://github.com/kernelshard/expose.git
+cd expose/deploy
+cp .env.example .env
+# Set DOMAIN=tunnel.yourdomain.com in .env
+docker compose up -d
+```
+See [deploy/README.md](deploy/README.md) for DNS setup and configuration options.
+
+### Option 2: Standalone Binary
+Run the native compiled binary directly on bare metal:
 
 ```bash
 # Start your private relay server
 expose server --domain=tunnel.mysite.com --control-port=7890 --public-port=8080
 ```
 
-Connect your client to your VPS (supports custom subdomains):
+### Connect From Your Laptop
 ```bash
 expose tunnel 3000 --server=tunnel.mysite.com:7890 --subdomain=my-app
 ```

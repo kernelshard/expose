@@ -36,7 +36,10 @@ expose tunnel -p 8080
 # Expose via Cloudflare Quick Tunnels
 expose tunnel -P cloudflare -p 8080
 
-# Run a private self-hosted tunnel server on a VPS
+# Run a private self-hosted tunnel server on a VPS (Turnkey Docker Compose)
+cd deploy && cp .env.example .env && docker compose up -d
+
+# Or run the standalone relay server binary
 expose server --domain=tunnel.yourdomain.com --control-port=7890 --public-port=8080
 
 # Connect local client to your self-hosted server

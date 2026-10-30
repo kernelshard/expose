@@ -1,5 +1,6 @@
 # Binaries
 expose
+bin/
 *.exe
 *.so
 *.dylib
@@ -14,6 +15,7 @@ vendor/
 # Config
 .expose/
 .env*
+!.env.example
 .expose.yml
 
 # IDEs
@@ -26,3 +28,4 @@ site/
 
 # OS
 .DS_Store
+!assets/mock/**

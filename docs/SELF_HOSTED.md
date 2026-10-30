@@ -36,10 +36,19 @@ localhost:3000            control-port: 7890
 ### Prerequisites
 
 - Any Linux VPS ($5/mo on DigitalOcean, Hetzner, Linode, etc.)
-- Go 1.21+ **or** a pre-built binary
+- Docker & Docker Compose **or** Go 1.21+ **or** a pre-built binary
 - Firewall open on your chosen control port and public port
 
 ### Install on the VPS
+
+=== "Docker Compose (Recommended)"
+    ```bash
+    git clone https://github.com/kernelshard/expose.git
+    cd expose/deploy
+    cp .env.example .env
+    # set DOMAIN=tunnel.yourdomain.com in .env
+    docker compose up -d
+    ```
 
 === "Go Install"
     ```bash

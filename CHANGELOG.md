@@ -9,6 +9,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.6.0] - 2026-10-30
+
+### Added
+- **Turnkey Docker Self-Hosting Stack**: Official multi-stage `Dockerfile` and `deploy/docker-compose.yml` bundled with Caddy reverse proxy, enabling one-command self-hosting (`docker compose up -d`) on any VPS or homelab with zero external dependencies ([#66](https://github.com/kernelshard/expose/issues/66), [#99](https://github.com/kernelshard/expose/pull/99)).
+- **Automated Wildcard HTTPS via Caddy**: Bundled Caddy container configured with `tls internal` and upstream `Host` preservation to terminate HTTPS on ports 80/443 and route traffic to the internal Expose server port 8080, delivering free edge wildcard SSL with zero DNS API keys or Let's Encrypt rate limits ([#66](https://github.com/kernelshard/expose/issues/66), [#99](https://github.com/kernelshard/expose/pull/99)).
+- **Minimal Non-Root Container Image**: Lightweight Alpine 3.21 runtime image (~16.7 MB) running as unprivileged `USER expose` with statically compiled binary (`CGO_ENABLED=0`, `-s -w`) ([#66](https://github.com/kernelshard/expose/issues/66), [#99](https://github.com/kernelshard/expose/pull/99)).
+- **Animated Terminal Demo GIF**: Embedded high-framerate VHS recording into the README hero section showcasing instant tunnel startup, readable subdomain assignment, and live HTTP webhook forwarding ([#87](https://github.com/kernelshard/expose/issues/87), [#97](https://github.com/kernelshard/expose/pull/97), [#98](https://github.com/kernelshard/expose/pull/98)).
+
+### Removed
+- **Legacy Tunnel Manager Prototype**: Removed deprecated `internal/tunnel/manager.go` and its unit tests (-484 lines) dating back to v0.1.0 in favor of the clean Provider + Service pattern ([#100](https://github.com/kernelshard/expose/issues/100), [#101](https://github.com/kernelshard/expose/pull/101)).
+
+### Documentation
+- **Quickstart Usability Split**: Reorganized README quickstart into distinct Public Tunnel (zero setup) vs Self-Hosted Relay paths for clearer onboarding ([#102](https://github.com/kernelshard/expose/pull/102)).
+- **Turnkey Docker Self-Hosting Documentation**: Updated `README.md`, `docs/index.md`, `docs/SELF_HOSTED.md`, `llms.txt`, and added `deploy/README.md` featuring Docker Compose as the recommended VPS installation path with DNS A-record topology and environment configuration templates ([#66](https://github.com/kernelshard/expose/issues/66), [#99](https://github.com/kernelshard/expose/pull/99)).
+
 ## [0.5.4] - 2026-10-25
 
 ### Added
@@ -159,7 +174,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
-[Unreleased]: https://github.com/kernelshard/expose/compare/v0.5.4...HEAD
+[Unreleased]: https://github.com/kernelshard/expose/compare/v0.6.0...HEAD
+[0.6.0]: https://github.com/kernelshard/expose/compare/v0.5.4...v0.6.0
 [0.5.4]: https://github.com/kernelshard/expose/compare/v0.5.3...v0.5.4
 [0.5.3]: https://github.com/kernelshard/expose/compare/v0.5.2...v0.5.3
 [0.5.2]: https://github.com/kernelshard/expose/compare/v0.5.1...v0.5.2

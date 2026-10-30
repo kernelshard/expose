@@ -204,10 +204,12 @@ Output when running `expose tunnel`:
 
 === "Self-Hosted"
     ```bash
-    # 1. One-time setup on your VPS
-    expose server --domain=tunnel.mysite.com \
-                  --control-port=7890 \
-                  --public-port=8080
+    # 1. Turnkey setup on your VPS (Docker Compose + Caddy Auto-TLS)
+    git clone https://github.com/kernelshard/expose.git && cd expose/deploy
+    cp .env.example .env && docker compose up -d
+
+    # Or run the standalone binary:
+    # expose server --domain=tunnel.mysite.com --control-port=7890 --public-port=8080
 
     # 2. Connect from anywhere
     expose tunnel --server=tunnel.mysite.com:7890 -p 3000

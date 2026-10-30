@@ -1,0 +1,9 @@
+.git
+.github
+.agents
+docs
+assets
+dist
+*.md
+*.gif
+*.tape
