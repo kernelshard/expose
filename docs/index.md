@@ -33,7 +33,7 @@ Share your localhost with the world in seconds. No account. No auth tokens. No n
 <div class="expose-badges" markdown>
 [![Downloads](https://img.shields.io/github/downloads/kernelshard/expose/total?color=5C6BC0&logo=github&labelColor=1a1f35&style=flat-square)](https://github.com/kernelshard/expose/releases)
 [![Tests](https://img.shields.io/github/actions/workflow/status/kernelshard/expose/test.yml?label=tests&style=flat-square&labelColor=1a1f35&color=26C6DA)](https://github.com/kernelshard/expose/actions/workflows/test.yml)
-[![Go Report Card](https://goreportcard.com/badge/github.com/kernelshard/expose)](https://goreportcard.com/report/github.com/kernelshard/expose)
+[![codecov](https://codecov.io/gh/kernelshard/expose/graph/badge.svg)](https://codecov.io/gh/kernelshard/expose)
 [![License: Apache 2.0](https://img.shields.io/badge/License-Apache_2.0-5C6BC0.svg?style=flat-square&labelColor=1a1f35)](https://github.com/kernelshard/expose/blob/main/LICENSE)
 </div>
 
