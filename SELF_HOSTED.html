@@ -6,7 +6,7 @@
       <meta charset="utf-8">
       <meta name="viewport" content="width=device-width,initial-scale=1">
       
-        <meta name="description" content="Run your own Expose server on a VPS for full control over your tunneling infrastructure — no rate limits, no third parties.">
+        <meta name="description" content="Run your own Expose server on a VPS for full control over your tunneling infrastructure.">
       
       
         <meta name="author" content="kernelshard">
@@ -76,14 +76,14 @@
   <!-- Open Graph / Facebook / Discord -->
   <meta property="og:type" content="website">
   <meta property="og:title" content="Self-Hosted — Expose">
-  <meta property="og:description" content="Run your own Expose server on a VPS for full control over your tunneling infrastructure — no rate limits, no third parties.">
+  <meta property="og:description" content="Run your own Expose server on a VPS for full control over your tunneling infrastructure.">
   <meta property="og:image" content="https://kernelshard.github.io/expose/social-preview.png">
   <meta property="og:url" content="https://kernelshard.github.io/expose/SELF_HOSTED.html">
 
   <!-- Twitter / X -->
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="Self-Hosted — Expose">
-  <meta name="twitter:description" content="Run your own Expose server on a VPS for full control over your tunneling infrastructure — no rate limits, no third parties.">
+  <meta name="twitter:description" content="Run your own Expose server on a VPS for full control over your tunneling infrastructure.">
   <meta name="twitter:image" content="https://kernelshard.github.io/expose/social-preview.png">
 
   <!-- Machine-Readable LLM Documentation -->
@@ -593,10 +593,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#how-it-works" class="md-nav__link">
+  <a href="#option-a-docker-compose-recommended" class="md-nav__link">
     <span class="md-ellipsis">
       
-        How It Works
+        Option A: Docker Compose (Recommended)
       
     </span>
   </a>
@@ -604,33 +604,22 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#server-setup-vps" class="md-nav__link">
+  <a href="#option-b-standalone-binary" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Server Setup (VPS)
+        Option B: Standalone Binary
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Server Setup (VPS)">
+    <nav class="md-nav" aria-label="Option B: Standalone Binary">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#prerequisites" class="md-nav__link">
+  <a href="#install" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Prerequisites
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#install-on-the-vps" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Install on the VPS
+        Install
       
     </span>
   </a>
@@ -660,38 +649,21 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#server-flags-reference" class="md-nav__link">
+  <a href="#run-as-a-service" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Server flags reference
+        Run as a service
       
     </span>
   </a>
   
 </li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#client-connection" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Client Connection
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Client Connection">
-      <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#subdomain-assignment-custom-requests" class="md-nav__link">
+  <a href="#https-with-caddy" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Subdomain Assignment &amp; Custom Requests
+        HTTPS with Caddy
       
     </span>
   </a>
@@ -704,10 +676,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#run-as-a-background-service-systemd" class="md-nav__link">
+  <a href="#connect-from-your-machine" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Run as a Background Service (systemd)
+        Connect from your machine
       
     </span>
   </a>
@@ -715,21 +687,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#putting-it-behind-a-domain" class="md-nav__link">
+  <a href="#security" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Putting It Behind a Domain
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#security-recommendations" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Security Recommendations
+        Security
       
     </span>
   </a>
@@ -744,45 +705,6 @@
       
     </span>
   </a>
-  
-    <nav class="md-nav" aria-label="Troubleshooting">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#client-cant-connect-to-control-port" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Client can't connect to control port
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#public-port-not-reachable" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Public port not reachable
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#connection-drops-after-idle" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Connection drops after idle
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
   
 </li>
       
@@ -1119,10 +1041,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#how-it-works" class="md-nav__link">
+  <a href="#option-a-docker-compose-recommended" class="md-nav__link">
     <span class="md-ellipsis">
       
-        How It Works
+        Option A: Docker Compose (Recommended)
       
     </span>
   </a>
@@ -1130,33 +1052,22 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#server-setup-vps" class="md-nav__link">
+  <a href="#option-b-standalone-binary" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Server Setup (VPS)
+        Option B: Standalone Binary
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Server Setup (VPS)">
+    <nav class="md-nav" aria-label="Option B: Standalone Binary">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#prerequisites" class="md-nav__link">
+  <a href="#install" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Prerequisites
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#install-on-the-vps" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Install on the VPS
+        Install
       
     </span>
   </a>
@@ -1186,38 +1097,21 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#server-flags-reference" class="md-nav__link">
+  <a href="#run-as-a-service" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Server flags reference
+        Run as a service
       
     </span>
   </a>
   
 </li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#client-connection" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Client Connection
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Client Connection">
-      <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#subdomain-assignment-custom-requests" class="md-nav__link">
+  <a href="#https-with-caddy" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Subdomain Assignment &amp; Custom Requests
+        HTTPS with Caddy
       
     </span>
   </a>
@@ -1230,10 +1124,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#run-as-a-background-service-systemd" class="md-nav__link">
+  <a href="#connect-from-your-machine" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Run as a Background Service (systemd)
+        Connect from your machine
       
     </span>
   </a>
@@ -1241,21 +1135,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#putting-it-behind-a-domain" class="md-nav__link">
+  <a href="#security" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Putting It Behind a Domain
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#security-recommendations" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Security Recommendations
+        Security
       
     </span>
   </a>
@@ -1270,45 +1153,6 @@
       
     </span>
   </a>
-  
-    <nav class="md-nav" aria-label="Troubleshooting">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#client-cant-connect-to-control-port" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Client can't connect to control port
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#public-port-not-reachable" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Public port not reachable
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#connection-drops-after-idle" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Connection drops after idle
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
   
 </li>
       
@@ -1341,265 +1185,88 @@
 
 
 <h1 id="self-hosted-server">Self-Hosted Server<a class="headerlink" href="#self-hosted-server" title="Permanent link">&para;</a></h1>
-<p>Expose ships a built-in server mode (<code>expose server</code>) that turns any VPS into your own private tunneling relay. Traffic flows entirely through your infrastructure — no third-party routing, no rate limits, no terms-of-service surprises.</p>
-<div class="admonition tip">
-<p class="admonition-title">When to self-host</p>
-<p>Self-hosting makes sense when you need persistent tunnels, custom domains, or want to avoid shared infrastructure. For quick one-off webhook tests, <a href="GETTING_STARTED.html#localtunnel-default">LocalTunnel</a> is simpler.</p>
-</div>
+<p><code>expose server</code> turns any Linux VPS into your own private tunnel relay — no third parties, no rate limits, no shared infrastructure.</p>
 <hr />
-<h2 id="how-it-works">How It Works<a class="headerlink" href="#how-it-works" title="Permanent link">&para;</a></h2>
-<div class="language-text highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>Your machine                 Your VPS                    Internet
-</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>─────────────               ─────────────               ─────────────
-</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>expose tunnel  ──TCP──►  expose server  ◄──HTTP──  Browser / Service
-</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>localhost:3000            control-port: 7890
-</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>                          public-port:  8080
-</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>                          domain: tunnel.mysite.com
+<h2 id="option-a-docker-compose-recommended">Option A: Docker Compose (Recommended)<a class="headerlink" href="#option-a-docker-compose-recommended" title="Permanent link">&para;</a></h2>
+<p>The fastest path. Caddy handles TLS automatically.</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/kernelshard/expose.git
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="nb">cd</span><span class="w"> </span>expose/deploy
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>cp<span class="w"> </span>.env.example<span class="w"> </span>.env
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="c1"># Edit .env: set DOMAIN=tunnel.yourdomain.com</span>
+</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>docker<span class="w"> </span>compose<span class="w"> </span>up<span class="w"> </span>-d
 </span></code></pre></div>
-<ol>
-<li><code>expose server</code> listens on two ports:<ul>
-<li><strong>Control port</strong> (<code>7890</code> by default) — your tunnel clients connect here</li>
-<li><strong>Public port</strong> (<code>8080</code> by default) — inbound HTTP traffic from the internet</li>
-</ul>
-</li>
-<li><code>expose tunnel --server</code> connects your local machine to the control port</li>
-<li>Requests arriving at <code>http://tunnel.mysite.com:8080</code> are forwarded through the tunnel to <code>localhost:3000</code></li>
-</ol>
+<p>See <a href="https://github.com/kernelshard/expose/blob/main/deploy/README.md"><code>deploy/README.md</code></a> for DNS setup and environment variables.</p>
 <hr />
-<h2 id="server-setup-vps">Server Setup (VPS)<a class="headerlink" href="#server-setup-vps" title="Permanent link">&para;</a></h2>
-<h3 id="prerequisites">Prerequisites<a class="headerlink" href="#prerequisites" title="Permanent link">&para;</a></h3>
-<ul>
-<li>Any Linux VPS ($5/mo on DigitalOcean, Hetzner, Linode, etc.)</li>
-<li>Docker &amp; Docker Compose <strong>or</strong> Go 1.21+ <strong>or</strong> a pre-built binary</li>
-<li>Firewall open on your chosen control port and public port</li>
-</ul>
-<h3 id="install-on-the-vps">Install on the VPS<a class="headerlink" href="#install-on-the-vps" title="Permanent link">&para;</a></h3>
-<div class="tabbed-set tabbed-alternate" data-tabs="1:3"><input checked="checked" id="install-on-the-vps-docker-compose-recommended" name="__tabbed_1" type="radio" /><input id="install-on-the-vps-go-install" name="__tabbed_1" type="radio" /><input id="install-on-the-vps-pre-built-binary" name="__tabbed_1" type="radio" /><div class="tabbed-labels"><label for="install-on-the-vps-docker-compose-recommended">Docker Compose (Recommended)</label><label for="install-on-the-vps-go-install">Go Install</label><label for="install-on-the-vps-pre-built-binary">Pre-built Binary</label></div>
-<div class="tabbed-content">
-<div class="tabbed-block">
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/kernelshard/expose.git
-</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="nb">cd</span><span class="w"> </span>expose/deploy
-</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>cp<span class="w"> </span>.env.example<span class="w"> </span>.env
-</span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="c1"># set DOMAIN=tunnel.yourdomain.com in .env</span>
-</span><span id="__span-1-5"><a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>docker<span class="w"> </span>compose<span class="w"> </span>up<span class="w"> </span>-d
+<h2 id="option-b-standalone-binary">Option B: Standalone Binary<a class="headerlink" href="#option-b-standalone-binary" title="Permanent link">&para;</a></h2>
+<h3 id="install">Install<a class="headerlink" href="#install" title="Permanent link">&para;</a></h3>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>wget<span class="w"> </span>https://github.com/kernelshard/expose/releases/latest/download/expose-linux-amd64
+</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>chmod<span class="w"> </span>+x<span class="w"> </span>expose-linux-amd64
+</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>sudo<span class="w"> </span>mv<span class="w"> </span>expose-linux-amd64<span class="w"> </span>/usr/local/bin/expose
 </span></code></pre></div>
-</div>
-<div class="tabbed-block">
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>go<span class="w"> </span>install<span class="w"> </span>github.com/kernelshard/expose/cmd/expose@latest
-</span></code></pre></div>
-</div>
-<div class="tabbed-block">
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="c1"># Download the linux-amd64 binary from the releases page</span>
-</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>wget<span class="w"> </span>https://github.com/kernelshard/expose/releases/latest/download/expose-linux-amd64
-</span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>chmod<span class="w"> </span>+x<span class="w"> </span>expose-linux-amd64
-</span><span id="__span-3-4"><a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a>sudo<span class="w"> </span>mv<span class="w"> </span>expose-linux-amd64<span class="w"> </span>/usr/local/bin/expose
-</span><span id="__span-3-5"><a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a>expose<span class="w"> </span>--version
-</span></code></pre></div>
-</div>
-</div>
-</div>
 <h3 id="open-firewall-ports">Open firewall ports<a class="headerlink" href="#open-firewall-ports" title="Permanent link">&para;</a></h3>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="c1"># UFW (Ubuntu / Debian)</span>
-</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>sudo<span class="w"> </span>ufw<span class="w"> </span>allow<span class="w"> </span><span class="m">7890</span>/tcp<span class="w">   </span><span class="c1"># control port</span>
-</span><span id="__span-4-3"><a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>sudo<span class="w"> </span>ufw<span class="w"> </span>allow<span class="w"> </span><span class="m">8080</span>/tcp<span class="w">   </span><span class="c1"># public port</span>
-</span><span id="__span-4-4"><a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a>sudo<span class="w"> </span>ufw<span class="w"> </span>reload
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>sudo<span class="w"> </span>ufw<span class="w"> </span>allow<span class="w"> </span><span class="m">7890</span>/tcp<span class="w">   </span><span class="c1"># control port (clients)</span>
+</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>sudo<span class="w"> </span>ufw<span class="w"> </span>allow<span class="w"> </span><span class="m">8080</span>/tcp<span class="w">   </span><span class="c1"># public port (inbound HTTP)</span>
+</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>sudo<span class="w"> </span>ufw<span class="w"> </span>reload
 </span></code></pre></div>
 <h3 id="start-the-server">Start the server<a class="headerlink" href="#start-the-server" title="Permanent link">&para;</a></h3>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>expose<span class="w"> </span>server<span class="w"> </span><span class="se">\</span>
-</span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="w">  </span>--domain<span class="o">=</span>tunnel.mysite.com<span class="w"> </span><span class="se">\</span>
-</span><span id="__span-5-3"><a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="w">  </span>--control-port<span class="o">=</span><span class="m">7890</span><span class="w"> </span><span class="se">\</span>
-</span><span id="__span-5-4"><a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a><span class="w">  </span>--public-port<span class="o">=</span><span class="m">8080</span>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>expose<span class="w"> </span>server<span class="w"> </span>--domain<span class="o">=</span>tunnel.mysite.com<span class="w"> </span>--control-port<span class="o">=</span><span class="m">7890</span><span class="w"> </span>--public-port<span class="o">=</span><span class="m">8080</span>
 </span></code></pre></div>
-<p>Output:</p>
-<div class="language-text highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>🚀 Expose server starting...
-</span><span id="__span-6-2"><a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>✓ Control port: 7890  (clients connect here)
-</span><span id="__span-6-3"><a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>✓ Public port:  8080  (inbound HTTP traffic)
-</span><span id="__span-6-4"><a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a>✓ Domain:       tunnel.mysite.com
+<h3 id="run-as-a-service">Run as a service<a class="headerlink" href="#run-as-a-service" title="Permanent link">&para;</a></h3>
+<div class="language-ini highlight"><span class="filename">/etc/systemd/system/expose-server.service</span><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="k">[Unit]</span>
+</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="na">Description</span><span class="o">=</span><span class="s">Expose Tunnel Server</span>
+</span><span id="__span-4-3"><a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="na">After</span><span class="o">=</span><span class="s">network.target</span>
+</span><span id="__span-4-4"><a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a>
+</span><span id="__span-4-5"><a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a><span class="k">[Service]</span>
+</span><span id="__span-4-6"><a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a><span class="na">ExecStart</span><span class="o">=</span><span class="s">/usr/local/bin/expose server --domain=tunnel.mysite.com --control-port=7890 --public-port=8080</span>
+</span><span id="__span-4-7"><a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a><span class="na">Restart</span><span class="o">=</span><span class="s">on-failure</span>
+</span><span id="__span-4-8"><a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a><span class="na">RestartSec</span><span class="o">=</span><span class="s">5</span>
+</span><span id="__span-4-9"><a id="__codelineno-4-9" name="__codelineno-4-9" href="#__codelineno-4-9"></a><span class="na">User</span><span class="o">=</span><span class="s">nobody</span>
+</span><span id="__span-4-10"><a id="__codelineno-4-10" name="__codelineno-4-10" href="#__codelineno-4-10"></a>
+</span><span id="__span-4-11"><a id="__codelineno-4-11" name="__codelineno-4-11" href="#__codelineno-4-11"></a><span class="k">[Install]</span>
+</span><span id="__span-4-12"><a id="__codelineno-4-12" name="__codelineno-4-12" href="#__codelineno-4-12"></a><span class="na">WantedBy</span><span class="o">=</span><span class="s">multi-user.target</span>
 </span></code></pre></div>
-<h3 id="server-flags-reference">Server flags reference<a class="headerlink" href="#server-flags-reference" title="Permanent link">&para;</a></h3>
-<table>
-<thead>
-<tr>
-<th>Flag</th>
-<th>Short</th>
-<th>Default</th>
-<th>Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>--domain</code></td>
-<td><code>-d</code></td>
-<td><code>localhost</code></td>
-<td>Domain used in public URLs</td>
-</tr>
-<tr>
-<td><code>--control-port</code></td>
-<td><code>-c</code></td>
-<td><code>7890</code></td>
-<td>Port tunnel clients connect to</td>
-</tr>
-<tr>
-<td><code>--public-port</code></td>
-<td><code>-p</code></td>
-<td><code>8080</code></td>
-<td>Port that receives inbound HTTP traffic</td>
-</tr>
-</tbody>
-</table>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>sudo<span class="w"> </span>systemctl<span class="w"> </span>daemon-reload
+</span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>sudo<span class="w"> </span>systemctl<span class="w"> </span><span class="nb">enable</span><span class="w"> </span>--now<span class="w"> </span>expose-server
+</span></code></pre></div>
+<h3 id="https-with-caddy">HTTPS with Caddy<a class="headerlink" href="#https-with-caddy" title="Permanent link">&para;</a></h3>
+<div class="language-caddyfile highlight"><span class="filename">/etc/caddy/Caddyfile</span><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>tunnel.mysite.com<span class="w"> </span><span class="p">{</span>
+</span><span id="__span-6-2"><a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="w">    </span><span class="k">reverse_proxy</span><span class="w"> </span>localhost:8080
+</span><span id="__span-6-3"><a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a><span class="p">}</span>
+</span></code></pre></div>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>sudo<span class="w"> </span>systemctl<span class="w"> </span>reload<span class="w"> </span>caddy
+</span></code></pre></div>
+<p>Caddy provisions a Let's Encrypt certificate automatically.</p>
 <hr />
-<h2 id="client-connection">Client Connection<a class="headerlink" href="#client-connection" title="Permanent link">&para;</a></h2>
-<p>On your local machine, connect to your VPS with the <code>--server</code> flag:</p>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>expose<span class="w"> </span>tunnel<span class="w"> </span>--server<span class="o">=</span>tunnel.mysite.com:7890<span class="w"> </span>-p<span class="w"> </span><span class="m">3000</span>
+<h2 id="connect-from-your-machine">Connect from your machine<a class="headerlink" href="#connect-from-your-machine" title="Permanent link">&para;</a></h2>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>expose<span class="w"> </span>tunnel<span class="w"> </span>--server<span class="o">=</span>tunnel.mysite.com:7890<span class="w"> </span>-p<span class="w"> </span><span class="m">3000</span>
 </span></code></pre></div>
-<p>Short form using <code>-s</code>:</p>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>expose<span class="w"> </span>tunnel<span class="w"> </span>-s<span class="w"> </span>tunnel.mysite.com:7890<span class="w"> </span>-p<span class="w"> </span><span class="m">3000</span>
-</span></code></pre></div>
-<p>Output:</p>
 <div class="language-text highlight"><pre><span></span><code><span id="__span-9-1"><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>✓ Tunnel (SelfHosted) started for localhost:3000
 </span><span id="__span-9-2"><a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a>✓ Public URL: http://swift-falcon-4821.tunnel.mysite.com:8080
-</span><span id="__span-9-3"><a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a>✓ Forwarding to: http://localhost:3000
-</span><span id="__span-9-4"><a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a>✓ Provider: SelfHosted
-</span><span id="__span-9-5"><a id="__codelineno-9-5" name="__codelineno-9-5" href="#__codelineno-9-5"></a>  Press Ctrl+C to stop
+</span><span id="__span-9-3"><a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a>✓ Provider: SelfHosted
+</span><span id="__span-9-4"><a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a>  Press Ctrl+C to stop
 </span></code></pre></div>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>When <code>--server</code> is provided, Expose automatically selects the <code>selfhosted</code> provider — you don't need to pass <code>-P selfhosted</code> separately.</p>
-</div>
-<h3 id="subdomain-assignment-custom-requests">Subdomain Assignment &amp; Custom Requests<a class="headerlink" href="#subdomain-assignment-custom-requests" title="Permanent link">&para;</a></h3>
-<p>By default, the relay server automatically assigns a memorable, human-friendly subdomain (e.g., <code>swift-falcon-4821</code>) from a curated dictionary of adjectives and nouns, providing over 51 million unique combinations with zero collision risk.</p>
-<p>You can also request a specific custom subdomain using <code>--subdomain</code> (or <code>-d</code>):</p>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-10-1"><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>expose<span class="w"> </span>tunnel<span class="w"> </span>--server<span class="o">=</span>tunnel.mysite.com:7890<span class="w"> </span>--subdomain<span class="o">=</span>my-app<span class="w"> </span><span class="m">3000</span>
+<p>To use a fixed subdomain instead of a random one:</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-10-1"><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>expose<span class="w"> </span>tunnel<span class="w"> </span>--server<span class="o">=</span>tunnel.mysite.com:7890<span class="w"> </span>--subdomain<span class="o">=</span>my-app<span class="w"> </span>-p<span class="w"> </span><span class="m">3000</span>
 </span></code></pre></div>
-<p>Output:</p>
-<div class="language-text highlight"><pre><span></span><code><span id="__span-11-1"><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a>✓ Tunnel (SelfHosted) started for localhost:3000
-</span><span id="__span-11-2"><a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a>✓ Public URL: http://my-app.tunnel.mysite.com:8080
-</span><span id="__span-11-3"><a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a>✓ Forwarding to: http://localhost:3000
-</span><span id="__span-11-4"><a id="__codelineno-11-4" name="__codelineno-11-4" href="#__codelineno-11-4"></a>✓ Provider: SelfHosted
-</span><span id="__span-11-5"><a id="__codelineno-11-5" name="__codelineno-11-5" href="#__codelineno-11-5"></a>  Press Ctrl+C to stop
-</span></code></pre></div>
-<div class="admonition tip">
-<p class="admonition-title">Collision Protection</p>
-<p>If the requested subdomain is already registered by an active tunnel, the server safely rejects the registration request with an error to prevent traffic hijacking or routing conflicts.</p>
-</div>
-<div class="admonition note">
-<p class="admonition-title">Subdomain Format &amp; Reserved Names</p>
-<p>Custom subdomains must comply with standard RFC 1123 DNS hostname specifications:
-- <strong>Length</strong>: 1 to 63 lowercase alphanumeric characters (<code>a-z</code>, <code>0-9</code>) and hyphens (<code>-</code>).
-- <strong>Hyphens</strong>: Cannot start or end with a hyphen (e.g., <code>-app</code> or <code>app-</code>).
-- <strong>Characters</strong>: Dots, underscores, spaces, and uppercase characters are rejected.
-- <strong>Reserved namespaces</strong>: Critical system labels (<code>admin</code>, <code>api</code>, <code>localhost</code>, <code>www</code>, <code>root</code>, <code>internal</code>, <code>dashboard</code>) are reserved and cannot be registered.</p>
-</div>
+<p>Subdomains must be lowercase alphanumeric with hyphens, 1–63 characters. If a subdomain is already taken, the server rejects the request.</p>
 <hr />
-<h2 id="run-as-a-background-service-systemd">Run as a Background Service (systemd)<a class="headerlink" href="#run-as-a-background-service-systemd" title="Permanent link">&para;</a></h2>
-<p>To keep the server running after you disconnect from SSH, create a systemd service:</p>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-12-1"><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a>sudo<span class="w"> </span>nano<span class="w"> </span>/etc/systemd/system/expose-server.service
-</span></code></pre></div>
-<div class="language-ini highlight"><span class="filename">/etc/systemd/system/expose-server.service</span><pre><span></span><code><span id="__span-13-1"><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a><span class="k">[Unit]</span>
-</span><span id="__span-13-2"><a id="__codelineno-13-2" name="__codelineno-13-2" href="#__codelineno-13-2"></a><span class="na">Description</span><span class="o">=</span><span class="s">Expose Self-Hosted Tunnel Server</span>
-</span><span id="__span-13-3"><a id="__codelineno-13-3" name="__codelineno-13-3" href="#__codelineno-13-3"></a><span class="na">After</span><span class="o">=</span><span class="s">network.target</span>
-</span><span id="__span-13-4"><a id="__codelineno-13-4" name="__codelineno-13-4" href="#__codelineno-13-4"></a>
-</span><span id="__span-13-5"><a id="__codelineno-13-5" name="__codelineno-13-5" href="#__codelineno-13-5"></a><span class="k">[Service]</span>
-</span><span id="__span-13-6"><a id="__codelineno-13-6" name="__codelineno-13-6" href="#__codelineno-13-6"></a><span class="na">ExecStart</span><span class="o">=</span><span class="s">/usr/local/bin/expose server </span>\
-</span><span id="__span-13-7"><a id="__codelineno-13-7" name="__codelineno-13-7" href="#__codelineno-13-7"></a><span class="w">  </span><span class="s">--domain=tunnel.mysite.com </span>\
-</span><span id="__span-13-8"><a id="__codelineno-13-8" name="__codelineno-13-8" href="#__codelineno-13-8"></a><span class="w">  </span><span class="s">--control-port=7890 </span>\
-</span><span id="__span-13-9"><a id="__codelineno-13-9" name="__codelineno-13-9" href="#__codelineno-13-9"></a><span class="w">  </span><span class="s">--public-port=8080</span>
-</span><span id="__span-13-10"><a id="__codelineno-13-10" name="__codelineno-13-10" href="#__codelineno-13-10"></a><span class="na">Restart</span><span class="o">=</span><span class="s">on-failure</span>
-</span><span id="__span-13-11"><a id="__codelineno-13-11" name="__codelineno-13-11" href="#__codelineno-13-11"></a><span class="na">RestartSec</span><span class="o">=</span><span class="s">5</span>
-</span><span id="__span-13-12"><a id="__codelineno-13-12" name="__codelineno-13-12" href="#__codelineno-13-12"></a><span class="na">User</span><span class="o">=</span><span class="s">nobody</span>
-</span><span id="__span-13-13"><a id="__codelineno-13-13" name="__codelineno-13-13" href="#__codelineno-13-13"></a>
-</span><span id="__span-13-14"><a id="__codelineno-13-14" name="__codelineno-13-14" href="#__codelineno-13-14"></a><span class="k">[Install]</span>
-</span><span id="__span-13-15"><a id="__codelineno-13-15" name="__codelineno-13-15" href="#__codelineno-13-15"></a><span class="na">WantedBy</span><span class="o">=</span><span class="s">multi-user.target</span>
-</span></code></pre></div>
-<p>Enable and start:</p>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-14-1"><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a>sudo<span class="w"> </span>systemctl<span class="w"> </span>daemon-reload
-</span><span id="__span-14-2"><a id="__codelineno-14-2" name="__codelineno-14-2" href="#__codelineno-14-2"></a>sudo<span class="w"> </span>systemctl<span class="w"> </span><span class="nb">enable</span><span class="w"> </span>expose-server
-</span><span id="__span-14-3"><a id="__codelineno-14-3" name="__codelineno-14-3" href="#__codelineno-14-3"></a>sudo<span class="w"> </span>systemctl<span class="w"> </span>start<span class="w"> </span>expose-server
-</span><span id="__span-14-4"><a id="__codelineno-14-4" name="__codelineno-14-4" href="#__codelineno-14-4"></a>
-</span><span id="__span-14-5"><a id="__codelineno-14-5" name="__codelineno-14-5" href="#__codelineno-14-5"></a><span class="c1"># Check status</span>
-</span><span id="__span-14-6"><a id="__codelineno-14-6" name="__codelineno-14-6" href="#__codelineno-14-6"></a>sudo<span class="w"> </span>systemctl<span class="w"> </span>status<span class="w"> </span>expose-server
-</span><span id="__span-14-7"><a id="__codelineno-14-7" name="__codelineno-14-7" href="#__codelineno-14-7"></a>
-</span><span id="__span-14-8"><a id="__codelineno-14-8" name="__codelineno-14-8" href="#__codelineno-14-8"></a><span class="c1"># Watch logs</span>
-</span><span id="__span-14-9"><a id="__codelineno-14-9" name="__codelineno-14-9" href="#__codelineno-14-9"></a>sudo<span class="w"> </span>journalctl<span class="w"> </span>-u<span class="w"> </span>expose-server<span class="w"> </span>-f
-</span></code></pre></div>
-<hr />
-<h2 id="putting-it-behind-a-domain">Putting It Behind a Domain<a class="headerlink" href="#putting-it-behind-a-domain" title="Permanent link">&para;</a></h2>
-<p>If you want clean URLs like <code>https://tunnel.mysite.com</code> instead of <code>http://tunnel.mysite.com:8080</code>, put Nginx or Caddy in front.</p>
-<div class="tabbed-set tabbed-alternate" data-tabs="2:2"><input checked="checked" id="putting-it-behind-a-domain-caddy-easiest--auto-https" name="__tabbed_2" type="radio" /><input id="putting-it-behind-a-domain-nginx" name="__tabbed_2" type="radio" /><div class="tabbed-labels"><label for="putting-it-behind-a-domain-caddy-easiest--auto-https">Caddy (easiest — auto HTTPS)</label><label for="putting-it-behind-a-domain-nginx">Nginx</label></div>
-<div class="tabbed-content">
-<div class="tabbed-block">
-<div class="language-caddyfile highlight"><span class="filename">/etc/caddy/Caddyfile</span><pre><span></span><code><span id="__span-15-1"><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a>tunnel.mysite.com<span class="w"> </span><span class="p">{</span>
-</span><span id="__span-15-2"><a id="__codelineno-15-2" name="__codelineno-15-2" href="#__codelineno-15-2"></a><span class="w">    </span><span class="k">reverse_proxy</span><span class="w"> </span>localhost:8080
-</span><span id="__span-15-3"><a id="__codelineno-15-3" name="__codelineno-15-3" href="#__codelineno-15-3"></a><span class="p">}</span>
-</span></code></pre></div>
-<p><div class="language-bash highlight"><pre><span></span><code><span id="__span-16-1"><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a>sudo<span class="w"> </span>systemctl<span class="w"> </span>reload<span class="w"> </span>caddy
-</span></code></pre></div>
-Caddy automatically provisions a Let's Encrypt TLS certificate.</p>
-</div>
-<div class="tabbed-block">
-<div class="language-nginx highlight"><span class="filename">/etc/nginx/sites-available/expose</span><pre><span></span><code><span id="__span-17-1"><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a><span class="k">server</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__span-17-2"><a id="__codelineno-17-2" name="__codelineno-17-2" href="#__codelineno-17-2"></a><span class="w">    </span><span class="kn">listen</span><span class="w"> </span><span class="mi">80</span><span class="p">;</span>
-</span><span id="__span-17-3"><a id="__codelineno-17-3" name="__codelineno-17-3" href="#__codelineno-17-3"></a><span class="w">    </span><span class="kn">server_name</span><span class="w"> </span><span class="s">tunnel.mysite.com</span><span class="p">;</span>
-</span><span id="__span-17-4"><a id="__codelineno-17-4" name="__codelineno-17-4" href="#__codelineno-17-4"></a>
-</span><span id="__span-17-5"><a id="__codelineno-17-5" name="__codelineno-17-5" href="#__codelineno-17-5"></a><span class="w">    </span><span class="kn">location</span><span class="w"> </span><span class="s">/</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__span-17-6"><a id="__codelineno-17-6" name="__codelineno-17-6" href="#__codelineno-17-6"></a><span class="w">        </span><span class="kn">proxy_pass</span><span class="w"> </span><span class="s">http://localhost:8080</span><span class="p">;</span>
-</span><span id="__span-17-7"><a id="__codelineno-17-7" name="__codelineno-17-7" href="#__codelineno-17-7"></a><span class="w">        </span><span class="kn">proxy_http_version</span><span class="w"> </span><span class="mi">1</span><span class="s">.1</span><span class="p">;</span>
-</span><span id="__span-17-8"><a id="__codelineno-17-8" name="__codelineno-17-8" href="#__codelineno-17-8"></a><span class="w">        </span><span class="kn">proxy_set_header</span><span class="w"> </span><span class="s">Upgrade</span><span class="w"> </span><span class="nv">$http_upgrade</span><span class="p">;</span>
-</span><span id="__span-17-9"><a id="__codelineno-17-9" name="__codelineno-17-9" href="#__codelineno-17-9"></a><span class="w">        </span><span class="kn">proxy_set_header</span><span class="w"> </span><span class="s">Connection</span><span class="w"> </span><span class="s">'upgrade'</span><span class="p">;</span>
-</span><span id="__span-17-10"><a id="__codelineno-17-10" name="__codelineno-17-10" href="#__codelineno-17-10"></a><span class="w">        </span><span class="kn">proxy_set_header</span><span class="w"> </span><span class="s">Host</span><span class="w"> </span><span class="nv">$host</span><span class="p">;</span>
-</span><span id="__span-17-11"><a id="__codelineno-17-11" name="__codelineno-17-11" href="#__codelineno-17-11"></a><span class="w">        </span><span class="kn">proxy_set_header</span><span class="w"> </span><span class="s">X-Real-IP</span><span class="w"> </span><span class="nv">$remote_addr</span><span class="p">;</span>
-</span><span id="__span-17-12"><a id="__codelineno-17-12" name="__codelineno-17-12" href="#__codelineno-17-12"></a><span class="w">        </span><span class="kn">proxy_cache_bypass</span><span class="w"> </span><span class="nv">$http_upgrade</span><span class="p">;</span>
-</span><span id="__span-17-13"><a id="__codelineno-17-13" name="__codelineno-17-13" href="#__codelineno-17-13"></a><span class="w">    </span><span class="p">}</span>
-</span><span id="__span-17-14"><a id="__codelineno-17-14" name="__codelineno-17-14" href="#__codelineno-17-14"></a><span class="p">}</span>
-</span></code></pre></div>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-18-1"><a id="__codelineno-18-1" name="__codelineno-18-1" href="#__codelineno-18-1"></a>sudo<span class="w"> </span>ln<span class="w"> </span>-s<span class="w"> </span>/etc/nginx/sites-available/expose<span class="w"> </span>/etc/nginx/sites-enabled/
-</span><span id="__span-18-2"><a id="__codelineno-18-2" name="__codelineno-18-2" href="#__codelineno-18-2"></a>sudo<span class="w"> </span>nginx<span class="w"> </span>-t<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>sudo<span class="w"> </span>systemctl<span class="w"> </span>reload<span class="w"> </span>nginx
-</span><span id="__span-18-3"><a id="__codelineno-18-3" name="__codelineno-18-3" href="#__codelineno-18-3"></a>
-</span><span id="__span-18-4"><a id="__codelineno-18-4" name="__codelineno-18-4" href="#__codelineno-18-4"></a><span class="c1"># Add TLS with Certbot</span>
-</span><span id="__span-18-5"><a id="__codelineno-18-5" name="__codelineno-18-5" href="#__codelineno-18-5"></a>sudo<span class="w"> </span>certbot<span class="w"> </span>--nginx<span class="w"> </span>-d<span class="w"> </span>tunnel.mysite.com
-</span></code></pre></div>
-</div>
-</div>
-</div>
-<hr />
-<h2 id="security-recommendations">Security Recommendations<a class="headerlink" href="#security-recommendations" title="Permanent link">&para;</a></h2>
-<div class="admonition warning">
-<p class="admonition-title">Restrict access to the control port</p>
-<p>The control port (<code>7890</code>) should only be reachable by trusted machines. Consider blocking it from the public internet and using SSH tunneling to connect your client.</p>
-</div>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-19-1"><a id="__codelineno-19-1" name="__codelineno-19-1" href="#__codelineno-19-1"></a><span class="c1"># Only allow your home/office IP on the control port</span>
-</span><span id="__span-19-2"><a id="__codelineno-19-2" name="__codelineno-19-2" href="#__codelineno-19-2"></a>sudo<span class="w"> </span>ufw<span class="w"> </span>allow<span class="w"> </span>from<span class="w"> </span>&lt;YOUR_IP&gt;<span class="w"> </span>to<span class="w"> </span>any<span class="w"> </span>port<span class="w"> </span><span class="m">7890</span>
-</span><span id="__span-19-3"><a id="__codelineno-19-3" name="__codelineno-19-3" href="#__codelineno-19-3"></a>sudo<span class="w"> </span>ufw<span class="w"> </span>deny<span class="w"> </span><span class="m">7890</span>
-</span></code></pre></div>
-<p>Alternatively, connect through SSH port forwarding:</p>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-20-1"><a id="__codelineno-20-1" name="__codelineno-20-1" href="#__codelineno-20-1"></a><span class="c1"># Forward local port 7890 to VPS port 7890 over SSH</span>
-</span><span id="__span-20-2"><a id="__codelineno-20-2" name="__codelineno-20-2" href="#__codelineno-20-2"></a>ssh<span class="w"> </span>-L<span class="w"> </span><span class="m">7890</span>:localhost:7890<span class="w"> </span>user@your-vps<span class="w"> </span>-N<span class="w"> </span><span class="p">&amp;</span>
-</span><span id="__span-20-3"><a id="__codelineno-20-3" name="__codelineno-20-3" href="#__codelineno-20-3"></a>
-</span><span id="__span-20-4"><a id="__codelineno-20-4" name="__codelineno-20-4" href="#__codelineno-20-4"></a><span class="c1"># Then use localhost as the server address</span>
-</span><span id="__span-20-5"><a id="__codelineno-20-5" name="__codelineno-20-5" href="#__codelineno-20-5"></a>expose<span class="w"> </span>tunnel<span class="w"> </span>--server<span class="o">=</span>localhost:7890<span class="w"> </span>-p<span class="w"> </span><span class="m">3000</span>
+<h2 id="security">Security<a class="headerlink" href="#security" title="Permanent link">&para;</a></h2>
+<p>Lock the control port to your IP so only you can register tunnels:</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-11-1"><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a>sudo<span class="w"> </span>ufw<span class="w"> </span>allow<span class="w"> </span>from<span class="w"> </span>&lt;YOUR_IP&gt;<span class="w"> </span>to<span class="w"> </span>any<span class="w"> </span>port<span class="w"> </span><span class="m">7890</span>
+</span><span id="__span-11-2"><a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a>sudo<span class="w"> </span>ufw<span class="w"> </span>deny<span class="w"> </span><span class="m">7890</span>
 </span></code></pre></div>
 <hr />
 <h2 id="troubleshooting">Troubleshooting<a class="headerlink" href="#troubleshooting" title="Permanent link">&para;</a></h2>
-<h3 id="client-cant-connect-to-control-port">Client can't connect to control port<a class="headerlink" href="#client-cant-connect-to-control-port" title="Permanent link">&para;</a></h3>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-21-1"><a id="__codelineno-21-1" name="__codelineno-21-1" href="#__codelineno-21-1"></a><span class="c1"># Verify the server is listening</span>
-</span><span id="__span-21-2"><a id="__codelineno-21-2" name="__codelineno-21-2" href="#__codelineno-21-2"></a>ss<span class="w"> </span>-tlnp<span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span><span class="m">7890</span>
-</span><span id="__span-21-3"><a id="__codelineno-21-3" name="__codelineno-21-3" href="#__codelineno-21-3"></a>
-</span><span id="__span-21-4"><a id="__codelineno-21-4" name="__codelineno-21-4" href="#__codelineno-21-4"></a><span class="c1"># Check firewall</span>
-</span><span id="__span-21-5"><a id="__codelineno-21-5" name="__codelineno-21-5" href="#__codelineno-21-5"></a>sudo<span class="w"> </span>ufw<span class="w"> </span>status
-</span></code></pre></div>
-<h3 id="public-port-not-reachable">Public port not reachable<a class="headerlink" href="#public-port-not-reachable" title="Permanent link">&para;</a></h3>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-22-1"><a id="__codelineno-22-1" name="__codelineno-22-1" href="#__codelineno-22-1"></a><span class="c1"># Test from outside the VPS</span>
-</span><span id="__span-22-2"><a id="__codelineno-22-2" name="__codelineno-22-2" href="#__codelineno-22-2"></a>curl<span class="w"> </span>-I<span class="w"> </span>http://tunnel.mysite.com:8080
-</span><span id="__span-22-3"><a id="__codelineno-22-3" name="__codelineno-22-3" href="#__codelineno-22-3"></a>
-</span><span id="__span-22-4"><a id="__codelineno-22-4" name="__codelineno-22-4" href="#__codelineno-22-4"></a><span class="c1"># Verify the server process is up</span>
-</span><span id="__span-22-5"><a id="__codelineno-22-5" name="__codelineno-22-5" href="#__codelineno-22-5"></a>systemctl<span class="w"> </span>status<span class="w"> </span>expose-server
-</span></code></pre></div>
-<h3 id="connection-drops-after-idle">Connection drops after idle<a class="headerlink" href="#connection-drops-after-idle" title="Permanent link">&para;</a></h3>
-<p>Add a keepalive to your SSH session (if using SSH tunnel forwarding):</p>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-23-1"><a id="__codelineno-23-1" name="__codelineno-23-1" href="#__codelineno-23-1"></a><span class="c1"># ~/.ssh/config</span>
-</span><span id="__span-23-2"><a id="__codelineno-23-2" name="__codelineno-23-2" href="#__codelineno-23-2"></a>Host<span class="w"> </span>your-vps
-</span><span id="__span-23-3"><a id="__codelineno-23-3" name="__codelineno-23-3" href="#__codelineno-23-3"></a><span class="w">    </span>ServerAliveInterval<span class="w"> </span><span class="m">30</span>
-</span><span id="__span-23-4"><a id="__codelineno-23-4" name="__codelineno-23-4" href="#__codelineno-23-4"></a><span class="w">    </span>ServerAliveCountMax<span class="w"> </span><span class="m">3</span>
-</span></code></pre></div>
+<p><strong>Client can't connect</strong>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-12-1"><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a>ss<span class="w"> </span>-tlnp<span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span><span class="m">7890</span><span class="w">   </span><span class="c1"># verify server is listening</span>
+</span><span id="__span-12-2"><a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a>sudo<span class="w"> </span>ufw<span class="w"> </span>status<span class="w">        </span><span class="c1"># check firewall</span>
+</span></code></pre></div></p>
+<p><strong>Public port unreachable</strong>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-13-1"><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a>curl<span class="w"> </span>-I<span class="w"> </span>http://tunnel.mysite.com:8080
+</span><span id="__span-13-2"><a id="__codelineno-13-2" name="__codelineno-13-2" href="#__codelineno-13-2"></a>systemctl<span class="w"> </span>status<span class="w"> </span>expose-server
+</span></code></pre></div></p>
+<p><strong>Tunnel keeps dropping</strong><br />
+Check server logs: <code>sudo journalctl -u expose-server -f</code></p>
 <hr />
 <p><strong>Need help?</strong> <a href="https://github.com/kernelshard/expose/issues">Open an issue on GitHub</a>.</p>
 
