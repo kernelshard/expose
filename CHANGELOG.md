@@ -9,6 +9,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.6.2] - 2026-11-04
+
+### Fixed
+- **Caddy Dynamic Wildcard SSL Handshake on Port 443**: Enabled `on_demand` within Caddy's `tls internal` block in `deploy/Caddyfile`, resolving `tlsv1 alert internal error` (curl error 35) when terminating HTTPS for dynamic tenant subdomains on Docker Compose deployments ([#112](https://github.com/kernelshard/expose/issues/112), [#114](https://github.com/kernelshard/expose/pull/114)).
+
 ## [0.6.1] - 2026-10-31
 
 ### Fixed
@@ -179,7 +184,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
-[Unreleased]: https://github.com/kernelshard/expose/compare/v0.6.1...HEAD
+[Unreleased]: https://github.com/kernelshard/expose/compare/v0.6.2...HEAD
+[0.6.2]: https://github.com/kernelshard/expose/compare/v0.6.1...v0.6.2
 [0.6.1]: https://github.com/kernelshard/expose/compare/v0.6.0...v0.6.1
 [0.6.0]: https://github.com/kernelshard/expose/compare/v0.5.4...v0.6.0
 [0.5.4]: https://github.com/kernelshard/expose/compare/v0.5.3...v0.5.4
