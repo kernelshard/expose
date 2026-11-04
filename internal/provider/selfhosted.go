@@ -12,6 +12,10 @@ import (
 	"github.com/kernelshard/expose/internal/server/protocol"
 )
 
+const (
+	maxOpenDataConnections = 10
+)
+
 // SelfHosted implements the Provider interface that connects to self-hosted expose server.
 type SelfHosted struct {
 	serverAddr string // e.g: tunnel.mysite.com:7890
@@ -143,39 +147,49 @@ func (s *SelfHosted) Close() error {
 // openDataConnections continuously maintains a pool of TCP connections to the server.
 // Each connection is held ready to proxy an incoming visitor request to the local port.
 func (s *SelfHosted) openDataConnections(ctx context.Context, localPort int) {
-	var dialer net.Dialer
-	const initialBackoff = 50 * time.Millisecond
-	backoff := initialBackoff
-	s.mu.RLock()
-	subdomain := s.subdomain
-	s.mu.RUnlock()
+	for range maxOpenDataConnections {
+		go s.handleDataConnection(ctx, localPort)
+	}
+}
 
-	// Maintain connections to handle incoming traffic
+// handleDataConnection handles a single data connection to the server.
+func (s *SelfHosted) handleDataConnection(ctx context.Context, localPort int) {
+
 	for {
-		conn, err := dialer.DialContext(ctx, "tcp", s.serverAddr)
+		conn, err := s.dialDataConn(ctx)
 		if err != nil {
-			t := time.NewTimer(backoff)
 			select {
 			case <-ctx.Done():
-				t.Stop()
 				return
-			case <-t.C:
-				// timeout, try again with exponential backoff
+			case <-time.After(500 * time.Millisecond):
+				continue // 500ms passed! Go to the top and try again
 			}
-			backoff = min(backoff*2, time.Second) // 1 second max
-			continue
 		}
-		backoff = initialBackoff
+		s.proxyRequest(ctx, conn, localPort)
 
-		// send data request
-		req := protocol.TunnelRequest{Type: protocol.TypeData, Subdomain: subdomain}
-		if err := json.NewEncoder(conn).Encode(req); err != nil {
-			conn.Close()
-			continue
-		}
-
-		go s.proxyRequest(ctx, conn, localPort)
 	}
+
+}
+
+// dialDataConn dials to the server and try to get a net.Conn or error
+func (s *SelfHosted) dialDataConn(ctx context.Context) (net.Conn, error) {
+	var dialer net.Dialer
+
+	serverConn, err := dialer.DialContext(ctx, "tcp", s.serverAddr)
+	if err != nil {
+		return nil, err
+	}
+
+	s.mu.RLock()
+	sub := s.subdomain
+	s.mu.RUnlock()
+
+	if err := json.NewEncoder(serverConn).Encode(protocol.TunnelRequest{Type: protocol.TypeData, Subdomain: sub}); err != nil {
+		serverConn.Close()
+		return nil, err
+	}
+
+	return serverConn, nil
 }
 
 // proxyRequest proxies traffic bidirectionally between the tunnel and the local server.

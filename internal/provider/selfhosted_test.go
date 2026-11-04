@@ -255,3 +255,44 @@ func TestSelfHosted_Connect_CustomSubdomain(t *testing.T) {
 		t.Errorf("expected non-empty URL for random subdomain")
 	}
 }
+
+func TestSelfHosted_DialDataConn_Unreachable(t *testing.T) {
+	p := NewSelfHosted("localhost:0", "example")
+
+	_, err := p.dialDataConn(t.Context())
+
+	if err == nil {
+		t.Fatal("expected error connecting to unreachable server, got nil")
+	}
+}
+
+func TestSelfHosted_DialDataConn_Success(t *testing.T) {
+	// start real test servr in memory
+	srv := server.NewServer("localhost", 0, 0)
+	ctx := t.Context()
+	go func() {
+		_ = srv.Start(ctx)
+	}()
+
+	<-srv.Ready()
+	controlAddr := srv.ControlAddr()
+
+	// connect client to register subdomain "example"
+	client := NewSelfHosted(controlAddr, "example")
+	_, err := client.Connect(ctx, 3000)
+	if err != nil {
+		t.Fatalf("Connect failed %v", err)
+	}
+	defer client.Close()
+
+	// call dialDataConn directly
+	conn, err := client.dialDataConn(ctx)
+	if err != nil {
+		t.Fatalf("dialDataConn failed: %v", err)
+	}
+	if conn == nil {
+		t.Fatal("expected non-nil connection")
+	}
+	conn.Close()
+
+}
