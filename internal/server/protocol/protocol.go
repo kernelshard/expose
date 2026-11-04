@@ -16,9 +16,8 @@ type TunnelRequest struct {
 // TunnelResponse is sent by the server after registration.
 type TunnelResponse struct {
 	// Subdomain is the assigned subdomain.
-	Subdomain string `json:"subdomain"`
-	// PublicURL is the full URL to access the tunnel.
-	PublicURL string `json:"public_url"`
-	// Error is set if registration failed.
-	Error string `json:"error,omitempty"`
+	Subdomain      string `json:"subdomain"`
+	PublicURL      string `json:"public_url"`
+	MaxConnections int    `json:"max_connections,omitempty"` // server-advertised maximum data connections for this tunnel.
+	Error          string `json:"error,omitempty"`
 }

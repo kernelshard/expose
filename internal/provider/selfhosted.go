@@ -13,17 +13,19 @@ import (
 )
 
 const (
-	maxOpenDataConnections = 10
+	defaultMaxDataConnections = 10
+	clientMaxDataConnections  = 30
 )
 
 // SelfHosted implements the Provider interface that connects to self-hosted expose server.
 type SelfHosted struct {
-	serverAddr string // e.g: tunnel.mysite.com:7890
-	subdomain  string
-	conn       net.Conn
-	publicURL  string
-	connected  bool
-	mu         sync.RWMutex
+	serverAddr     string // e.g: tunnel.mysite.com:7890
+	subdomain      string
+	conn           net.Conn
+	publicURL      string
+	connected      bool
+	maxConnections int
+	mu             sync.RWMutex
 }
 
 // NewSelfHosted creates a new self-hosted provider.
@@ -99,16 +101,22 @@ func (s *SelfHosted) Connect(ctx context.Context, localPort int) (string, error)
 		return "", fmt.Errorf("server error: %s", resp.Error)
 	}
 
+	maxConns := defaultMaxDataConnections
+	if resp.MaxConnections > 0 {
+		maxConns = min(resp.MaxConnections, clientMaxDataConnections)
+	}
+
 	// 4. Store state
 	s.mu.Lock()
 	s.publicURL = resp.PublicURL
 	s.subdomain = resp.Subdomain
 	s.connected = true
 	s.conn = conn
+	s.maxConnections = maxConns
 	s.mu.Unlock()
 
 	// 5. Open data connections
-	go s.openDataConnections(ctx, localPort)
+	go s.openDataConnections(ctx, localPort, maxConns)
 	// 6. Start heartbeat to keep connection alive
 	go s.startHeartBeat(ctx)
 
@@ -146,8 +154,8 @@ func (s *SelfHosted) Close() error {
 
 // openDataConnections continuously maintains a pool of TCP connections to the server.
 // Each connection is held ready to proxy an incoming visitor request to the local port.
-func (s *SelfHosted) openDataConnections(ctx context.Context, localPort int) {
-	for range maxOpenDataConnections {
+func (s *SelfHosted) openDataConnections(ctx context.Context, localPort, maxConns int) {
+	for range maxConns {
 		go s.handleDataConnection(ctx, localPort)
 	}
 }
