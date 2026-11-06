@@ -687,13 +687,69 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#security" class="md-nav__link">
+  <a href="#security-authentication" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Security
+        Security &amp; Authentication
       
     </span>
   </a>
+  
+    <nav class="md-nav" aria-label="Security &amp; Authentication">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#option-1-shared-auth-token-recommended-for-public-vps" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Option 1: Shared Auth Token (Recommended for Public VPS)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Option 1: Shared Auth Token (Recommended for Public VPS)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-on-your-vps-server" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. On your VPS (Server):
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-on-your-machine-client" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. On your Machine (Client):
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#option-2-ip-whitelisting-firewall" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Option 2: IP Whitelisting (Firewall)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -1135,13 +1191,69 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#security" class="md-nav__link">
+  <a href="#security-authentication" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Security
+        Security &amp; Authentication
       
     </span>
   </a>
+  
+    <nav class="md-nav" aria-label="Security &amp; Authentication">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#option-1-shared-auth-token-recommended-for-public-vps" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Option 1: Shared Auth Token (Recommended for Public VPS)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Option 1: Shared Auth Token (Recommended for Public VPS)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-on-your-vps-server" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. On your VPS (Server):
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-on-your-machine-client" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. On your Machine (Client):
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#option-2-ip-whitelisting-firewall" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Option 2: IP Whitelisting (Firewall)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -1217,13 +1329,14 @@
 </span><span id="__span-4-3"><a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="na">After</span><span class="o">=</span><span class="s">network.target</span>
 </span><span id="__span-4-4"><a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a>
 </span><span id="__span-4-5"><a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a><span class="k">[Service]</span>
-</span><span id="__span-4-6"><a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a><span class="na">ExecStart</span><span class="o">=</span><span class="s">/usr/local/bin/expose server --domain=tunnel.mysite.com --control-port=7890 --public-port=8080</span>
-</span><span id="__span-4-7"><a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a><span class="na">Restart</span><span class="o">=</span><span class="s">on-failure</span>
-</span><span id="__span-4-8"><a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a><span class="na">RestartSec</span><span class="o">=</span><span class="s">5</span>
-</span><span id="__span-4-9"><a id="__codelineno-4-9" name="__codelineno-4-9" href="#__codelineno-4-9"></a><span class="na">User</span><span class="o">=</span><span class="s">nobody</span>
-</span><span id="__span-4-10"><a id="__codelineno-4-10" name="__codelineno-4-10" href="#__codelineno-4-10"></a>
-</span><span id="__span-4-11"><a id="__codelineno-4-11" name="__codelineno-4-11" href="#__codelineno-4-11"></a><span class="k">[Install]</span>
-</span><span id="__span-4-12"><a id="__codelineno-4-12" name="__codelineno-4-12" href="#__codelineno-4-12"></a><span class="na">WantedBy</span><span class="o">=</span><span class="s">multi-user.target</span>
+</span><span id="__span-4-6"><a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a><span class="na">Environment</span><span class="o">=</span><span class="s">"EXPOSE_SERVER_TOKEN=your-secret-token"</span>
+</span><span id="__span-4-7"><a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a><span class="na">ExecStart</span><span class="o">=</span><span class="s">/usr/local/bin/expose server --domain=tunnel.mysite.com --control-port=7890 --public-port=8080</span>
+</span><span id="__span-4-8"><a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a><span class="na">Restart</span><span class="o">=</span><span class="s">on-failure</span>
+</span><span id="__span-4-9"><a id="__codelineno-4-9" name="__codelineno-4-9" href="#__codelineno-4-9"></a><span class="na">RestartSec</span><span class="o">=</span><span class="s">5</span>
+</span><span id="__span-4-10"><a id="__codelineno-4-10" name="__codelineno-4-10" href="#__codelineno-4-10"></a><span class="na">User</span><span class="o">=</span><span class="s">nobody</span>
+</span><span id="__span-4-11"><a id="__codelineno-4-11" name="__codelineno-4-11" href="#__codelineno-4-11"></a>
+</span><span id="__span-4-12"><a id="__codelineno-4-12" name="__codelineno-4-12" href="#__codelineno-4-12"></a><span class="k">[Install]</span>
+</span><span id="__span-4-13"><a id="__codelineno-4-13" name="__codelineno-4-13" href="#__codelineno-4-13"></a><span class="na">WantedBy</span><span class="o">=</span><span class="s">multi-user.target</span>
 </span></code></pre></div>
 <div class="language-bash highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>sudo<span class="w"> </span>systemctl<span class="w"> </span>daemon-reload
 </span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>sudo<span class="w"> </span>systemctl<span class="w"> </span><span class="nb">enable</span><span class="w"> </span>--now<span class="w"> </span>expose-server
@@ -1250,20 +1363,47 @@
 </span></code></pre></div>
 <p>Subdomains must be lowercase alphanumeric with hyphens, 1–63 characters. If a subdomain is already taken, the server rejects the request.</p>
 <hr />
-<h2 id="security">Security<a class="headerlink" href="#security" title="Permanent link">&para;</a></h2>
-<p>Lock the control port to your IP so only you can register tunnels:</p>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-11-1"><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a>sudo<span class="w"> </span>ufw<span class="w"> </span>allow<span class="w"> </span>from<span class="w"> </span>&lt;YOUR_IP&gt;<span class="w"> </span>to<span class="w"> </span>any<span class="w"> </span>port<span class="w"> </span><span class="m">7890</span>
-</span><span id="__span-11-2"><a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a>sudo<span class="w"> </span>ufw<span class="w"> </span>deny<span class="w"> </span><span class="m">7890</span>
+<h2 id="security-authentication">Security &amp; Authentication<a class="headerlink" href="#security-authentication" title="Permanent link">&para;</a></h2>
+<p>By default, authentication is <strong>completely optional</strong> — the server works out of the box without any setup. </p>
+<p>However, if your VPS has a public IP, <strong>configuring an auth token is strongly recommended</strong> to prevent port scanners and strangers from using your server as a free tunnel relay.</p>
+<h3 id="option-1-shared-auth-token-recommended-for-public-vps">Option 1: Shared Auth Token (Recommended for Public VPS)<a class="headerlink" href="#option-1-shared-auth-token-recommended-for-public-vps" title="Permanent link">&para;</a></h3>
+<p>When configured, the server requires connecting clients to supply a matching token during handshake. If no token is configured, the server remains open for anyone you share the address with. Token comparison is timing-attack safe (<code>crypto/subtle.ConstantTimeCompare</code>).</p>
+<h4 id="1-on-your-vps-server">1. On your VPS (Server):<a class="headerlink" href="#1-on-your-vps-server" title="Permanent link">&para;</a></h4>
+<p>Set <code>--token</code> or the <code>EXPOSE_SERVER_TOKEN</code> environment variable. Using the environment variable is recommended for production (systemd or Docker) to avoid exposing credentials in <code>ps aux</code>:</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-11-1"><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a><span class="c1"># Via flag</span>
+</span><span id="__span-11-2"><a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a>expose<span class="w"> </span>server<span class="w"> </span>--domain<span class="o">=</span>tunnel.mysite.com<span class="w"> </span>--token<span class="o">=</span>your-secret-token
+</span><span id="__span-11-3"><a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a>
+</span><span id="__span-11-4"><a id="__codelineno-11-4" name="__codelineno-11-4" href="#__codelineno-11-4"></a><span class="c1"># Or via environment variable</span>
+</span><span id="__span-11-5"><a id="__codelineno-11-5" name="__codelineno-11-5" href="#__codelineno-11-5"></a><span class="nb">export</span><span class="w"> </span><span class="nv">EXPOSE_SERVER_TOKEN</span><span class="o">=</span>your-secret-token
+</span><span id="__span-11-6"><a id="__codelineno-11-6" name="__codelineno-11-6" href="#__codelineno-11-6"></a>expose<span class="w"> </span>server<span class="w"> </span>--domain<span class="o">=</span>tunnel.mysite.com
+</span></code></pre></div>
+<h4 id="2-on-your-machine-client">2. On your Machine (Client):<a class="headerlink" href="#2-on-your-machine-client" title="Permanent link">&para;</a></h4>
+<p>Pass the <code>--token</code> flag when opening your tunnel:</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-12-1"><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a>expose<span class="w"> </span>tunnel<span class="w"> </span><span class="m">3000</span><span class="w"> </span>--server<span class="o">=</span>tunnel.mysite.com:7890<span class="w"> </span>--token<span class="o">=</span>your-secret-token
+</span></code></pre></div>
+<p>Or export it in your shell environment (<code>~/.zshrc</code> or <code>~/.bashrc</code>):
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-13-1"><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a><span class="nb">export</span><span class="w"> </span><span class="nv">EXPOSE_SERVER_TOKEN</span><span class="o">=</span>your-secret-token
+</span><span id="__span-13-2"><a id="__codelineno-13-2" name="__codelineno-13-2" href="#__codelineno-13-2"></a>expose<span class="w"> </span>tunnel<span class="w"> </span><span class="m">3000</span><span class="w"> </span>--server<span class="o">=</span>tunnel.mysite.com:7890
+</span></code></pre></div></p>
+<blockquote>
+<p><strong>Note</strong>: If a token is configured on the server and a client attempts to connect without a token or with an invalid token, the connection is immediately rejected:
+<div class="language-text highlight"><pre><span></span><code><span id="__span-14-1"><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a>server error: unauthorized: invalid or missing auth token
+</span></code></pre></div></p>
+</blockquote>
+<h3 id="option-2-ip-whitelisting-firewall">Option 2: IP Whitelisting (Firewall)<a class="headerlink" href="#option-2-ip-whitelisting-firewall" title="Permanent link">&para;</a></h3>
+<p>If your development machine has a static IP address, you can also restrict access to the control port (<code>7890</code>) using UFW:</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-15-1"><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a>sudo<span class="w"> </span>ufw<span class="w"> </span>allow<span class="w"> </span>from<span class="w"> </span>&lt;YOUR_IP&gt;<span class="w"> </span>to<span class="w"> </span>any<span class="w"> </span>port<span class="w"> </span><span class="m">7890</span>
+</span><span id="__span-15-2"><a id="__codelineno-15-2" name="__codelineno-15-2" href="#__codelineno-15-2"></a>sudo<span class="w"> </span>ufw<span class="w"> </span>deny<span class="w"> </span><span class="m">7890</span>
 </span></code></pre></div>
 <hr />
 <h2 id="troubleshooting">Troubleshooting<a class="headerlink" href="#troubleshooting" title="Permanent link">&para;</a></h2>
 <p><strong>Client can't connect</strong>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-12-1"><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a>ss<span class="w"> </span>-tlnp<span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span><span class="m">7890</span><span class="w">   </span><span class="c1"># verify server is listening</span>
-</span><span id="__span-12-2"><a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a>sudo<span class="w"> </span>ufw<span class="w"> </span>status<span class="w">        </span><span class="c1"># check firewall</span>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-16-1"><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a>ss<span class="w"> </span>-tlnp<span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span><span class="m">7890</span><span class="w">   </span><span class="c1"># verify server is listening</span>
+</span><span id="__span-16-2"><a id="__codelineno-16-2" name="__codelineno-16-2" href="#__codelineno-16-2"></a>sudo<span class="w"> </span>ufw<span class="w"> </span>status<span class="w">        </span><span class="c1"># check firewall</span>
 </span></code></pre></div></p>
 <p><strong>Public port unreachable</strong>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-13-1"><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a>curl<span class="w"> </span>-I<span class="w"> </span>http://tunnel.mysite.com:8080
-</span><span id="__span-13-2"><a id="__codelineno-13-2" name="__codelineno-13-2" href="#__codelineno-13-2"></a>systemctl<span class="w"> </span>status<span class="w"> </span>expose-server
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-17-1"><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a>curl<span class="w"> </span>-I<span class="w"> </span>http://tunnel.mysite.com:8080
+</span><span id="__span-17-2"><a id="__codelineno-17-2" name="__codelineno-17-2" href="#__codelineno-17-2"></a>systemctl<span class="w"> </span>status<span class="w"> </span>expose-server
 </span></code></pre></div></p>
 <p><strong>Tunnel keeps dropping</strong><br />
 Check server logs: <code>sudo journalctl -u expose-server -f</code></p>
