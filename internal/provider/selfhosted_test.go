@@ -361,3 +361,49 @@ func TestSelfHosted_StartHeartBeat_Cancelled(t *testing.T) {
 	cancel()
 	p.startHeartBeat(ctx)
 }
+
+func TestSelfHosted_Connect_TokenAuth_Success(t *testing.T) {
+	const SecretToken = "secret123"
+	srv := server.NewServer("localhost", 0, 0).WithToken(SecretToken)
+	ctx := t.Context()
+	go func() {
+		_ = srv.Start(ctx)
+	}()
+	<-srv.Ready()
+
+	controlAddr := srv.ControlAddr()
+
+	client := NewSelfHosted(controlAddr, "example").WithToken(SecretToken)
+	url, err := client.Connect(ctx, 3000)
+	if err != nil {
+		t.Fatalf("Connect failed: %v", err)
+	}
+	defer client.Close()
+
+	if url == "" {
+		t.Fatal("expected public URL, got empty string")
+	}
+	if !client.IsConnected() {
+		t.Fatal("expected IsConnected to be true")
+	}
+}
+
+func TestSelfHosted_Connect_TokenAuth_Rejected(t *testing.T) {
+	srv := server.NewServer("localhost", 0, 0).WithToken("secret123")
+	ctx := t.Context()
+	go func() {
+		_ = srv.Start(ctx)
+	}()
+	<-srv.Ready()
+
+	controlAddr := srv.ControlAddr()
+
+	client := NewSelfHosted(controlAddr, "example").WithToken("wrong")
+	_, err := client.Connect(ctx, 3000)
+	if err == nil {
+		t.Fatalf("expected error from Connect() with invalid token, got nil")
+	}
+	if !strings.Contains(err.Error(), protocol.ErrUnauthorized) {
+		t.Errorf("expected '%s' error, got: %v", protocol.ErrUnauthorized, err)
+	}
+}

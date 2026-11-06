@@ -12,6 +12,15 @@ func TestGetVersion(t *testing.T) {
 	}
 }
 
+func TestGetVersion_Dev(t *testing.T) {
+	orig := Version
+	t.Cleanup(func() { Version = orig })
+	Version = "dev"
+	if got := GetVersion(); got != "dev (unreleased)" {
+		t.Errorf("expected 'dev (unreleased)', got: %s", got)
+	}
+}
+
 func TestGetFullVersion(t *testing.T) {
 	fullVersion := GetFullVersion()
 	if !strings.Contains(fullVersion, GitCommit) {

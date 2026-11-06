@@ -4,6 +4,7 @@ import (
 	"context"
 	"strings"
 	"testing"
+	"time"
 )
 
 // MockProvider implements Provider interface for testing purposes.
@@ -166,5 +167,42 @@ func TestService_Providername(t *testing.T) {
 
 	if got := svc.ProviderName(); got != "MockProvider" {
 		t.Errorf("ProviderName() = %s, want MockProvider", got)
+	}
+}
+
+func TestService_IsConnected(t *testing.T) {
+	mock := &MockProvider{}
+	svc := NewService(mock)
+
+	if svc.IsConnected() {
+		t.Error("expected IsConnected to be false before Start()")
+	}
+
+	_ = svc.Start(context.Background(), 3000)
+	if !svc.IsConnected() {
+		t.Error("expected IsConnected to be true after Start()")
+	}
+
+	_ = svc.Close()
+	if svc.IsConnected() {
+		t.Error("expected IsConnected to be false after Close()")
+	}
+}
+
+func TestService_WaitReady(t *testing.T) {
+	mock := &MockProvider{}
+	svc := NewService(mock)
+
+	// Before start, WaitReady with short timeout should timeout
+	err := svc.WaitReady(50 * time.Millisecond)
+	if err == nil {
+		t.Error("expected timeout error from WaitReady before start")
+	}
+
+	// After start, WaitReady returns nil immediately
+	_ = svc.Start(context.Background(), 3000)
+	err = svc.WaitReady(time.Second)
+	if err != nil {
+		t.Errorf("expected WaitReady to return nil after start, got: %v", err)
 	}
 }

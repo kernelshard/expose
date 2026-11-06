@@ -1,8 +1,9 @@
 package protocol
 
 const (
-	TypeControl = "control"
-	TypeData    = "data"
+	TypeControl     = "control"
+	TypeData        = "data"
+	ErrUnauthorized = "unauthorized: invalid or missing auth token"
 )
 
 // TunnelRequest is sent by the client when connecting to the server.
@@ -10,7 +11,8 @@ const (
 type TunnelRequest struct {
 	// Subdomain is the desired subdomain. If empty, server will assign a random one.
 	Subdomain string `json:"subdomain,omitempty"`
-	Type      string `json:"type,omitempty"` // "control" or "data"
+	Type      string `json:"type"`            // "control" or "data"
+	Token     string `json:"token,omitempty"` // optional auth token for self-hosted server
 }
 
 // TunnelResponse is sent by the server after registration.

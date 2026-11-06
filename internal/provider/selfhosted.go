@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net"
+	"strings"
 	"sync"
 	"time"
 
@@ -21,6 +22,7 @@ const (
 type SelfHosted struct {
 	serverAddr     string // e.g: tunnel.mysite.com:7890
 	subdomain      string
+	token          string
 	conn           net.Conn
 	publicURL      string
 	connected      bool
@@ -37,6 +39,11 @@ func NewSelfHosted(serverAddr string, subdomain string) *SelfHosted {
 		serverAddr: serverAddr,
 		subdomain:  subdomain,
 	}
+}
+
+func (s *SelfHosted) WithToken(token string) *SelfHosted {
+	s.token = strings.TrimSpace(token)
+	return s
 }
 
 // Name returns the name of the provider.
@@ -84,7 +91,9 @@ func (s *SelfHosted) Connect(ctx context.Context, localPort int) (string, error)
 	req := protocol.TunnelRequest{
 		Type:      protocol.TypeControl,
 		Subdomain: s.subdomain,
+		Token:     s.token,
 	}
+
 	if err := json.NewEncoder(conn).Encode(req); err != nil {
 		conn.Close()
 		return "", err
