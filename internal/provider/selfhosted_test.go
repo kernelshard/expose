@@ -256,6 +256,112 @@ func TestSelfHosted_Connect_CustomSubdomain(t *testing.T) {
 	}
 }
 
+func TestSelfHosted_DialDataConn_Unreachable(t *testing.T) {
+	p := NewSelfHosted("localhost:0", "example")
+
+	_, err := p.dialDataConn(t.Context())
+
+	if err == nil {
+		t.Fatal("expected error connecting to unreachable server, got nil")
+	}
+}
+
+func TestSelfHosted_DialDataConn_Success(t *testing.T) {
+	// start real test servr in memory
+	srv := server.NewServer("localhost", 0, 0)
+	ctx := t.Context()
+	go func() {
+		_ = srv.Start(ctx)
+	}()
+
+	<-srv.Ready()
+	controlAddr := srv.ControlAddr()
+
+	// connect client to register subdomain "example"
+	client := NewSelfHosted(controlAddr, "example")
+	_, err := client.Connect(ctx, 3000)
+	if err != nil {
+		t.Fatalf("Connect failed %v", err)
+	}
+	defer client.Close()
+
+	// call dialDataConn directly
+	conn, err := client.dialDataConn(ctx)
+	if err != nil {
+		t.Fatalf("dialDataConn failed: %v", err)
+	}
+	if conn == nil {
+		t.Fatal("expected non-nil connection")
+	}
+	conn.Close()
+
+	if client.maxConnections != 10 {
+		t.Errorf("expected maxConnections 10, got %d", client.maxConnections)
+	}
+}
+
+func TestSelfHosted_MaxConnections_Negotiation(t *testing.T) {
+	tests := []struct {
+		name         string
+		serverMax    int
+		expectedConn int
+	}{
+		{"server advertises 5", 5, 5},
+		{"server advertises 0 (fallback)", 0, defaultMaxDataConnections},
+		{"server advertises negative (fallback)", -1, defaultMaxDataConnections},
+		{"server advertises 50 (clamped to 30)", 50, clientMaxDataConnections},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			ln, err := net.Listen("tcp", "127.0.0.1:0")
+			if err != nil {
+				t.Fatalf("failed to listen: %v", err)
+			}
+			defer ln.Close()
+
+			go func() {
+				conn, err := ln.Accept()
+				if err != nil {
+					return
+				}
+				defer conn.Close()
+
+				var req protocol.TunnelRequest
+				_ = json.NewDecoder(conn).Decode(&req)
+
+				resp := protocol.TunnelResponse{
+					Subdomain:      "test",
+					PublicURL:      "http://test.localhost",
+					MaxConnections: tt.serverMax,
+				}
+				_ = json.NewEncoder(conn).Encode(resp)
+			}()
+
+			client := NewSelfHosted(ln.Addr().String(), "test")
+			ctx, cancel := context.WithCancel(t.Context())
+			defer cancel()
+
+			_, err = client.Connect(ctx, 3000)
+			if err != nil {
+				t.Fatalf("Connect failed: %v", err)
+			}
+			defer client.Close()
+
+			if client.maxConnections != tt.expectedConn {
+				t.Errorf("expected maxConnections=%d, got %d", tt.expectedConn, client.maxConnections)
+			}
+		})
+	}
+}
+
+func TestSelfHosted_StartHeartBeat_Cancelled(t *testing.T) {
+	p := NewSelfHosted("localhost:7890", "test")
+	ctx, cancel := context.WithCancel(t.Context())
+	cancel()
+	p.startHeartBeat(ctx)
+}
+
 func TestSelfHosted_Connect_TokenAuth_Success(t *testing.T) {
 	const SecretToken = "secret123"
 	srv := server.NewServer("localhost", 0, 0).WithToken(SecretToken)

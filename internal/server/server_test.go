@@ -97,6 +97,10 @@ func TestServer_HandleControl_RegisterCustomSubdomain(t *testing.T) {
 	if resp.PublicURL != "http://my-testapp.tunnel.example.com:8080" {
 		t.Errorf("expected public URL %q, got %q", "http://my-testapp.tunnel.example.com:8080", resp.PublicURL)
 	}
+
+	if resp.MaxConnections != defaultDataConnBuffer {
+		t.Errorf("expected max connections %d, got %d", defaultDataConnBuffer, resp.MaxConnections)
+	}
 }
 
 func TestServer_HandleControl_DataConnection(t *testing.T) {

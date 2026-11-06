@@ -195,8 +195,9 @@ func (s *Server) handleControlConnection(conn net.Conn) {
 	// 4. Send Response
 	publicURL := fmt.Sprintf("http://%s.%s:%d", subdomain, s.domain, s.publicPort)
 	resp := protocol.TunnelResponse{
-		Subdomain: subdomain,
-		PublicURL: publicURL,
+		Subdomain:      subdomain,
+		PublicURL:      publicURL,
+		MaxConnections: defaultDataConnBuffer,
 	}
 	if err := json.NewEncoder(conn).Encode(resp); err != nil {
 		conn.Close()
