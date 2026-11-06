@@ -9,6 +9,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.6.3] - 2026-11-07
+
+### Added
+- **Server Authentication Token Protection**: Added optional `--token` flag and `EXPOSE_SERVER_TOKEN` environment variable to protect self-hosted relay servers against unauthorized tunnel registrations. Includes timing-attack safe verification with `crypto/subtle.ConstantTimeCompare` ([#63](https://github.com/kernelshard/expose/issues/63), [#116](https://github.com/kernelshard/expose/pull/116)).
+- **Dynamic Max Connections Capacity**: Relay server advertises `max_connections` in `TunnelResponse`, allowing the client to dynamically adapt its standby data connection pool ([#55](https://github.com/kernelshard/expose/issues/55), [#113](https://github.com/kernelshard/expose/pull/113)).
+
+### Fixed
+- **100% CPU Spin on Self-Hosted Client**: Replaced unbounded dial loop with bounded worker pool (default 10, clamped to max 30) with exponential backoff on failure, eliminating idle CPU spin ([#55](https://github.com/kernelshard/expose/issues/55), [#113](https://github.com/kernelshard/expose/pull/113)).
+
+### Tests
+- **Expanded CLI & Engine Test Coverage**: Added comprehensive unit tests for `config`, `init`, `root`, `server`, and `tunnel` commands, plus `tunnel.Service` lifecycle, increasing repository statement coverage to ~75% with zero data races ([#110](https://github.com/kernelshard/expose/issues/110), [#116](https://github.com/kernelshard/expose/pull/116)).
+
 ## [0.6.2] - 2026-11-04
 
 ### Fixed
@@ -184,7 +196,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
-[Unreleased]: https://github.com/kernelshard/expose/compare/v0.6.2...HEAD
+[Unreleased]: https://github.com/kernelshard/expose/compare/v0.6.3...HEAD
+[0.6.3]: https://github.com/kernelshard/expose/compare/v0.6.2...v0.6.3
 [0.6.2]: https://github.com/kernelshard/expose/compare/v0.6.1...v0.6.2
 [0.6.1]: https://github.com/kernelshard/expose/compare/v0.6.0...v0.6.1
 [0.6.0]: https://github.com/kernelshard/expose/compare/v0.5.4...v0.6.0

@@ -43,6 +43,9 @@ func newTunnelCmd() *cobra.Command {
 	// subdomain flag for custom subdomain request
 	cmd.Flags().StringP("subdomain", "d", "", "Request a custom subdomain (e.g. --subdomain my-app)")
 
+	// token flag for self-hosted server auth
+	cmd.Flags().StringP("token", "t", "", "Auth token for self-hosted server (or EXPOSE_SERVER_TOKEN env)")
+
 	return cmd
 }
 
@@ -109,13 +112,17 @@ func runTunnelCmd(cmd *cobra.Command, args []string) error {
 	}
 
 	subdomain, _ := cmd.Flags().GetString("subdomain")
+	token, _ := cmd.Flags().GetString("token")
+	if token == "" {
+		token = os.Getenv("EXPOSE_SERVER_TOKEN")
+	}
 
 	var svc *tunnel.Service
 	switch providerName {
 	case "cloudflare":
 		svc = tunnel.NewService(provider.NewCloudFlare())
 	case "selfhosted":
-		svc = tunnel.NewService(provider.NewSelfHosted(serverAddr, subdomain))
+		svc = tunnel.NewService(provider.NewSelfHosted(serverAddr, subdomain).WithToken(token))
 	default:
 		svc = tunnel.NewService(provider.NewLocalTunnel(nil))
 	}

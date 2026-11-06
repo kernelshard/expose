@@ -1,6 +1,7 @@
 package cli
 
 import (
+	"net"
 	"os"
 	"testing"
 )
@@ -32,6 +33,14 @@ func TestTunnelCmd(t *testing.T) {
 	}
 	if subdomainFlag.Shorthand != "d" {
 		t.Errorf("expected shorthand 'd', got %s", subdomainFlag.Shorthand)
+	}
+
+	tokenFlag := cmd.Flags().Lookup("token")
+	if tokenFlag == nil {
+		t.Error("token flag not defined")
+	}
+	if tokenFlag.Shorthand != "t" {
+		t.Errorf("expected shorthand 't', got %s", tokenFlag.Shorthand)
 	}
 }
 
@@ -101,4 +110,22 @@ func TestResolvePort(t *testing.T) {
 			t.Error("expected error for out of range port, got nil")
 		}
 	})
+}
+
+func TestIsPortListening(t *testing.T) {
+	ln, err := net.Listen("tcp", "127.0.0.1:0")
+	if err != nil {
+		t.Fatalf("failed to listen: %v", err)
+	}
+	defer ln.Close()
+
+	port := ln.Addr().(*net.TCPAddr).Port
+	if !isPortListening(port) {
+		t.Errorf("expected port %d to be listening", port)
+	}
+
+	_ = ln.Close()
+	if isPortListening(port) {
+		t.Errorf("expected closed port %d to not be listening", port)
+	}
 }

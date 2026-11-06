@@ -42,6 +42,9 @@ Set `DOMAIN` to match your relay address:
 ```env
 DOMAIN=tunnel.yourdomain.com
 CONTROL_PORT=7890
+
+# Optional (recommended for public VPS): require an auth token
+# EXPOSE_SERVER_TOKEN=your-secret-token
 ```
 
 ### Step 3: Start the Stack
@@ -61,7 +64,11 @@ docker compose logs -f expose-server
 Now start a tunnel pointing to your self-hosted server:
 
 ```bash
+# Standard connection
 expose tunnel 3000 --server=tunnel.yourdomain.com:7890
+
+# If your server was configured with an auth token
+expose tunnel 3000 --server=tunnel.yourdomain.com:7890 --token=your-secret-token
 ```
 
 You'll get an instant, secure public URL:

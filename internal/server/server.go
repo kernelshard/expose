@@ -2,6 +2,7 @@ package server
 
 import (
 	"context"
+	"crypto/subtle"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -20,12 +21,13 @@ import (
 // holds the state of the server and handles incoming connections.
 type Server struct {
 	domain            string
-	controlPort       int // port for client connections
-	publicPort        int // port for public http connections
-	tunnels           sync.Map
+	controlPort       int           // port for client connections
+	publicPort        int           // port for public http connections
+	token             string        // auth token required for tunnel registry(optional)
 	controlTimeout    time.Duration // after this duration of no client activity, connection is closed
 	handshakeTimeout  time.Duration
 	maxHandshakeBytes int
+	tunnels           sync.Map
 	controlListener   net.Listener
 	publicListener    net.Listener
 	ready             chan struct{}
@@ -56,6 +58,11 @@ func NewServer(domain string, controlPort, publicPort int) *Server {
 		maxHandshakeBytes: maxHandshakeBytes,
 		ready:             make(chan struct{}), // Used by Listeners to signal readiness.
 	}
+}
+
+func (s *Server) WithToken(token string) *Server {
+	s.token = strings.TrimSpace(token)
+	return s
 }
 
 // startControlPlane accepts incoming client connections (registrations and data sockets)
@@ -165,6 +172,16 @@ func (s *Server) handleControlConnection(conn net.Conn) {
 		}
 	}
 
+	if s.token != "" {
+		matchedVal := subtle.ConstantTimeCompare([]byte(req.Token), []byte(s.token))
+		if matchedVal != 1 {
+			errUnauthorizedResp := protocol.TunnelResponse{Error: protocol.ErrUnauthorized}
+			_ = json.NewEncoder(conn).Encode(&errUnauthorizedResp)
+			conn.Close()
+			return
+		}
+	}
+
 	// Phase 2: Control socket - register new tunnel
 	subdomain, err := s.registerSubdomain(conn, req.Subdomain)
 	if err != nil {
@@ -178,8 +195,9 @@ func (s *Server) handleControlConnection(conn net.Conn) {
 	// 4. Send Response
 	publicURL := fmt.Sprintf("http://%s.%s:%d", subdomain, s.domain, s.publicPort)
 	resp := protocol.TunnelResponse{
-		Subdomain: subdomain,
-		PublicURL: publicURL,
+		Subdomain:      subdomain,
+		PublicURL:      publicURL,
+		MaxConnections: defaultDataConnBuffer,
 	}
 	if err := json.NewEncoder(conn).Encode(resp); err != nil {
 		conn.Close()

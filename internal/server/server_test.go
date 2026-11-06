@@ -97,6 +97,10 @@ func TestServer_HandleControl_RegisterCustomSubdomain(t *testing.T) {
 	if resp.PublicURL != "http://my-testapp.tunnel.example.com:8080" {
 		t.Errorf("expected public URL %q, got %q", "http://my-testapp.tunnel.example.com:8080", resp.PublicURL)
 	}
+
+	if resp.MaxConnections != defaultDataConnBuffer {
+		t.Errorf("expected max connections %d, got %d", defaultDataConnBuffer, resp.MaxConnections)
+	}
 }
 
 func TestServer_HandleControl_DataConnection(t *testing.T) {
@@ -711,5 +715,60 @@ func TestServer_ServeHTTP_SymmetricTeardown_VisitorDisconnect(t *testing.T) {
 		}
 	case <-time.After(2 * time.Second):
 		t.Fatal("hung: laptop socket was not closed when visitor disconnected (socket leak!)")
+	}
+}
+
+func TestServer_HandleControl_TokenAuth_Rejected(t *testing.T) {
+	srv := NewServer("localhost", 7890, 8080).WithToken("secret123")
+	clientConn, serverConn := net.Pipe()
+	defer clientConn.Close()
+
+	go srv.handleControlConnection(serverConn)
+
+	req := protocol.TunnelRequest{
+		Type:      protocol.TypeControl,
+		Subdomain: "example",
+	}
+
+	if err := json.NewEncoder(clientConn).Encode(req); err != nil {
+		t.Fatalf("failed to encode request %v", err)
+	}
+
+	var unAuthorizedResp protocol.TunnelResponse
+	if err := json.NewDecoder(clientConn).Decode(&unAuthorizedResp); err != nil {
+		t.Fatalf("failed to decode response %v", err)
+	}
+
+	if unAuthorizedResp.Error != protocol.ErrUnauthorized {
+		t.Errorf("expected error unauthorized, got %s", unAuthorizedResp.Error)
+	}
+}
+
+func TestServer_HandleControl_TokenAuth_Success(t *testing.T) {
+	const SecretToken = "secret123"
+	srv := NewServer("localhost", 7890, 8080).WithToken(SecretToken)
+
+	clientConn, serverConn := net.Pipe()
+	defer clientConn.Close()
+
+	go srv.handleControlConnection(serverConn)
+
+	req := protocol.TunnelRequest{
+		Type:      protocol.TypeControl,
+		Subdomain: "example",
+		Token:     SecretToken,
+	}
+
+	if err := json.NewEncoder(clientConn).Encode(req); err != nil {
+		t.Fatalf("failed to decode response %v", err)
+	}
+
+	var resp protocol.TunnelResponse
+	if err := json.NewDecoder(clientConn).Decode(&resp); err != nil {
+		t.Fatalf("failed to decode response %v", err)
+	}
+
+	if resp.Error != "" {
+		t.Fatalf("unexpected error %s", resp.Error)
 	}
 }
