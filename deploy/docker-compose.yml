@@ -8,6 +8,8 @@ services:
     ports:
       # Control plane: tunnel clients dial this port from their laptops
       - "${CONTROL_PORT:-7890}:7890"
+    environment:
+      - EXPOSE_SERVER_TOKEN=${EXPOSE_SERVER_TOKEN:-}
     command:
       - "server"
       - "--domain=${DOMAIN:-localhost}"

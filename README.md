@@ -138,13 +138,20 @@ See [deploy/README.md](deploy/README.md) for DNS setup and configuration options
 Run the native compiled binary directly on bare metal:
 
 ```bash
-# Start your private relay server
+# Start your private relay server (open by default)
 expose server --domain=tunnel.mysite.com --control-port=7890 --public-port=8080
+
+# Or protect with an auth token (recommended for public VPS)
+expose server --domain=tunnel.mysite.com --token=mysecret
 ```
 
 ### Connect From Your Laptop
 ```bash
+# Standard connection
 expose tunnel 3000 --server=tunnel.mysite.com:7890 --subdomain=my-app
+
+# If your server requires an auth token
+expose tunnel 3000 --server=tunnel.mysite.com:7890 --token=mysecret
 ```
 
 ---
