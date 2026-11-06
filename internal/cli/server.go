@@ -31,6 +31,7 @@ func newServerCmd() *cobra.Command {
 	cmd.Flags().IntP("control-port", "c", 7890, "Port for client connections")
 	cmd.Flags().IntP("public-port", "p", 8080, "Port for public HTTP traffic")
 	cmd.Flags().StringP("domain", "d", "localhost", "Domain for public URLs")
+	cmd.Flags().StringP("token", "t", "", "Auth token to protect the server (or EXPOSE_SERVER_TOKEN env)")
 	return cmd
 }
 
@@ -39,8 +40,12 @@ func runServerCmd(cmd *cobra.Command, _ []string) error {
 	domain, _ := cmd.Flags().GetString("domain")
 	controlPort, _ := cmd.Flags().GetInt("control-port")
 	publicPort, _ := cmd.Flags().GetInt("public-port")
+	token, _ := cmd.Flags().GetString("token")
+	if token == "" {
+		token = os.Getenv("EXPOSE_SERVER_TOKEN")
+	}
 
-	srv := server.NewServer(domain, controlPort, publicPort)
+	srv := server.NewServer(domain, controlPort, publicPort).WithToken(token)
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
