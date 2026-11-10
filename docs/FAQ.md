@@ -99,7 +99,7 @@ If you do not specify `--subdomain`, Expose automatically assigns a memorable, h
 
 ### What tunnel providers does Expose support?
 
-Expose provides an interface-driven architecture supporting three interchangeable backends:
+Expose provides a high-performance Layer 4 streaming architecture supporting three interchangeable backends:
 
 1. **LocalTunnel** (`-P localtunnel`, default): Zero-configuration public relay ideal for quick tests.
 2. **Cloudflare Quick Tunnels** (`-P cloudflare`): Routes through Cloudflare's global edge network via `cloudflared`.

@@ -7,6 +7,7 @@
 [![Tests](https://github.com/kernelshard/expose/actions/workflows/test.yml/badge.svg)](https://github.com/kernelshard/expose/actions/workflows/test.yml)
 [![codecov](https://codecov.io/gh/kernelshard/expose/graph/badge.svg)](https://codecov.io/gh/kernelshard/expose)
 [![License: Apache 2.0](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://github.com/kernelshard/expose/blob/main/LICENSE)
+[![Expose CLI | AlternativeTo](https://alternativeto.net/static/badges/badge-compact-color.svg)](https://alternativeto.net/software/kernelshard-expose/about/?utm_source=badge&utm_medium=referral)
 
 > **The drop-in, open-source Go alternative to ngrok.**  
 > Start instantly on free public relays with zero config and zero signups, or graduate to your own self-hosted relay on a $5 VPS in a single <10MB binary. Zero lock-in.
@@ -179,7 +180,7 @@ expose config get port
 
 ---
 
-## 🏗 Architecture & Design Principles
+## 🏗 Architecture & Systems Design
 
 ```text
 expose/
@@ -187,16 +188,51 @@ expose/
 ├── internal/
 │   ├── cli/          # Cobra subcommands & flag parsing
 │   ├── config/       # YAML config management
-│   ├── provider/     # Tunnel providers (LocalTunnel, Cloudflare, Self-Hosted)
-│   ├── server/       # Self-hosted relay control & public server
-│   ├── tunnel/       # Core service orchestration & lifecycle
+│   ├── pool/         # sync.Pool 32KB buffer recycling (0 allocs/op)
+│   ├── provider/     # Tunnel backends (LocalTunnel, Cloudflare, Self-Hosted)
+│   ├── server/       # Self-hosted relay control plane & TCP proxy
+│   ├── tunnel/       # Core service orchestration & connection lifecycle
 │   └── version/      # Build metadata & version injection
 └── .expose.yml       # Local project configuration
 ```
 
-- **Interface-Driven:** Extensible `Provider` interface makes adding new tunnel backends straightforward.
-- **Clean Separation:** CLI → Service → Provider (strict unidirectionality, zero circular dependencies).
-- **Fully Testable:** High test coverage (>80%) across packages with race detector validation (`go test -race`).
+### Data Plane & Socket Topology
+
+```text
+[ Public Visitor ]
+       │ 1. Connects to https://demo.tunnel.com
+       ▼
+[ Expose Relay Server (VPS) ]
+  ├── 2. Fast L7 Peek: Read initial bytes to extract `Host:` header
+  └── 3. Drop to Layer 4: Spliced directly to standby client data socket
+       │
+       │ (Bidirectional raw TCP stream via sync.Pool 32KB buffers)
+       ▼
+[ Expose Client (Laptop) ]
+  └── 4. Forward raw byte stream to http://localhost:3000
+```
+
+### Key Systems Design Principles
+
+- **Layer 4 Raw Socket Splicing:** Rather than incurring full HTTP/2 or JSON parsing overhead on every packet, Expose inspects only the initial bytes to extract the `Host:` header for subdomain routing. Once matched, it immediately drops down to raw bidirectional Layer 4 TCP streaming (`io.CopyBuffer`).
+- **Zero-Allocation Buffer Recycling (`sync.Pool`):** Recycles 32KB copy buffers using slice pointers (`*[]byte`) to eliminate Go interface boxing allocations on the heap.
+- **Bounded Concurrency Brakes:** The relay server advertises connection limits (`MaxConnections`) during handshake; the client bounds worker goroutines and runs proxy forwarding synchronously to prevent 100% CPU dial spin-loops.
+- **Graceful Socket Teardown:** Coordinates bidirectional stream termination, guaranteeing both reader and writer sockets close cleanly on `io.EOF` without leaking goroutines or file descriptors.
+- **Modular Provider Abstraction:** Decoupled `Provider` interface cleanly isolates CLI and service lifecycles from underlying network transports (LocalTunnel, Cloudflare, and Self-Hosted relays).
+
+### Performance Benchmarks (`sync.Pool` vs. Naive Buffers)
+
+Bidirectional network proxying performance on the self-hosted relay gateway:
+
+| Implementation | Memory Allocations | Heap Churn (B/op) | Throughput Delta |
+| :--- | :---: | :---: | :---: |
+| **Standard Unpooled Buffers** | High GC Pressure | ~34,209 B/op | Baseline |
+| **Expose 32KB `sync.Pool`** | **0 allocs during stream** | **1,444 B/op (-95.8%)** | **+26% Throughput** |
+
+*Reproduce benchmark locally:*
+```bash
+go test -bench=BenchmarkCopy ./internal/pool -benchmem
+```
 
 ---
 

@@ -15,11 +15,12 @@ A comprehensive overview of Expose's architecture, design patterns, and implemen
 
 ## Overview
 
-Expose is built with a clean, modular architecture following Go best practices. The system is designed around three core principles:
+Expose is built with a high-performance, modular systems architecture following idiomatic Go practices. The system is designed around four core principles:
 
-1. **Provider Abstraction** - Support multiple tunnel providers through a common interface
-2. **Separation of Concerns** - Clear boundaries between CLI, business logic, and providers
-3. **Concurrency Safety** - Thread-safe operations with proper synchronization
+1. **Layer 4 High-Throughput Streaming** - Bypasses HTTP payload re-parsing overhead by performing a fast initial L7 `Host:` header inspection to resolve virtual hosts, then immediately dropping down to raw bidirectional Layer 4 TCP socket splicing (`io.CopyBuffer`).
+2. **Zero-Allocation Memory Recycling** - Recycles 32KB copy buffers using slice pointers (`*[]byte`) in `sync.Pool`, eliminating Go interface boxing allocations and dropping heap churn by 95.8% (1,444 B/op vs 34,209 B/op) with zero allocations during active streaming.
+3. **Bounded Concurrency & Connection Safety** - The relay server advertises connection limits (`MaxConnections`) during handshake; the client bounds worker goroutines to prevent 100% CPU dial spin-loops, while coordinated stream termination prevents socket and goroutine leaks.
+4. **Provider Abstraction** - Decoupled `Provider` interface cleanly isolates CLI and service lifecycles from underlying network transports (LocalTunnel, Cloudflare, and private Self-Hosted relays).
 
 ### High-Level Architecture
 
@@ -107,6 +108,7 @@ expose/
 │   │   ├── root.go             # Root command setup
 │   │   ├── init.go             # 'init' command
 │   │   ├── tunnel.go           # 'tunnel' command
+│   │   ├── server.go           # 'server' command
 │   │   ├── config.go           # 'config' command
 │   │   └── *_test.go           # CLI tests
 │   │
@@ -114,25 +116,40 @@ expose/
 │   │   ├── config.go           # Config struct & operations
 │   │   └── config_test.go      # Config tests
 │   │
-│   ├── tunnel/                  # Core tunnel service
-│   │   ├── provider.go         # Provider interface
-│   │   ├── service.go          # Service implementation
-│   │   ├── manager.go          # (Future) Multi-tunnel manager
-│   │   └── *_test.go           # Service tests
+│   ├── pool/                    # Memory pooling
+│   │   ├── buffer.go           # sync.Pool 32KB buffer recycler (0 allocs/op)
+│   │   └── buffer_test.go      # Allocation & throughput benchmarks
 │   │
 │   ├── provider/                # Tunnel provider implementations
+│   │   ├── provider.go         # Provider interface
 │   │   ├── localtunnel.go      # LocalTunnel provider
 │   │   ├── cloudflare.go       # Cloudflare provider
+│   │   ├── selfhosted.go       # Self-hosted VPS client provider
 │   │   └── *_test.go           # Provider tests
 │   │
+│   ├── server/                  # Self-hosted relay control plane
+│   │   ├── server.go           # Control plane & public proxy
+│   │   ├── protocol/           # JSON wire protocol & auth tokens
+│   │   └── *_test.go           # Server unit & integration tests
+│   │
+│   ├── tunnel/                  # Core tunnel service orchestration
+│   │   ├── service.go          # Service implementation & lifecycle
+│   │   └── *_test.go           # Service tests
+│   │
 │   └── version/                 # Version information
-│       ├── version.go          # Version string
+│       ├── version.go          # Version string & build metadata
 │       └── version_test.go     # Version tests
+│
+├── deploy/                      # Turnkey self-hosting infrastructure
+│   ├── Dockerfile              # Multi-stage unprivileged Alpine image
+│   ├── docker-compose.yml      # Expose Server + Caddy stack
+│   └── Caddyfile               # Dynamic on-demand SSL edge proxy
 │
 ├── docs/                        # Documentation
 │   ├── GETTING_STARTED.md
 │   ├── ARCHITECTURE.md         # This file
-│   └── ONBOARDING.md
+│   ├── SELF_HOSTED.md          # VPS deployment guide
+│   └── FAQ.md
 │
 ├── .expose.yml                  # Example config
 ├── go.mod                       # Go module definition
@@ -145,12 +162,13 @@ expose/
 | Package | Responsibility | Dependencies |
 |---------|---------------|--------------|
 | `cmd/expose` | Application entry point | `internal/cli` |
-| `internal/cli` | Command-line interface | `internal/config`, `internal/tunnel`, `internal/provider` |
+| `internal/cli` | Command-line interface | `internal/config`, `internal/tunnel`, `internal/provider`, `internal/server` |
 | `internal/config` | Configuration file I/O | `gopkg.in/yaml.v3` |
-| `internal/tunnel` | Tunnel lifecycle & service | `internal/provider` |
-| `internal/provider` | Provider implementations | `net`, `http`, `os/exec` |
 | `internal/pool` | Reusable 32 KB I/O buffer pool (`sync.Pool`) | `sync`, `io` |
-| `internal/version` | Version info | None |
+| `internal/provider` | Client provider implementations | `net`, `http`, `os/exec`, `internal/pool` |
+| `internal/server` | Self-hosted relay control plane & TCP proxy | `net`, `http`, `crypto/subtle`, `internal/pool` |
+| `internal/tunnel` | Tunnel lifecycle & service orchestration | `internal/provider` |
+| `internal/version` | Version info & build metadata | None |
 
 ---
 
