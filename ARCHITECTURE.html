@@ -25,7 +25,7 @@
       
       
       <link rel="icon" href="assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.0">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.1">
     
     
       
@@ -363,7 +363,7 @@
     
     
       <li class="md-tabs__item">
-        <a href="TUTORIAL.html" class="md-tabs__link">
+        <a href="guides/local-webhook-testing.html" class="md-tabs__link">
           
   
   
@@ -591,6 +591,8 @@
       
         
       
+        
+      
     
     
     
@@ -635,6 +637,34 @@
 
           </label>
           <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="guides/local-webhook-testing.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Local Webhook Testing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
             
               
                 
@@ -2094,11 +2124,12 @@
 
 <hr />
 <h2 id="overview">Overview<a class="headerlink" href="#overview" title="Permanent link">&para;</a></h2>
-<p>Expose is built with a clean, modular architecture following Go best practices. The system is designed around three core principles:</p>
+<p>Expose is built with a high-performance, modular systems architecture following idiomatic Go practices. The system is designed around four core principles:</p>
 <ol>
-<li><strong>Provider Abstraction</strong> - Support multiple tunnel providers through a common interface</li>
-<li><strong>Separation of Concerns</strong> - Clear boundaries between CLI, business logic, and providers</li>
-<li><strong>Concurrency Safety</strong> - Thread-safe operations with proper synchronization</li>
+<li><strong>Layer 4 High-Throughput Streaming</strong> - Bypasses HTTP payload re-parsing overhead by performing a fast initial L7 <code>Host:</code> header inspection to resolve virtual hosts, then immediately dropping down to raw bidirectional Layer 4 TCP socket splicing (<code>io.CopyBuffer</code>).</li>
+<li><strong>Zero-Allocation Memory Recycling</strong> - Recycles 32KB copy buffers using slice pointers (<code>*[]byte</code>) in <code>sync.Pool</code>, eliminating Go interface boxing allocations and dropping heap churn by 95.8% (1,444 B/op vs 34,209 B/op) with zero allocations during active streaming.</li>
+<li><strong>Bounded Concurrency &amp; Connection Safety</strong> - The relay server advertises connection limits (<code>MaxConnections</code>) during handshake; the client bounds worker goroutines to prevent 100% CPU dial spin-loops, while coordinated stream termination prevents socket and goroutine leaks.</li>
+<li><strong>Provider Abstraction</strong> - Decoupled <code>Provider</code> interface cleanly isolates CLI and service lifecycles from underlying network transports (LocalTunnel, Cloudflare, and private Self-Hosted relays).</li>
 </ol>
 <h3 id="high-level-architecture">High-Level Architecture<a class="headerlink" href="#high-level-architecture" title="Permanent link">&para;</a></h3>
 <div class="language-text highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>┌─────────────────────────────────────────────────────────┐
@@ -2176,37 +2207,53 @@
 </span><span id="__span-2-8"><a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a>│   │   ├── root.go             # Root command setup
 </span><span id="__span-2-9"><a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a>│   │   ├── init.go             # 'init' command
 </span><span id="__span-2-10"><a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a>│   │   ├── tunnel.go           # 'tunnel' command
-</span><span id="__span-2-11"><a id="__codelineno-2-11" name="__codelineno-2-11" href="#__codelineno-2-11"></a>│   │   ├── config.go           # 'config' command
-</span><span id="__span-2-12"><a id="__codelineno-2-12" name="__codelineno-2-12" href="#__codelineno-2-12"></a>│   │   └── *_test.go           # CLI tests
-</span><span id="__span-2-13"><a id="__codelineno-2-13" name="__codelineno-2-13" href="#__codelineno-2-13"></a>│   │
-</span><span id="__span-2-14"><a id="__codelineno-2-14" name="__codelineno-2-14" href="#__codelineno-2-14"></a>│   ├── config/                  # Configuration management
-</span><span id="__span-2-15"><a id="__codelineno-2-15" name="__codelineno-2-15" href="#__codelineno-2-15"></a>│   │   ├── config.go           # Config struct &amp; operations
-</span><span id="__span-2-16"><a id="__codelineno-2-16" name="__codelineno-2-16" href="#__codelineno-2-16"></a>│   │   └── config_test.go      # Config tests
-</span><span id="__span-2-17"><a id="__codelineno-2-17" name="__codelineno-2-17" href="#__codelineno-2-17"></a>│   │
-</span><span id="__span-2-18"><a id="__codelineno-2-18" name="__codelineno-2-18" href="#__codelineno-2-18"></a>│   ├── tunnel/                  # Core tunnel service
-</span><span id="__span-2-19"><a id="__codelineno-2-19" name="__codelineno-2-19" href="#__codelineno-2-19"></a>│   │   ├── provider.go         # Provider interface
-</span><span id="__span-2-20"><a id="__codelineno-2-20" name="__codelineno-2-20" href="#__codelineno-2-20"></a>│   │   ├── service.go          # Service implementation
-</span><span id="__span-2-21"><a id="__codelineno-2-21" name="__codelineno-2-21" href="#__codelineno-2-21"></a>│   │   ├── manager.go          # (Future) Multi-tunnel manager
-</span><span id="__span-2-22"><a id="__codelineno-2-22" name="__codelineno-2-22" href="#__codelineno-2-22"></a>│   │   └── *_test.go           # Service tests
-</span><span id="__span-2-23"><a id="__codelineno-2-23" name="__codelineno-2-23" href="#__codelineno-2-23"></a>│   │
-</span><span id="__span-2-24"><a id="__codelineno-2-24" name="__codelineno-2-24" href="#__codelineno-2-24"></a>│   ├── provider/                # Tunnel provider implementations
+</span><span id="__span-2-11"><a id="__codelineno-2-11" name="__codelineno-2-11" href="#__codelineno-2-11"></a>│   │   ├── server.go           # 'server' command
+</span><span id="__span-2-12"><a id="__codelineno-2-12" name="__codelineno-2-12" href="#__codelineno-2-12"></a>│   │   ├── config.go           # 'config' command
+</span><span id="__span-2-13"><a id="__codelineno-2-13" name="__codelineno-2-13" href="#__codelineno-2-13"></a>│   │   └── *_test.go           # CLI tests
+</span><span id="__span-2-14"><a id="__codelineno-2-14" name="__codelineno-2-14" href="#__codelineno-2-14"></a>│   │
+</span><span id="__span-2-15"><a id="__codelineno-2-15" name="__codelineno-2-15" href="#__codelineno-2-15"></a>│   ├── config/                  # Configuration management
+</span><span id="__span-2-16"><a id="__codelineno-2-16" name="__codelineno-2-16" href="#__codelineno-2-16"></a>│   │   ├── config.go           # Config struct &amp; operations
+</span><span id="__span-2-17"><a id="__codelineno-2-17" name="__codelineno-2-17" href="#__codelineno-2-17"></a>│   │   └── config_test.go      # Config tests
+</span><span id="__span-2-18"><a id="__codelineno-2-18" name="__codelineno-2-18" href="#__codelineno-2-18"></a>│   │
+</span><span id="__span-2-19"><a id="__codelineno-2-19" name="__codelineno-2-19" href="#__codelineno-2-19"></a>│   ├── pool/                    # Memory pooling
+</span><span id="__span-2-20"><a id="__codelineno-2-20" name="__codelineno-2-20" href="#__codelineno-2-20"></a>│   │   ├── buffer.go           # sync.Pool 32KB buffer recycler (0 allocs/op)
+</span><span id="__span-2-21"><a id="__codelineno-2-21" name="__codelineno-2-21" href="#__codelineno-2-21"></a>│   │   └── buffer_test.go      # Allocation &amp; throughput benchmarks
+</span><span id="__span-2-22"><a id="__codelineno-2-22" name="__codelineno-2-22" href="#__codelineno-2-22"></a>│   │
+</span><span id="__span-2-23"><a id="__codelineno-2-23" name="__codelineno-2-23" href="#__codelineno-2-23"></a>│   ├── provider/                # Tunnel provider implementations
+</span><span id="__span-2-24"><a id="__codelineno-2-24" name="__codelineno-2-24" href="#__codelineno-2-24"></a>│   │   ├── provider.go         # Provider interface
 </span><span id="__span-2-25"><a id="__codelineno-2-25" name="__codelineno-2-25" href="#__codelineno-2-25"></a>│   │   ├── localtunnel.go      # LocalTunnel provider
 </span><span id="__span-2-26"><a id="__codelineno-2-26" name="__codelineno-2-26" href="#__codelineno-2-26"></a>│   │   ├── cloudflare.go       # Cloudflare provider
-</span><span id="__span-2-27"><a id="__codelineno-2-27" name="__codelineno-2-27" href="#__codelineno-2-27"></a>│   │   └── *_test.go           # Provider tests
-</span><span id="__span-2-28"><a id="__codelineno-2-28" name="__codelineno-2-28" href="#__codelineno-2-28"></a>│   │
-</span><span id="__span-2-29"><a id="__codelineno-2-29" name="__codelineno-2-29" href="#__codelineno-2-29"></a>│   └── version/                 # Version information
-</span><span id="__span-2-30"><a id="__codelineno-2-30" name="__codelineno-2-30" href="#__codelineno-2-30"></a>│       ├── version.go          # Version string
-</span><span id="__span-2-31"><a id="__codelineno-2-31" name="__codelineno-2-31" href="#__codelineno-2-31"></a>│       └── version_test.go     # Version tests
-</span><span id="__span-2-32"><a id="__codelineno-2-32" name="__codelineno-2-32" href="#__codelineno-2-32"></a>│
-</span><span id="__span-2-33"><a id="__codelineno-2-33" name="__codelineno-2-33" href="#__codelineno-2-33"></a>├── docs/                        # Documentation
-</span><span id="__span-2-34"><a id="__codelineno-2-34" name="__codelineno-2-34" href="#__codelineno-2-34"></a>│   ├── GETTING_STARTED.md
-</span><span id="__span-2-35"><a id="__codelineno-2-35" name="__codelineno-2-35" href="#__codelineno-2-35"></a>│   ├── ARCHITECTURE.md         # This file
-</span><span id="__span-2-36"><a id="__codelineno-2-36" name="__codelineno-2-36" href="#__codelineno-2-36"></a>│   └── ONBOARDING.md
-</span><span id="__span-2-37"><a id="__codelineno-2-37" name="__codelineno-2-37" href="#__codelineno-2-37"></a>│
-</span><span id="__span-2-38"><a id="__codelineno-2-38" name="__codelineno-2-38" href="#__codelineno-2-38"></a>├── .expose.yml                  # Example config
-</span><span id="__span-2-39"><a id="__codelineno-2-39" name="__codelineno-2-39" href="#__codelineno-2-39"></a>├── go.mod                       # Go module definition
-</span><span id="__span-2-40"><a id="__codelineno-2-40" name="__codelineno-2-40" href="#__codelineno-2-40"></a>├── go.sum                       # Dependency checksums
-</span><span id="__span-2-41"><a id="__codelineno-2-41" name="__codelineno-2-41" href="#__codelineno-2-41"></a>└── README.md                    # Project README
+</span><span id="__span-2-27"><a id="__codelineno-2-27" name="__codelineno-2-27" href="#__codelineno-2-27"></a>│   │   ├── selfhosted.go       # Self-hosted VPS client provider
+</span><span id="__span-2-28"><a id="__codelineno-2-28" name="__codelineno-2-28" href="#__codelineno-2-28"></a>│   │   └── *_test.go           # Provider tests
+</span><span id="__span-2-29"><a id="__codelineno-2-29" name="__codelineno-2-29" href="#__codelineno-2-29"></a>│   │
+</span><span id="__span-2-30"><a id="__codelineno-2-30" name="__codelineno-2-30" href="#__codelineno-2-30"></a>│   ├── server/                  # Self-hosted relay control plane
+</span><span id="__span-2-31"><a id="__codelineno-2-31" name="__codelineno-2-31" href="#__codelineno-2-31"></a>│   │   ├── server.go           # Control plane &amp; public proxy
+</span><span id="__span-2-32"><a id="__codelineno-2-32" name="__codelineno-2-32" href="#__codelineno-2-32"></a>│   │   ├── protocol/           # JSON wire protocol &amp; auth tokens
+</span><span id="__span-2-33"><a id="__codelineno-2-33" name="__codelineno-2-33" href="#__codelineno-2-33"></a>│   │   └── *_test.go           # Server unit &amp; integration tests
+</span><span id="__span-2-34"><a id="__codelineno-2-34" name="__codelineno-2-34" href="#__codelineno-2-34"></a>│   │
+</span><span id="__span-2-35"><a id="__codelineno-2-35" name="__codelineno-2-35" href="#__codelineno-2-35"></a>│   ├── tunnel/                  # Core tunnel service orchestration
+</span><span id="__span-2-36"><a id="__codelineno-2-36" name="__codelineno-2-36" href="#__codelineno-2-36"></a>│   │   ├── service.go          # Service implementation &amp; lifecycle
+</span><span id="__span-2-37"><a id="__codelineno-2-37" name="__codelineno-2-37" href="#__codelineno-2-37"></a>│   │   └── *_test.go           # Service tests
+</span><span id="__span-2-38"><a id="__codelineno-2-38" name="__codelineno-2-38" href="#__codelineno-2-38"></a>│   │
+</span><span id="__span-2-39"><a id="__codelineno-2-39" name="__codelineno-2-39" href="#__codelineno-2-39"></a>│   └── version/                 # Version information
+</span><span id="__span-2-40"><a id="__codelineno-2-40" name="__codelineno-2-40" href="#__codelineno-2-40"></a>│       ├── version.go          # Version string &amp; build metadata
+</span><span id="__span-2-41"><a id="__codelineno-2-41" name="__codelineno-2-41" href="#__codelineno-2-41"></a>│       └── version_test.go     # Version tests
+</span><span id="__span-2-42"><a id="__codelineno-2-42" name="__codelineno-2-42" href="#__codelineno-2-42"></a>│
+</span><span id="__span-2-43"><a id="__codelineno-2-43" name="__codelineno-2-43" href="#__codelineno-2-43"></a>├── deploy/                      # Turnkey self-hosting infrastructure
+</span><span id="__span-2-44"><a id="__codelineno-2-44" name="__codelineno-2-44" href="#__codelineno-2-44"></a>│   ├── Dockerfile              # Multi-stage unprivileged Alpine image
+</span><span id="__span-2-45"><a id="__codelineno-2-45" name="__codelineno-2-45" href="#__codelineno-2-45"></a>│   ├── docker-compose.yml      # Expose Server + Caddy stack
+</span><span id="__span-2-46"><a id="__codelineno-2-46" name="__codelineno-2-46" href="#__codelineno-2-46"></a>│   └── Caddyfile               # Dynamic on-demand SSL edge proxy
+</span><span id="__span-2-47"><a id="__codelineno-2-47" name="__codelineno-2-47" href="#__codelineno-2-47"></a>│
+</span><span id="__span-2-48"><a id="__codelineno-2-48" name="__codelineno-2-48" href="#__codelineno-2-48"></a>├── docs/                        # Documentation
+</span><span id="__span-2-49"><a id="__codelineno-2-49" name="__codelineno-2-49" href="#__codelineno-2-49"></a>│   ├── GETTING_STARTED.md
+</span><span id="__span-2-50"><a id="__codelineno-2-50" name="__codelineno-2-50" href="#__codelineno-2-50"></a>│   ├── ARCHITECTURE.md         # This file
+</span><span id="__span-2-51"><a id="__codelineno-2-51" name="__codelineno-2-51" href="#__codelineno-2-51"></a>│   ├── SELF_HOSTED.md          # VPS deployment guide
+</span><span id="__span-2-52"><a id="__codelineno-2-52" name="__codelineno-2-52" href="#__codelineno-2-52"></a>│   └── FAQ.md
+</span><span id="__span-2-53"><a id="__codelineno-2-53" name="__codelineno-2-53" href="#__codelineno-2-53"></a>│
+</span><span id="__span-2-54"><a id="__codelineno-2-54" name="__codelineno-2-54" href="#__codelineno-2-54"></a>├── .expose.yml                  # Example config
+</span><span id="__span-2-55"><a id="__codelineno-2-55" name="__codelineno-2-55" href="#__codelineno-2-55"></a>├── go.mod                       # Go module definition
+</span><span id="__span-2-56"><a id="__codelineno-2-56" name="__codelineno-2-56" href="#__codelineno-2-56"></a>├── go.sum                       # Dependency checksums
+</span><span id="__span-2-57"><a id="__codelineno-2-57" name="__codelineno-2-57" href="#__codelineno-2-57"></a>└── README.md                    # Project README
 </span></code></pre></div>
 <h3 id="package-responsibilities">Package Responsibilities<a class="headerlink" href="#package-responsibilities" title="Permanent link">&para;</a></h3>
 <table>
@@ -2226,7 +2273,7 @@
 <tr>
 <td><code>internal/cli</code></td>
 <td>Command-line interface</td>
-<td><code>internal/config</code>, <code>internal/tunnel</code>, <code>internal/provider</code></td>
+<td><code>internal/config</code>, <code>internal/tunnel</code>, <code>internal/provider</code>, <code>internal/server</code></td>
 </tr>
 <tr>
 <td><code>internal/config</code></td>
@@ -2234,23 +2281,28 @@
 <td><code>gopkg.in/yaml.v3</code></td>
 </tr>
 <tr>
-<td><code>internal/tunnel</code></td>
-<td>Tunnel lifecycle &amp; service</td>
-<td><code>internal/provider</code></td>
-</tr>
-<tr>
-<td><code>internal/provider</code></td>
-<td>Provider implementations</td>
-<td><code>net</code>, <code>http</code>, <code>os/exec</code></td>
-</tr>
-<tr>
 <td><code>internal/pool</code></td>
 <td>Reusable 32 KB I/O buffer pool (<code>sync.Pool</code>)</td>
 <td><code>sync</code>, <code>io</code></td>
 </tr>
 <tr>
+<td><code>internal/provider</code></td>
+<td>Client provider implementations</td>
+<td><code>net</code>, <code>http</code>, <code>os/exec</code>, <code>internal/pool</code></td>
+</tr>
+<tr>
+<td><code>internal/server</code></td>
+<td>Self-hosted relay control plane &amp; TCP proxy</td>
+<td><code>net</code>, <code>http</code>, <code>crypto/subtle</code>, <code>internal/pool</code></td>
+</tr>
+<tr>
+<td><code>internal/tunnel</code></td>
+<td>Tunnel lifecycle &amp; service orchestration</td>
+<td><code>internal/provider</code></td>
+</tr>
+<tr>
 <td><code>internal/version</code></td>
-<td>Version info</td>
+<td>Version info &amp; build metadata</td>
 <td>None</td>
 </tr>
 </tbody>
@@ -2842,7 +2894,7 @@
       <script id="__config" type="application/json">{"annotate": null, "base": ".", "features": ["navigation.tabs", "navigation.tabs.sticky", "navigation.top", "navigation.instant", "navigation.instant.progress", "navigation.sections", "navigation.path", "navigation.indexes", "toc.follow", "search.highlight", "search.suggest", "search.share", "content.code.annotate", "content.code.copy", "content.tabs.link", "content.tooltips", "announce.dismiss"], "search": "assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="assets/javascripts/bundle.c21346df.min.js"></script>
+      <script src="assets/javascripts/bundle.a5f9d56c.min.js"></script>
       
     
   </body>
