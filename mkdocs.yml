@@ -65,6 +65,7 @@ nav:
   - Self-Hosted: SELF_HOSTED.md
   - FAQ: FAQ.md
   - Guides:
+      - Local Webhook Testing: guides/local-webhook-testing.md
       - How Tunnels Work: TUTORIAL.md
       - Advanced Usage: ADVANCED_USAGE.md
   - Architecture: ARCHITECTURE.md

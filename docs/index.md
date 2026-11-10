@@ -181,6 +181,7 @@ Output when running `expose tunnel`:
 
     # Paste the public URL into GitHub/Stripe/Twilio settings
     ```
+    👉 *See the full walkthrough:* **[Local Webhook Testing Guide (Stripe, GitHub, Shopify)](guides/local-webhook-testing.md)**
 
 === "Mobile Testing"
     ```bash
