@@ -2,6 +2,7 @@ package tunnel
 
 import (
 	"context"
+	"fmt"
 	"strings"
 	"testing"
 	"time"
@@ -45,6 +46,33 @@ func TestNewService(t *testing.T) {
 
 	if svc == nil {
 		t.Fatal("Service should not be nil")
+	}
+}
+
+// flakyProvider fails the first Connect call and succeeds afterwards.
+type flakyProvider struct {
+	MockProvider
+	calls int
+}
+
+func (f *flakyProvider) Connect(ctx context.Context, localPort int) (string, error) {
+	f.calls++
+	if f.calls == 1 {
+		return "", fmt.Errorf("temporary network error")
+	}
+	return f.MockProvider.Connect(ctx, localPort)
+}
+
+func TestService_StartRetryAfterFailure(t *testing.T) {
+	svc := NewService(&flakyProvider{})
+	ctx := context.Background()
+
+	if err := svc.Start(ctx, 3000); err == nil {
+		t.Fatal("first Start() error = nil, want connect error")
+	}
+
+	if err := svc.Start(ctx, 3000); err != nil {
+		t.Fatalf("retry Start() error = %v, want nil", err)
 	}
 }
 
