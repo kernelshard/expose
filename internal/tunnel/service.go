@@ -42,6 +42,10 @@ func (s *Service) Start(ctx context.Context, localPort int) error {
 
 	_, err := s.provider.Connect(ctx, localPort)
 	if err != nil {
+		// allow a later Start call to retry after a failed connection
+		s.mu.Lock()
+		s.started = false
+		s.mu.Unlock()
 		return fmt.Errorf("failed to connect %s provider tunnel: %w", s.provider.Name(), err)
 	}
 
