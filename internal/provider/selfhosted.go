@@ -23,6 +23,7 @@ type SelfHosted struct {
 	serverAddr     string // e.g: tunnel.mysite.com:7890
 	subdomain      string
 	token          string
+	sessionSecret  string
 	conn           net.Conn
 	publicURL      string
 	connected      bool
@@ -119,6 +120,7 @@ func (s *SelfHosted) Connect(ctx context.Context, localPort int) (string, error)
 	s.mu.Lock()
 	s.publicURL = resp.PublicURL
 	s.subdomain = resp.Subdomain
+	s.sessionSecret = resp.SessionSecret
 	s.connected = true
 	s.conn = conn
 	s.maxConnections = maxConns
@@ -199,9 +201,15 @@ func (s *SelfHosted) dialDataConn(ctx context.Context) (net.Conn, error) {
 
 	s.mu.RLock()
 	sub := s.subdomain
+	sessionSecret := s.sessionSecret
 	s.mu.RUnlock()
 
-	if err := json.NewEncoder(serverConn).Encode(protocol.TunnelRequest{Type: protocol.TypeData, Subdomain: sub}); err != nil {
+	dataReq := protocol.TunnelRequest{
+		Type:          protocol.TypeData,
+		Subdomain:     sub,
+		SessionSecret: sessionSecret,
+	}
+	if err := json.NewEncoder(serverConn).Encode(dataReq); err != nil {
 		serverConn.Close()
 		return nil, err
 	}
