@@ -1,9 +1,14 @@
 package cli
 
 import (
+	"context"
+	"errors"
 	"net"
 	"os"
 	"testing"
+	"time"
+
+	"github.com/kernelshard/expose/internal/tunnel"
 )
 
 func TestTunnelCmd(t *testing.T) {
@@ -127,5 +132,79 @@ func TestIsPortListening(t *testing.T) {
 	_ = ln.Close()
 	if isPortListening(port) {
 		t.Errorf("expected closed port %d to not be listening", port)
+	}
+}
+
+type mockProvider struct {
+	name      string
+	publicURL string
+	connectFn func(ctx context.Context, localPort int) (string, error)
+	closeFn   func() error
+}
+
+func (m *mockProvider) Connect(ctx context.Context, localPort int) (string, error) {
+	if m.connectFn != nil {
+		return m.connectFn(ctx, localPort)
+	}
+	return m.publicURL, nil
+}
+
+func (m *mockProvider) Close() error {
+	if m.closeFn != nil {
+		return m.closeFn()
+	}
+	return nil
+}
+
+func (m *mockProvider) IsConnected() bool { return true }
+func (m *mockProvider) PublicURL() string { return m.publicURL }
+func (m *mockProvider) Name() string      { return m.name }
+
+func TestRunTunnelWithContext_Success(t *testing.T) {
+	mock := &mockProvider{
+		name:      "mock",
+		publicURL: "https://test.expose.dev",
+	}
+	svc := tunnel.NewService(mock)
+
+	ctx, cancel := context.WithCancel(context.Background())
+
+	errCh := make(chan error, 1)
+	go func() {
+		errCh <- runTunnelWithContext(ctx, 3000, svc)
+	}()
+
+	select {
+	case <-svc.Ready():
+		cancel()
+	case <-time.After(2 * time.Second):
+		t.Fatal("timed out waiting for service to be ready")
+	}
+
+	select {
+	case err := <-errCh:
+		if err != nil {
+			t.Fatalf("expected nil error on clean shutdown, got: %v", err)
+		}
+	case <-time.After(2 * time.Second):
+		t.Fatal("timed out waiting for runTunnelWithContext to finish")
+	}
+}
+
+func TestRunTunnelWithContext_StartError(t *testing.T) {
+	mock := &mockProvider{
+		name: "mock",
+		connectFn: func(ctx context.Context, localPort int) (string, error) {
+			return "", errors.New("connection failed")
+		},
+	}
+	svc := tunnel.NewService(mock)
+
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	err := runTunnelWithContext(ctx, 3000, svc)
+	if err == nil {
+		t.Fatal("expected error, got nil")
 	}
 }
