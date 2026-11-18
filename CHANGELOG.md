@@ -9,6 +9,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.6.4] - 2026-11-19
+
+### Security
+- Require session secret on incoming data connections to prevent tunnel hijacking ([#121](https://github.com/kernelshard/expose/pull/121)).
+
+### Fixed
+- Eliminate select race on tunnel startup in CLI so startup banner and URL are always printed ([#122](https://github.com/kernelshard/expose/pull/122)).
+- Drain Cloudflare provider stderr pipe to prevent write deadlocks and reap child process on close ([#123](https://github.com/kernelshard/expose/pull/123)).
+- Reset started flag when provider connect fails to allow tunnel retry ([#120](https://github.com/kernelshard/expose/pull/120)).
+
 ## [0.6.3] - 2026-11-07
 
 ### Added
@@ -196,7 +206,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
-[Unreleased]: https://github.com/kernelshard/expose/compare/v0.6.3...HEAD
+[Unreleased]: https://github.com/kernelshard/expose/compare/v0.6.4...HEAD
+[0.6.4]: https://github.com/kernelshard/expose/compare/v0.6.3...v0.6.4
 [0.6.3]: https://github.com/kernelshard/expose/compare/v0.6.2...v0.6.3
 [0.6.2]: https://github.com/kernelshard/expose/compare/v0.6.1...v0.6.2
 [0.6.1]: https://github.com/kernelshard/expose/compare/v0.6.0...v0.6.1
