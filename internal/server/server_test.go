@@ -111,7 +111,7 @@ func TestServer_HandleControl_DataConnection(t *testing.T) {
 	defer regClient.Close()
 	defer regServer.Close()
 
-	sub, err := srv.registerSubdomain(regServer, "alice")
+	sub, secret, err := srv.registerSubdomain(regServer, "alice")
 	if err != nil {
 		t.Fatalf("failed to register subdomain: %v", err)
 	}
@@ -129,8 +129,9 @@ func TestServer_HandleControl_DataConnection(t *testing.T) {
 
 	// send data connection request targeting the registered subdomain
 	req := protocol.TunnelRequest{
-		Type:      protocol.TypeData,
-		Subdomain: sub,
+		Type:          protocol.TypeData,
+		Subdomain:     sub,
+		SessionSecret: secret,
 	}
 	if err := json.NewEncoder(clientConn).Encode(req); err != nil {
 		t.Fatalf("failed to encode request: %v", err)
@@ -145,6 +146,54 @@ func TestServer_HandleControl_DataConnection(t *testing.T) {
 		defer conn.Close()
 	case <-time.After(time.Second):
 		t.Fatalf("timed out waiting for data connection on channel")
+	}
+}
+
+func TestServer_HandleControl_DataConnection_RejectsInvalidSecret(t *testing.T) {
+	srv := NewServer("localhost", 7890, 8080)
+
+	regClient, regServer := net.Pipe()
+	defer regClient.Close()
+	defer regServer.Close()
+
+	sub, _, err := srv.registerSubdomain(regServer, "alice")
+	if err != nil {
+		t.Fatalf("failed to register subdomain: %v", err)
+	}
+
+	val, ok := srv.tunnels.Load(sub)
+	if !ok {
+		t.Fatalf("subdomain not found in tunnels map")
+	}
+	client := val.(ClientConnection)
+
+	clientConn, serverConn := net.Pipe()
+	defer clientConn.Close()
+
+	go srv.handleControlConnection(serverConn)
+
+	// Send data connection request with an incorrect session secret
+	req := protocol.TunnelRequest{
+		Type:          protocol.TypeData,
+		Subdomain:     sub,
+		SessionSecret: "invalid-secret",
+	}
+	if err := json.NewEncoder(clientConn).Encode(req); err != nil {
+		t.Fatalf("failed to encode request: %v", err)
+	}
+
+	// Connection should be closed by the server and not pushed to client.dataConns
+	buf := make([]byte, 1)
+	_, readErr := clientConn.Read(buf)
+	if readErr == nil {
+		t.Errorf("expected connection to be closed on invalid session secret")
+	}
+
+	select {
+	case <-client.dataConns:
+		t.Fatalf("expected dataConns to remain empty for unauthorized socket")
+	case <-time.After(50 * time.Millisecond):
+		// Success: unauthorized socket was dropped
 	}
 }
 
@@ -204,7 +253,7 @@ func TestServer_ServeHTTP_NonHijacker(t *testing.T) {
 	defer c2.Close()
 
 	// Register subdomain
-	sub, err := srv.registerSubdomain(c2, "mytest")
+	sub, _, err := srv.registerSubdomain(c2, "mytest")
 	if err != nil {
 		t.Fatalf("failed to register subdomain: %v", err)
 	}
@@ -234,7 +283,7 @@ func TestServer_Success(t *testing.T) {
 	defer tunnelClientConn.Close()
 
 	// Register subdomain
-	sub, err := srv.registerSubdomain(tunnelClientConn, "alice")
+	sub, _, err := srv.registerSubdomain(tunnelClientConn, "alice")
 	if err != nil {
 		t.Fatalf("failed to register subdomain: %v", err)
 	}
@@ -419,7 +468,7 @@ func TestServer_ServeHTTP_ContextCanceled(t *testing.T) {
 	defer c1.Close()
 	defer c2.Close()
 
-	sub, err := srv.registerSubdomain(c1, "alice")
+	sub, _, err := srv.registerSubdomain(c1, "alice")
 	if err != nil {
 		t.Fatalf("failed to register subdomain: %v", err)
 	}
@@ -442,7 +491,7 @@ func TestServer_MultiTenant_Routing(t *testing.T) {
 	// Setup Alice
 	aliceClient, aliceServer := net.Pipe()
 	defer aliceClient.Close()
-	_, err := srv.registerSubdomain(aliceClient, "alice")
+	_, _, err := srv.registerSubdomain(aliceClient, "alice")
 	if err != nil {
 		t.Fatalf("failed to register alice: %v", err)
 	}
@@ -453,7 +502,7 @@ func TestServer_MultiTenant_Routing(t *testing.T) {
 	// Setup Bob
 	bobClient, bobServer := net.Pipe()
 	defer bobClient.Close()
-	_, err = srv.registerSubdomain(bobClient, "bob")
+	_, _, err = srv.registerSubdomain(bobClient, "bob")
 	if err != nil {
 		t.Fatalf("failed to register bob: %v", err)
 	}
@@ -668,7 +717,7 @@ func TestServer_ServeHTTP_SymmetricTeardown_VisitorDisconnect(t *testing.T) {
 	defer mockLaptop.Close()
 
 	// Register "alice"
-	sub, err := srv.registerSubdomain(mockLaptop, "alice")
+	sub, _, err := srv.registerSubdomain(mockLaptop, "alice")
 	if err != nil {
 		t.Fatalf("failed to register subdomain: %v", err)
 	}

@@ -120,3 +120,30 @@ func TestCloudflare_IsConnected_ProcessKill(t *testing.T) {
 	}
 
 }
+
+func TestCloudflare_Close_ReapsProcess(t *testing.T) {
+	cf := NewCloudFlare()
+	cmd := exec.Command("sleep", "10")
+	if err := cmd.Start(); err != nil {
+		t.Fatalf("failed to start sleep: %v", err)
+	}
+
+	cf.mu.Lock()
+	cf.cmd = cmd
+	cf.publicURL = "https://test-tunnel.trycloudflare.com"
+	cf.mu.Unlock()
+
+	// Prior to Close(), Wait has not been called, so ProcessState is nil
+	if cmd.ProcessState != nil {
+		t.Fatalf("expected ProcessState to be nil before Close")
+	}
+
+	if err := cf.Close(); err != nil {
+		t.Fatalf("expected no error from Close, got %v", err)
+	}
+
+	// ProcessState is populated by Wait() when reaping the killed process
+	if cmd.ProcessState == nil {
+		t.Errorf("expected ProcessState to be non-nil after Close reaps the process")
+	}
+}

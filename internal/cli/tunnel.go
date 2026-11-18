@@ -132,54 +132,46 @@ func runTunnelCmd(cmd *cobra.Command, args []string) error {
 
 // runTunnel starts the tunnel service and waits for shutdown.
 func runTunnel(port int, svc *tunnel.Service) error {
+	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
+	defer stop()
 
-	// Setup ctx & signal handling
-	ctx, cancel := context.WithCancel(context.Background())
-	defer cancel()
+	return runTunnelWithContext(ctx, port, svc)
+}
 
-	// handle Ctrl+C, kill pid etc.
-	sigChan := make(chan os.Signal, 1)
-	signal.Notify(sigChan, os.Interrupt, syscall.SIGTERM)
-
-	// waiting to read from channel is blocking ops, so wait in bg.
-	go func() {
-		<-sigChan
-		fmt.Println("\n\nShutting down...")
-		cancel()
-	}()
-
+func runTunnelWithContext(ctx context.Context, port int, svc *tunnel.Service) error {
 	// - Start  tunnel in background
 	errChan := make(chan error, 1)
 	go func() {
 		errChan <- svc.Start(ctx, port)
 	}()
 
-	// wait for ready
+	// wait for ready or startup failure
 	select {
-	case <-svc.Ready():
-		appStatus := "Ready"
-		// if local port is not listening, start watching for it and update status when it comes online
-		if !isPortListening(port) {
-			appStatus = "Waiting for local app to start..."
-			// keep watching for port and update status when it comes online so user can see it in cli
-			go watchLocalPort(ctx, port)
-		}
-		// Show info
-		fmt.Printf("🚀 Tunnel[%s] started for localhost:%d\n", svc.ProviderName(), port)
-		fmt.Printf("✓ Public URL: %s\n", svc.PublicURL())
-		fmt.Printf("✓ Forwarding to: http://localhost:%d (%s)\n", port, appStatus)
-		fmt.Printf("✓ Provider: %s\n", svc.ProviderName())
-		fmt.Println("Press Ctrl+C to stop")
-
 	case err := <-errChan:
 		if err != nil {
 			return err
 		}
-
+	case <-ctx.Done():
+		return ctx.Err()
 	}
+
+	appStatus := "Ready"
+	// if local port is not listening, start watching for it and update status when it comes online
+	if !isPortListening(port) {
+		appStatus = "Waiting for local app to start..."
+		// keep watching for port and update status when it comes online so user can see it in cli
+		go watchLocalPort(ctx, port)
+	}
+	// Show info
+	fmt.Printf("🚀 Tunnel[%s] started for localhost:%d\n", svc.ProviderName(), port)
+	fmt.Printf("✓ Public URL: %s\n", svc.PublicURL())
+	fmt.Printf("✓ Forwarding to: http://localhost:%d (%s)\n", port, appStatus)
+	fmt.Printf("✓ Provider: %s\n", svc.ProviderName())
+	fmt.Println("Press Ctrl+C to stop")
 
 	// - Wait for shutdown
 	<-ctx.Done()
+	fmt.Println("\n\nShutting down...")
 
 	// - Cleanup
 	if err := svc.Close(); err != nil {

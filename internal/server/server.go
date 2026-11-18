@@ -2,7 +2,9 @@ package server
 
 import (
 	"context"
+	"crypto/rand"
 	"crypto/subtle"
+	"encoding/hex"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -42,9 +44,10 @@ const (
 
 // ClientConnection represents a connected client
 type ClientConnection struct {
-	conn      net.Conn
-	subdomain string
-	dataConns chan net.Conn
+	conn          net.Conn
+	subdomain     string
+	dataConns     chan net.Conn
+	sessionSecret string
 }
 
 // NewServer creates a new server.
@@ -95,44 +98,60 @@ func (s *Server) isClosed(err error) bool {
 	return errors.Is(err, net.ErrClosed)
 }
 
+func generateSessionSecret() (string, error) {
+	b := make([]byte, 32)
+	if _, err := rand.Read(b); err != nil {
+		return "", err
+	}
+	return hex.EncodeToString(b), nil
+}
+
 // registerSubdomain reserves a custom or random subdomain for a new client.
 // It initializes the ClientConnection with a dedicated dataConns buffer
 // and registers it in the tunnels map.
-func (s *Server) registerSubdomain(conn net.Conn, requested string) (string, error) {
+func (s *Server) registerSubdomain(conn net.Conn, requested string) (string, string, error) {
+	secret, err := generateSessionSecret()
+	if err != nil {
+		return "", "", err
+	}
+
 	subdomain := strings.ToLower(strings.TrimSpace(requested))
 	if subdomain != "" {
 		if err := ValidateSubdomain(subdomain); err != nil {
-			return "", err
+			return "", "", err
 		}
 
 		client := ClientConnection{
-			conn:      conn,
-			subdomain: subdomain,
-			dataConns: make(chan net.Conn, defaultDataConnBuffer),
+			conn:          conn,
+			subdomain:     subdomain,
+			dataConns:     make(chan net.Conn, defaultDataConnBuffer),
+			sessionSecret: secret,
 		}
 		if _, loaded := s.tunnels.LoadOrStore(subdomain, client); loaded {
-			return "", fmt.Errorf("subdomain '%s' is already in use", subdomain)
+			return "", "", fmt.Errorf("subdomain '%s' is already in use", subdomain)
 		}
-		return subdomain, nil
+		return subdomain, secret, nil
 	}
 
 	// generate random subdomain, retry 5 times in case of collision
+
 	for range 5 {
 		sub, err := GenerateReadableSubdomain()
 		if err != nil {
-			return "", err
+			return "", "", err
 		}
 		client := ClientConnection{
-			conn:      conn,
-			subdomain: sub,
-			dataConns: make(chan net.Conn, defaultDataConnBuffer),
+			conn:          conn,
+			subdomain:     sub,
+			dataConns:     make(chan net.Conn, defaultDataConnBuffer),
+			sessionSecret: secret,
 		}
 		if _, loaded := s.tunnels.LoadOrStore(sub, client); !loaded {
-			return sub, nil
+			return sub, secret, nil
 		}
 	}
 
-	return "", fmt.Errorf("failed to generate unique subdomain")
+	return "", "", fmt.Errorf("failed to generate unique subdomain")
 }
 
 // handleControlConnection processes an incoming client socket.
@@ -163,6 +182,13 @@ func (s *Server) handleControlConnection(conn net.Conn) {
 		}
 
 		client := val.(ClientConnection)
+
+		// Verify that this data socket holds the secret for his tunnel
+		if subtle.ConstantTimeCompare([]byte(req.SessionSecret), []byte(client.sessionSecret)) != 1 {
+			conn.Close() // Invalid session secret
+			return
+		}
+
 		select {
 		case client.dataConns <- conn:
 			return // Parked in tenant's pool
@@ -183,7 +209,7 @@ func (s *Server) handleControlConnection(conn net.Conn) {
 	}
 
 	// Phase 2: Control socket - register new tunnel
-	subdomain, err := s.registerSubdomain(conn, req.Subdomain)
+	subdomain, sessionSecret, err := s.registerSubdomain(conn, req.Subdomain)
 	if err != nil {
 		_ = json.NewEncoder(conn).Encode(protocol.TunnelResponse{Error: err.Error()})
 		conn.Close()
@@ -197,6 +223,7 @@ func (s *Server) handleControlConnection(conn net.Conn) {
 	resp := protocol.TunnelResponse{
 		Subdomain:      subdomain,
 		PublicURL:      publicURL,
+		SessionSecret:  sessionSecret,
 		MaxConnections: defaultDataConnBuffer,
 	}
 	if err := json.NewEncoder(conn).Encode(resp); err != nil {
