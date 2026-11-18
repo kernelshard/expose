@@ -48,13 +48,14 @@ func (c *Cloudflare) Close() error {
 	c.mu.Lock()
 	defer c.mu.Unlock()
 
-	// if cmd is running, kill the process
+	// if cmd is running, kill the process and reap it
 	if c.cmd != nil && c.cmd.Process != nil {
-		err := c.cmd.Process.Kill()
+		_ = c.cmd.Process.Kill()
+		_ = c.cmd.Wait()
 		// clear fields safely under write lock
 		c.cmd = nil
 		c.publicURL = ""
-		return err
+		return nil
 	}
 	return nil
 }
@@ -98,24 +99,29 @@ func requestTunnel(ctx context.Context, port int, timeout time.Duration) (string
 	urlCh := make(chan string, 1)
 	errCh := make(chan error, 1)
 
-	// Read stderr for URL
+	// Read stderr for URL and continue draining to prevent pipe deadlock
 	go func() {
 		scanner := bufio.NewScanner(stderr)
+		var foundURL bool
 		for scanner.Scan() {
 			line := scanner.Text()
 			fmt.Println(line) // logs
 
-			if url := urlRegex.FindString(line); url != "" {
-				urlCh <- url
-				return
+			if !foundURL {
+				if url := urlRegex.FindString(line); url != "" {
+					foundURL = true
+					urlCh <- url
+				}
 			}
 		}
 
-		// Handle scanner error or no URL found
-		if err := scanner.Err(); err != nil {
-			errCh <- fmt.Errorf("read stderr: %w", err)
-		} else {
-			errCh <- fmt.Errorf("cloudflared exited without providing URL")
+		// Handle scanner error or no URL found before exit
+		if !foundURL {
+			if err := scanner.Err(); err != nil {
+				errCh <- fmt.Errorf("read stderr: %w", err)
+			} else {
+				errCh <- fmt.Errorf("cloudflared exited without providing URL")
+			}
 		}
 	}()
 
