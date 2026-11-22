@@ -27,7 +27,7 @@ description: Install Expose and run your first tunnel in under 2 minutes.
         You can customize the destination folder or specify a target version:
         ```bash
         # Install a specific release version
-        VERSION=v0.6.4 curl -fsSL https://raw.githubusercontent.com/kernelshard/expose/main/install.sh | sh
+        VERSION=v0.6.5 curl -fsSL https://raw.githubusercontent.com/kernelshard/expose/main/install.sh | sh
 
         # Install into custom directory (defaults to /usr/local/bin or ~/.local/bin)
         BINDIR=~/.local/bin curl -fsSL https://raw.githubusercontent.com/kernelshard/expose/main/install.sh | sh
@@ -167,16 +167,25 @@ expose tunnel -P cloudflare -p 3000
 
 ## Provider Options
 
-### LocalTunnel (default)
+### Localhost.run (default)
 
-No dependencies, no signup — just works. Great for quick webhook tests.
+No dependencies, zero signup, pure Go in-memory SSH reverse tunneling.
 
 ```bash
 expose tunnel
-# same as: expose tunnel --provider localtunnel
+# same as: expose tunnel --provider localhostrun
 ```
 
-**Limitations**: shared infrastructure, occasional connection drops on long sessions.
+### LocalTunnel (legacy)
+
+Community-run public relay fallback:
+
+```bash
+expose tunnel --provider localtunnel
+```
+
+!!! warning "Upstream Availability"
+    The public `localtunnel.me` infrastructure frequently suffers upstream outages, 504 gateway timeouts, and dropped connections. Use `localhostrun` (default) or `cloudflare` for reliable sessions.
 
 ### Cloudflare Tunnel
 

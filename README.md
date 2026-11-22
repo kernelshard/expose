@@ -55,11 +55,14 @@ When you run an app on `http://localhost:3000`, only your laptop can access it. 
 Expose your local development server in seconds without creating an account:
 
 ```bash
-# Public relay (default)
+# Public relay (default: localhost.run)
 expose tunnel 3000
 
 # Or via Cloudflare Quick Tunnels
 expose tunnel 3000 --provider=cloudflare
+
+# Or via LocalTunnel
+expose tunnel 3000 --provider=localtunnel
 ```
 
 ### Option B: Sovereign Mode (Self-Hosted on Your VPS)
@@ -93,7 +96,7 @@ curl -fsSL https://raw.githubusercontent.com/kernelshard/expose/main/install.sh 
 Pin a specific version or install to a custom path:
 ```bash
 # Pin version
-VERSION=v0.6.4 curl -fsSL https://raw.githubusercontent.com/kernelshard/expose/main/install.sh | sh
+VERSION=v0.6.5 curl -fsSL https://raw.githubusercontent.com/kernelshard/expose/main/install.sh | sh
 
 # Custom directory
 BINDIR=~/.local/bin curl -fsSL https://raw.githubusercontent.com/kernelshard/expose/main/install.sh | sh
@@ -189,7 +192,7 @@ expose/
 │   ├── cli/          # Cobra subcommands & flag parsing
 │   ├── config/       # YAML config management
 │   ├── pool/         # sync.Pool 32KB buffer recycling (0 allocs/op)
-│   ├── provider/     # Tunnel backends (LocalTunnel, Cloudflare, Self-Hosted)
+│   ├── provider/     # Tunnel backends (Localhost.run, Cloudflare, Self-Hosted, LocalTunnel)
 │   ├── server/       # Self-hosted relay control plane & TCP proxy
 │   ├── tunnel/       # Core service orchestration & connection lifecycle
 │   └── version/      # Build metadata & version injection
