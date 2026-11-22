@@ -8,6 +8,7 @@ import (
 	"os"
 	"os/signal"
 	"strconv"
+	"strings"
 	"syscall"
 	"time"
 
@@ -24,15 +25,16 @@ func newTunnelCmd() *cobra.Command {
 	//Short: "Start a tunnel to expose local server",
 	//RunE:  runTunnelCmd,
 	cmd := &cobra.Command{
-		Use:   "tunnel [port]",
-		Short: "Expose local server via tunnel",
-		Args:  cobra.MaximumNArgs(1),
-		RunE:  runTunnelCmd,
+		Use:          "tunnel [port]",
+		Short:        "Expose local server via tunnel",
+		Args:         cobra.MaximumNArgs(1),
+		SilenceUsage: true,
+		RunE:         runTunnelCmd,
 	}
 
 	// Define flags
 	// provider flag to specify provider e.g. expose tunnel --provider cloudflare
-	cmd.Flags().StringP("provider", "P", "localtunnel", "Tunnel provider: localtunnel, cloudflare, selfhosted")
+	cmd.Flags().StringP("provider", "P", "localtunnel", "Tunnel provider: localtunnel, cloudflare, selfhosted, localhostrun")
 
 	// port flag to specify local port e.g. expose tunnel --port 8080
 	cmd.Flags().IntP("port", "p", 0, "Local port to expose (overrides config)")
@@ -118,11 +120,13 @@ func runTunnelCmd(cmd *cobra.Command, args []string) error {
 	}
 
 	var svc *tunnel.Service
-	switch providerName {
+	switch strings.ToLower(providerName) {
 	case "cloudflare":
 		svc = tunnel.NewService(provider.NewCloudFlare())
 	case "selfhosted":
 		svc = tunnel.NewService(provider.NewSelfHosted(serverAddr, subdomain).WithToken(token))
+	case "localhostrun", "lhr":
+		svc = tunnel.NewService(provider.NewLocalhostRun())
 	default:
 		svc = tunnel.NewService(provider.NewLocalTunnel(nil))
 	}

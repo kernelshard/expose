@@ -1,16 +1,20 @@
 package provider
 
 import (
+	"bufio"
 	"context"
 	"crypto/ed25519"
 	"crypto/rand"
 	"fmt"
 	"io"
 	"net"
+	"regexp"
 	"sync"
 	"time"
 
 	"golang.org/x/crypto/ssh"
+
+	"github.com/kernelshard/expose/internal/pool"
 )
 
 const defaultLocalhostRunServer = "localhost.run:22"
@@ -26,6 +30,7 @@ func generateSSHKey(random io.Reader) (ssh.Signer, error) {
 type LocalhostRun struct {
 	serverAddr string
 	client     *ssh.Client
+	listener   net.Listener
 	publicURL  string
 	connected  bool
 	mu         sync.RWMutex
@@ -109,12 +114,66 @@ func (l *LocalhostRun) Connect(ctx context.Context, localPort int) (string, erro
 		return "", fmt.Errorf("failed to connect to %s: %w", l.serverAddr, err)
 	}
 
+	// 4. Request reverse port forwarding on remport port 80
+	listener, err := client.Listen("tcp", "0.0.0.0:80")
+	if err != nil {
+		_ = client.Close()
+		return "", fmt.Errorf("failed to request reverse port: %w", err)
+	}
+
+	// 5. Read assigned public URL from the SSH banner
+	publicURL, err := extractPublicURL(client)
+	if err != nil {
+		_ = listener.Close()
+		_ = client.Close()
+		return "", err
+	}
+
 	l.mu.Lock()
 	l.client = client
+	l.listener = listener
+	l.publicURL = publicURL
 	l.connected = true
 	l.mu.Unlock()
 
-	return "", nil // Temporary: Phase 3 will return the public URL!}
+	// 6. Start forwarding visitor traffic to the local port
+	go l.forwardTraffic(ctx, listener, localPort)
+
+	return publicURL, nil
+}
+
+// forwardTraffic continuously accepts incoming visitor connections from the SSH listener.
+func (l *LocalhostRun) forwardTraffic(ctx context.Context, listener net.Listener, localPort int) {
+	for {
+		remoteConn, err := listener.Accept()
+		if err != nil {
+			return
+		}
+		go l.proxyConnection(ctx, remoteConn, localPort)
+	}
+}
+
+// proxyConnection bridges a single incoming visitor connection to the local port.
+func (l *LocalhostRun) proxyConnection(ctx context.Context, remoteConn net.Conn, localPort int) {
+	defer remoteConn.Close()
+
+	var dialer net.Dialer
+	localConn, err := dialer.DialContext(ctx, "tcp", fmt.Sprintf("127.0.0.1:%d", localPort))
+	if err != nil {
+		return
+	}
+	defer localConn.Close()
+
+	done := make(chan struct{}, 2)
+	go func() {
+		_, _ = pool.Copy(localConn, remoteConn)
+		done <- struct{}{}
+	}()
+	go func() {
+		_, _ = pool.Copy(remoteConn, localConn)
+		done <- struct{}{}
+	}()
+	<-done
 }
 
 func (l *LocalhostRun) Close() error {
@@ -124,6 +183,11 @@ func (l *LocalhostRun) Close() error {
 	l.connected = false
 	l.publicURL = ""
 
+	if l.listener != nil {
+		_ = l.listener.Close()
+		l.listener = nil
+	}
+
 	if l.client != nil {
 		err := l.client.Close()
 		l.client = nil
@@ -131,4 +195,38 @@ func (l *LocalhostRun) Close() error {
 	}
 
 	return nil
+}
+
+var lhrURLRegex = regexp.MustCompile(`https?://[a-zA-Z0-9-.]+\.lhr\.(?:life|pro)`)
+
+// extractPublicURL reads the welcome banner until it finds our https://...lhr.life URL.
+func extractPublicURL(client *ssh.Client) (string, error) {
+	session, err := client.NewSession()
+	if err != nil {
+		return "", fmt.Errorf("open ssh session: %w", err)
+	}
+	defer session.Close()
+
+	stdout, err := session.StdoutPipe()
+	if err != nil {
+		return "", fmt.Errorf("get stdout pipe: %w", err)
+	}
+
+	if err := session.Start(""); err != nil {
+		return "", fmt.Errorf("start ssh session: %w", err)
+	}
+
+	// Read lines until we spot the URL (max 16KB limit to protect memory)
+	scanner := bufio.NewScanner(io.LimitReader(stdout, 16*1024))
+	for scanner.Scan() {
+		line := scanner.Text()
+		if match := lhrURLRegex.FindString(line); match != "" {
+			return match, nil
+		}
+	}
+
+	if err := scanner.Err(); err != nil {
+		return "", fmt.Errorf("reading banner: %w", err)
+	}
+	return "", fmt.Errorf("localhost.run did not provide a public URL")
 }
