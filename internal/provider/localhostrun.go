@@ -1,7 +1,6 @@
 package provider
 
 import (
-	"bufio"
 	"context"
 	"crypto/ed25519"
 	"crypto/rand"
@@ -9,6 +8,7 @@ import (
 	"io"
 	"net"
 	"regexp"
+	"strings"
 	"sync"
 	"time"
 
@@ -30,6 +30,7 @@ func generateSSHKey(random io.Reader) (ssh.Signer, error) {
 type LocalhostRun struct {
 	serverAddr string
 	client     *ssh.Client
+	channel    ssh.Channel
 	listener   net.Listener
 	publicURL  string
 	connected  bool
@@ -114,15 +115,15 @@ func (l *LocalhostRun) Connect(ctx context.Context, localPort int) (string, erro
 		return "", fmt.Errorf("failed to connect to %s: %w", l.serverAddr, err)
 	}
 
-	// 4. Request reverse port forwarding on remport port 80
-	listener, err := client.Listen("tcp", "0.0.0.0:80")
+	// 4. Request reverse port forwarding on remote port 80
+	listener, err := client.Listen("tcp", ":80")
 	if err != nil {
 		_ = client.Close()
 		return "", fmt.Errorf("failed to request reverse port: %w", err)
 	}
 
 	// 5. Read assigned public URL from the SSH banner
-	publicURL, err := extractPublicURL(client)
+	publicURL, channel, err := extractPublicURL(ctx, client)
 	if err != nil {
 		_ = listener.Close()
 		_ = client.Close()
@@ -131,6 +132,7 @@ func (l *LocalhostRun) Connect(ctx context.Context, localPort int) (string, erro
 
 	l.mu.Lock()
 	l.client = client
+	l.channel = channel
 	l.listener = listener
 	l.publicURL = publicURL
 	l.connected = true
@@ -183,6 +185,11 @@ func (l *LocalhostRun) Close() error {
 	l.connected = false
 	l.publicURL = ""
 
+	if l.channel != nil {
+		_ = l.channel.Close()
+		l.channel = nil
+	}
+
 	if l.listener != nil {
 		_ = l.listener.Close()
 		l.listener = nil
@@ -197,36 +204,51 @@ func (l *LocalhostRun) Close() error {
 	return nil
 }
 
-var lhrURLRegex = regexp.MustCompile(`https?://[a-zA-Z0-9-.]+\.lhr\.(?:life|pro)`)
+var lhrURLRegex = regexp.MustCompile(`https?://[a-zA-Z0-9-.]+\.(?:lhr\.life|lhr\.pro|lhrtunnel\.link)`)
 
-// extractPublicURL reads the welcome banner until it finds our https://...lhr.life URL.
-func extractPublicURL(client *ssh.Client) (string, error) {
-	session, err := client.NewSession()
+const maxBannerBytes = 32 * 1024
+
+// extractPublicURL opens a session channel, requests a shell without waiting for a reply
+// (localhost.run's russh server does not send channel request confirmations),
+// and reads the banner until it finds our https://...lhr.life URL.
+func extractPublicURL(ctx context.Context, client *ssh.Client) (string, ssh.Channel, error) {
+	ch, inReqs, err := client.OpenChannel("session", nil)
 	if err != nil {
-		return "", fmt.Errorf("open ssh session: %w", err)
+		return "", nil, fmt.Errorf("open ssh channel: %w", err)
 	}
-	defer session.Close()
+	go ssh.DiscardRequests(inReqs)
 
-	stdout, err := session.StdoutPipe()
-	if err != nil {
-		return "", fmt.Errorf("get stdout pipe: %w", err)
+	stop := context.AfterFunc(ctx, func() {
+		_ = ch.Close()
+	})
+	defer stop()
+
+	// wantReply=false because localhost.run server does not acknowledge channel requests
+	if _, err := ch.SendRequest("shell", false, nil); err != nil {
+		_ = ch.Close()
+		return "", nil, fmt.Errorf("request shell: %w", err)
 	}
 
-	if err := session.Start(""); err != nil {
-		return "", fmt.Errorf("start ssh session: %w", err)
-	}
+	buf := make([]byte, 1024)
+	var output strings.Builder
+	totalBytes := 0
 
-	// Read lines until we spot the URL (max 16KB limit to protect memory)
-	scanner := bufio.NewScanner(io.LimitReader(stdout, 16*1024))
-	for scanner.Scan() {
-		line := scanner.Text()
-		if match := lhrURLRegex.FindString(line); match != "" {
-			return match, nil
+	for {
+		n, err := ch.Read(buf)
+		if n > 0 {
+			totalBytes += n
+			if totalBytes > maxBannerBytes {
+				_ = ch.Close()
+				return "", nil, fmt.Errorf("exceeded max banner read limit (%d bytes)", maxBannerBytes)
+			}
+			output.WriteString(string(buf[:n]))
+			if match := lhrURLRegex.FindString(output.String()); match != "" {
+				return match, ch, nil
+			}
+		}
+		if err != nil {
+			_ = ch.Close()
+			return "", nil, fmt.Errorf("reading banner: %w", err)
 		}
 	}
-
-	if err := scanner.Err(); err != nil {
-		return "", fmt.Errorf("reading banner: %w", err)
-	}
-	return "", fmt.Errorf("localhost.run did not provide a public URL")
 }

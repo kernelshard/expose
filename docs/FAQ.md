@@ -99,11 +99,12 @@ If you do not specify `--subdomain`, Expose automatically assigns a memorable, h
 
 ### What tunnel providers does Expose support?
 
-Expose provides a high-performance Layer 4 streaming architecture supporting three interchangeable backends:
+Expose provides a high-performance Layer 4 streaming architecture supporting interchangeable backends:
 
-1. **LocalTunnel** (`-P localtunnel`, default): Zero-configuration public relay ideal for quick tests.
+1. **Localhost.run** (`-P localhostrun`, default): Zero-configuration public SSH reverse tunnel with ephemeral in-memory Ed25519 authentication.
 2. **Cloudflare Quick Tunnels** (`-P cloudflare`): Routes through Cloudflare's global edge network via `cloudflared`.
-3. **Self-Hosted** (`-P selfhosted` or `--server`): Connects to your own private `expose server`.
+3. **LocalTunnel** (`-P localtunnel`): Community relay over `localtunnel.me` (legacy fallback; subject to frequent upstream outages and 504 timeouts).
+4. **Self-Hosted** (`-P selfhosted` or `--server`): Connects to your own private `expose server`.
 
 ---
 

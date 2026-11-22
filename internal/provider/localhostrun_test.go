@@ -1,9 +1,15 @@
 package provider
 
 import (
+	"context"
 	"crypto/rand"
 	"errors"
+	"io"
+	"net"
+	"net/http"
+	"os"
 	"testing"
+	"time"
 
 	"golang.org/x/crypto/ssh"
 )
@@ -105,3 +111,59 @@ func TestLHRURLRegex(t *testing.T) {
 		}
 	}
 }
+
+func TestLiveConnect(t *testing.T) {
+	if os.Getenv("EXPOSE_LIVE_TESTS") == "" {
+		t.Skip("skipping live network test; set EXPOSE_LIVE_TESTS=1 to run")
+	}
+
+	// 1. Start a local HTTP server
+	mux := http.NewServeMux()
+	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		_, _ = w.Write([]byte("HELLO FROM LOCAL EXPOSE"))
+	})
+	listener, err := net.Listen("tcp", "127.0.0.1:0")
+	if err != nil {
+		t.Fatalf("failed to listen locally: %v", err)
+	}
+	defer listener.Close()
+
+	server := &http.Server{Handler: mux}
+	go func() {
+		_ = server.Serve(listener)
+	}()
+	defer server.Close()
+
+	localPort := listener.Addr().(*net.TCPAddr).Port
+
+	// 2. Connect localhostrun provider
+	p := NewLocalhostRun()
+	ctx, cancel := context.WithTimeout(context.Background(), 25*time.Second)
+	defer cancel()
+
+	t.Log(time.Now().Format("15:04:05"), "Calling Connect...")
+	url, err := p.Connect(ctx, localPort)
+	if err != nil {
+		t.Fatalf("Connect failed: %v", err)
+	}
+	t.Log(time.Now().Format("15:04:05"), "SUCCESS! URL:", url)
+	defer p.Close()
+
+	// 3. Make HTTP request through the public URL
+	httpClient := &http.Client{Timeout: 10 * time.Second}
+	resp, err := httpClient.Get(url)
+	if err != nil {
+		t.Fatalf("GET to %s failed: %v", url, err)
+	}
+	defer resp.Body.Close()
+
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		t.Fatalf("reading body failed: %v", err)
+	}
+	t.Log(time.Now().Format("15:04:05"), "Response Body:", string(body))
+	if string(body) != "HELLO FROM LOCAL EXPOSE" {
+		t.Fatalf("unexpected body: %q", string(body))
+	}
+}
+

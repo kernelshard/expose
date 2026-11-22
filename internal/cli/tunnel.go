@@ -34,7 +34,7 @@ func newTunnelCmd() *cobra.Command {
 
 	// Define flags
 	// provider flag to specify provider e.g. expose tunnel --provider cloudflare
-	cmd.Flags().StringP("provider", "P", "localtunnel", "Tunnel provider: localtunnel, cloudflare, selfhosted, localhostrun")
+	cmd.Flags().StringP("provider", "P", "localhostrun", "Tunnel provider: localhostrun (default), cloudflare, selfhosted, localtunnel (legacy/degraded)")
 
 	// port flag to specify local port e.g. expose tunnel --port 8080
 	cmd.Flags().IntP("port", "p", 0, "Local port to expose (overrides config)")
@@ -125,10 +125,12 @@ func runTunnelCmd(cmd *cobra.Command, args []string) error {
 		svc = tunnel.NewService(provider.NewCloudFlare())
 	case "selfhosted":
 		svc = tunnel.NewService(provider.NewSelfHosted(serverAddr, subdomain).WithToken(token))
-	case "localhostrun", "lhr":
-		svc = tunnel.NewService(provider.NewLocalhostRun())
-	default:
+	case "localtunnel", "lt":
 		svc = tunnel.NewService(provider.NewLocalTunnel(nil))
+	case "localhostrun", "lhr":
+		fallthrough
+	default:
+		svc = tunnel.NewService(provider.NewLocalhostRun())
 	}
 
 	return runTunnel(port, svc)

@@ -167,16 +167,25 @@ expose tunnel -P cloudflare -p 3000
 
 ## Provider Options
 
-### LocalTunnel (default)
+### Localhost.run (default)
 
-No dependencies, no signup — just works. Great for quick webhook tests.
+No dependencies, zero signup, pure Go in-memory SSH reverse tunneling.
 
 ```bash
 expose tunnel
-# same as: expose tunnel --provider localtunnel
+# same as: expose tunnel --provider localhostrun
 ```
 
-**Limitations**: shared infrastructure, occasional connection drops on long sessions.
+### LocalTunnel (legacy)
+
+Community-run public relay fallback:
+
+```bash
+expose tunnel --provider localtunnel
+```
+
+!!! warning "Upstream Availability"
+    The public `localtunnel.me` infrastructure frequently suffers upstream outages, 504 gateway timeouts, and dropped connections. Use `localhostrun` (default) or `cloudflare` for reliable sessions.
 
 ### Cloudflare Tunnel
 

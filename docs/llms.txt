@@ -11,9 +11,10 @@ Expose serves as a lightweight, privacy-focused alternative to commercial tunnel
 - **Zero-Allocation Buffer Recycling**: Recycles 32KB buffers via `sync.Pool` using slice pointers (`*[]byte`), slashing heap allocations by 95.8% (1,444 B/op vs. 34,209 B/op) with zero allocations during active streaming.
 - **Bounded Concurrency & Connection Safety**: Server-advertised connection limits (`MaxConnections`) eliminate CPU dial spin-loops; coordinated stream termination prevents goroutine and socket descriptor leaks.
 - **Multiple Tunnel Backends**:
-  - `localtunnel` (default): Free public tunnel infrastructure via localtunnel.me.
+  - `localhostrun` (default): Free zero-config public SSH reverse tunnel via localhost.run.
   - `cloudflare`: High-performance Quick Tunnels powered by the Cloudflare global network (requires `cloudflared`).
   - `selfhosted`: Private tunneling control plane running on your own VPS with custom and memorable human-friendly subdomains.
+  - `localtunnel`: Legacy community relay over localtunnel.me (subject to frequent upstream outages and 504 timeouts).
 - **Cross-Platform**: Prebuilt releases for macOS (Darwin arm64/x86_64), Linux (arm64/x86_64), and Windows (arm64/x86_64).
 
 ## Quickstart
@@ -52,7 +53,7 @@ expose tunnel --server=tunnel.yourdomain.com:7890 -p 3000
 ## CLI Reference
 - `expose tunnel [port]`: Start an encrypted tunnel session to expose a local port.
   - `-p, --port <int>`: Local port to expose (defaults to 3000).
-  - `-P, --provider <string>`: Tunnel provider: `localtunnel`, `cloudflare`, or `selfhosted` (default: `localtunnel`).
+  - `-P, --provider <string>`: Tunnel provider: `localhostrun`, `localtunnel`, `cloudflare`, or `selfhosted` (default: `localhostrun`).
   - `-s, --server <string>`: Self-hosted server address (e.g., `tunnel.mysite.com:7890`).
 - `expose server`: Start self-hosted tunnel control plane and HTTP reverse proxy.
   - `--domain <string>`: Base domain for tunnels (required).
