@@ -25,7 +25,7 @@
       
       
       <link rel="icon" href="assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.1">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.2">
     
     
       
@@ -1642,10 +1642,11 @@
 </div>
 <hr />
 <h3 id="what-tunnel-providers-does-expose-support">What tunnel providers does Expose support?<a class="headerlink" href="#what-tunnel-providers-does-expose-support" title="Permanent link">&para;</a></h3>
-<p>Expose provides a high-performance Layer 4 streaming architecture supporting three interchangeable backends:</p>
+<p>Expose provides a high-performance Layer 4 streaming architecture supporting interchangeable backends:</p>
 <ol>
-<li><strong>LocalTunnel</strong> (<code>-P localtunnel</code>, default): Zero-configuration public relay ideal for quick tests.</li>
+<li><strong>Localhost.run</strong> (<code>-P localhostrun</code>, default): Zero-configuration public SSH reverse tunnel with ephemeral in-memory Ed25519 authentication.</li>
 <li><strong>Cloudflare Quick Tunnels</strong> (<code>-P cloudflare</code>): Routes through Cloudflare's global edge network via <code>cloudflared</code>.</li>
+<li><strong>LocalTunnel</strong> (<code>-P localtunnel</code>): Community relay over <code>localtunnel.me</code> (legacy fallback; subject to frequent upstream outages and 504 timeouts).</li>
 <li><strong>Self-Hosted</strong> (<code>-P selfhosted</code> or <code>--server</code>): Connects to your own private <code>expose server</code>.</li>
 </ol>
 <hr />

@@ -25,7 +25,7 @@
       
       
       <link rel="icon" href="assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.1">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.2">
     
     
       
@@ -830,6 +830,17 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
+  <a href="#localhostrun" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Localhost.run
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#localtunnel" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1410,6 +1421,17 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
+  <a href="#localhostrun" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Localhost.run
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#localtunnel" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1836,9 +1858,9 @@
 </thead>
 <tbody>
 <tr>
-<td><strong>LocalTunnel</strong></td>
-<td>Quick webhook tests, short sessions</td>
-<td>Nothing</td>
+<td><strong>Localhost.run</strong> (default)</td>
+<td>Fast zero-config tunnels, webhooks</td>
+<td>Nothing (pure Go SSH)</td>
 </tr>
 <tr>
 <td><strong>Cloudflare</strong></td>
@@ -1850,12 +1872,24 @@
 <td>Full control, no rate limits</td>
 <td>Your own VPS</td>
 </tr>
+<tr>
+<td><strong>LocalTunnel</strong></td>
+<td>Legacy fallback</td>
+<td>Nothing (subject to upstream outages)</td>
+</tr>
 </tbody>
 </table>
-<h3 id="localtunnel">LocalTunnel<a class="headerlink" href="#localtunnel" title="Permanent link">&para;</a></h3>
+<h3 id="localhostrun">Localhost.run<a class="headerlink" href="#localhostrun" title="Permanent link">&para;</a></h3>
 <div class="language-bash highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>expose<span class="w"> </span>tunnel<span class="w">               </span><span class="c1"># default</span>
-</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>expose<span class="w"> </span>tunnel<span class="w"> </span>-P<span class="w"> </span>localtunnel<span class="w">  </span><span class="c1"># explicit</span>
+</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>expose<span class="w"> </span>tunnel<span class="w"> </span>-P<span class="w"> </span>localhostrun<span class="w">  </span><span class="c1"># explicit (or -P lhr)</span>
 </span></code></pre></div>
+<h3 id="localtunnel">LocalTunnel<a class="headerlink" href="#localtunnel" title="Permanent link">&para;</a></h3>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>expose<span class="w"> </span>tunnel<span class="w"> </span>-P<span class="w"> </span>localtunnel<span class="w">  </span><span class="c1"># explicit (or -P lt)</span>
+</span></code></pre></div>
+<div class="admonition warning">
+<p class="admonition-title">Upstream Availability</p>
+<p>The public <code>localtunnel.me</code> infrastructure frequently suffers upstream outages, 504 gateway timeouts, and dropped connections. Use <code>localhostrun</code> (default) or <code>cloudflare</code> for active development.</p>
+</div>
 <div class="admonition warning">
 <p class="admonition-title">Stability</p>
 <p>LocalTunnel's shared infrastructure can drop connections during long sessions. If you need reliability, use Cloudflare.</p>
@@ -1864,34 +1898,34 @@
 <div class="tabbed-set tabbed-alternate" data-tabs="1:2"><input checked="checked" id="cloudflare-tunnel-macos" name="__tabbed_1" type="radio" /><input id="cloudflare-tunnel-linux" name="__tabbed_1" type="radio" /><div class="tabbed-labels"><label for="cloudflare-tunnel-macos">macOS</label><label for="cloudflare-tunnel-linux">Linux</label></div>
 <div class="tabbed-content">
 <div class="tabbed-block">
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>brew<span class="w"> </span>install<span class="w"> </span>cloudflare/cloudflare/cloudflared
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>brew<span class="w"> </span>install<span class="w"> </span>cloudflare/cloudflare/cloudflared
 </span></code></pre></div>
 </div>
 <div class="tabbed-block">
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>wget<span class="w"> </span>-q<span class="w"> </span>https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-amd64
-</span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>sudo<span class="w"> </span>mv<span class="w"> </span>cloudflared-linux-amd64<span class="w"> </span>/usr/local/bin/cloudflared
-</span><span id="__span-5-3"><a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>sudo<span class="w"> </span>chmod<span class="w"> </span>+x<span class="w"> </span>/usr/local/bin/cloudflared
-</span><span id="__span-5-4"><a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a>cloudflared<span class="w"> </span>--version
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>wget<span class="w"> </span>-q<span class="w"> </span>https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-amd64
+</span><span id="__span-6-2"><a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>sudo<span class="w"> </span>mv<span class="w"> </span>cloudflared-linux-amd64<span class="w"> </span>/usr/local/bin/cloudflared
+</span><span id="__span-6-3"><a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>sudo<span class="w"> </span>chmod<span class="w"> </span>+x<span class="w"> </span>/usr/local/bin/cloudflared
+</span><span id="__span-6-4"><a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a>cloudflared<span class="w"> </span>--version
 </span></code></pre></div>
 </div>
 </div>
 </div>
 <p>Then start the tunnel:</p>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>expose<span class="w"> </span>tunnel<span class="w"> </span>-P<span class="w"> </span>cloudflare<span class="w"> </span>-p<span class="w"> </span><span class="m">3000</span>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>expose<span class="w"> </span>tunnel<span class="w"> </span>-P<span class="w"> </span>cloudflare<span class="w"> </span>-p<span class="w"> </span><span class="m">3000</span>
 </span></code></pre></div>
 <h3 id="self-hosted-server">Self-Hosted Server<a class="headerlink" href="#self-hosted-server" title="Permanent link">&para;</a></h3>
 <p>Run the Expose server component on any VPS (a $5/mo instance is plenty):</p>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="c1"># On your VPS — one-time setup</span>
-</span><span id="__span-7-2"><a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a>expose<span class="w"> </span>server<span class="w"> </span><span class="se">\</span>
-</span><span id="__span-7-3"><a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a><span class="w">  </span>--domain<span class="o">=</span>tunnel.mysite.com<span class="w"> </span><span class="se">\</span>
-</span><span id="__span-7-4"><a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a><span class="w">  </span>--control-port<span class="o">=</span><span class="m">7890</span><span class="w"> </span><span class="se">\</span>
-</span><span id="__span-7-5"><a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a><span class="w">  </span>--public-port<span class="o">=</span><span class="m">8080</span>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="c1"># On your VPS — one-time setup</span>
+</span><span id="__span-8-2"><a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>expose<span class="w"> </span>server<span class="w"> </span><span class="se">\</span>
+</span><span id="__span-8-3"><a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a><span class="w">  </span>--domain<span class="o">=</span>tunnel.mysite.com<span class="w"> </span><span class="se">\</span>
+</span><span id="__span-8-4"><a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a><span class="w">  </span>--control-port<span class="o">=</span><span class="m">7890</span><span class="w"> </span><span class="se">\</span>
+</span><span id="__span-8-5"><a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a><span class="w">  </span>--public-port<span class="o">=</span><span class="m">8080</span>
 </span></code></pre></div>
 <p>Then connect from your local machine:</p>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>expose<span class="w"> </span>tunnel<span class="w"> </span>--server<span class="o">=</span>tunnel.mysite.com:7890<span class="w"> </span>-p<span class="w"> </span><span class="m">3000</span>
-</span><span id="__span-8-2"><a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>
-</span><span id="__span-8-3"><a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a><span class="c1"># Or request a custom subdomain</span>
-</span><span id="__span-8-4"><a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a>expose<span class="w"> </span>tunnel<span class="w"> </span>--server<span class="o">=</span>tunnel.mysite.com:7890<span class="w"> </span>--subdomain<span class="o">=</span>my-app<span class="w"> </span>-p<span class="w"> </span><span class="m">3000</span>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-9-1"><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>expose<span class="w"> </span>tunnel<span class="w"> </span>--server<span class="o">=</span>tunnel.mysite.com:7890<span class="w"> </span>-p<span class="w"> </span><span class="m">3000</span>
+</span><span id="__span-9-2"><a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a>
+</span><span id="__span-9-3"><a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a><span class="c1"># Or request a custom subdomain</span>
+</span><span id="__span-9-4"><a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a>expose<span class="w"> </span>tunnel<span class="w"> </span>--server<span class="o">=</span>tunnel.mysite.com:7890<span class="w"> </span>--subdomain<span class="o">=</span>my-app<span class="w"> </span>-p<span class="w"> </span><span class="m">3000</span>
 </span></code></pre></div>
 <div class="admonition tip">
 <p class="admonition-title">Advantages of self-hosting</p>
@@ -1937,9 +1971,9 @@
 <li><strong>Self-host in the same region</strong> as your users for the lowest round-trip time.</li>
 </ol>
 <h3 id="memory-footprint">Memory footprint<a class="headerlink" href="#memory-footprint" title="Permanent link">&para;</a></h3>
-<div class="language-text highlight"><pre><span></span><code><span id="__span-9-1"><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>Base:            ~10 MB
-</span><span id="__span-9-2"><a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a>Per connection:  ~1 MB
-</span><span id="__span-9-3"><a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a>Typical total:   20–30 MB
+<div class="language-text highlight"><pre><span></span><code><span id="__span-10-1"><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>Base:            ~10 MB
+</span><span id="__span-10-2"><a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a>Per connection:  ~1 MB
+</span><span id="__span-10-3"><a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a>Typical total:   20–30 MB
 </span></code></pre></div>
 <hr />
 <h2 id="security">Security<a class="headerlink" href="#security" title="Permanent link">&para;</a></h2>
@@ -1948,28 +1982,28 @@
 <p><code>expose tunnel</code> creates a <strong>public URL</strong> that routes directly to your <code>localhost</code>. Never expose production services, databases, or admin interfaces this way.</p>
 </div>
 <h3 id="what-you-should-never-expose">What you should never expose<a class="headerlink" href="#what-you-should-never-expose" title="Permanent link">&para;</a></h3>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-10-1"><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="c1"># ❌ DO NOT expose</span>
-</span><span id="__span-10-2"><a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a>expose<span class="w"> </span>tunnel<span class="w"> </span>-p<span class="w"> </span><span class="m">5432</span><span class="w">   </span><span class="c1"># PostgreSQL</span>
-</span><span id="__span-10-3"><a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a>expose<span class="w"> </span>tunnel<span class="w"> </span>-p<span class="w"> </span><span class="m">27017</span><span class="w">  </span><span class="c1"># MongoDB</span>
-</span><span id="__span-10-4"><a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a>expose<span class="w"> </span>tunnel<span class="w"> </span>-p<span class="w"> </span><span class="m">6379</span><span class="w">   </span><span class="c1"># Redis</span>
-</span><span id="__span-10-5"><a id="__codelineno-10-5" name="__codelineno-10-5" href="#__codelineno-10-5"></a>expose<span class="w"> </span>tunnel<span class="w"> </span>-p<span class="w"> </span><span class="m">22</span><span class="w">     </span><span class="c1"># SSH</span>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-11-1"><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a><span class="c1"># ❌ DO NOT expose</span>
+</span><span id="__span-11-2"><a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a>expose<span class="w"> </span>tunnel<span class="w"> </span>-p<span class="w"> </span><span class="m">5432</span><span class="w">   </span><span class="c1"># PostgreSQL</span>
+</span><span id="__span-11-3"><a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a>expose<span class="w"> </span>tunnel<span class="w"> </span>-p<span class="w"> </span><span class="m">27017</span><span class="w">  </span><span class="c1"># MongoDB</span>
+</span><span id="__span-11-4"><a id="__codelineno-11-4" name="__codelineno-11-4" href="#__codelineno-11-4"></a>expose<span class="w"> </span>tunnel<span class="w"> </span>-p<span class="w"> </span><span class="m">6379</span><span class="w">   </span><span class="c1"># Redis</span>
+</span><span id="__span-11-5"><a id="__codelineno-11-5" name="__codelineno-11-5" href="#__codelineno-11-5"></a>expose<span class="w"> </span>tunnel<span class="w"> </span>-p<span class="w"> </span><span class="m">22</span><span class="w">     </span><span class="c1"># SSH</span>
 </span></code></pre></div>
 <h3 id="add-authentication-to-your-local-app">Add authentication to your local app<a class="headerlink" href="#add-authentication-to-your-local-app" title="Permanent link">&para;</a></h3>
 <p>Even in development, protect your tunnel with a simple token check:</p>
-<div class="language-javascript highlight"><pre><span></span><code><span id="__span-11-1"><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a><span class="c1">// Express middleware example</span>
-</span><span id="__span-11-2"><a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a><span class="nx">app</span><span class="p">.</span><span class="nx">use</span><span class="p">((</span><span class="nx">req</span><span class="p">,</span><span class="w"> </span><span class="nx">res</span><span class="p">,</span><span class="w"> </span><span class="nx">next</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__span-11-3"><a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a><span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">token</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">req</span><span class="p">.</span><span class="nx">headers</span><span class="p">[</span><span class="s1">'x-dev-token'</span><span class="p">];</span>
-</span><span id="__span-11-4"><a id="__codelineno-11-4" name="__codelineno-11-4" href="#__codelineno-11-4"></a><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">token</span><span class="w"> </span><span class="o">!==</span><span class="w"> </span><span class="nx">process</span><span class="p">.</span><span class="nx">env</span><span class="p">.</span><span class="nx">DEV_TOKEN</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__span-11-5"><a id="__codelineno-11-5" name="__codelineno-11-5" href="#__codelineno-11-5"></a><span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="nx">res</span><span class="p">.</span><span class="nx">status</span><span class="p">(</span><span class="mf">401</span><span class="p">).</span><span class="nx">json</span><span class="p">({</span><span class="w"> </span><span class="nx">error</span><span class="o">:</span><span class="w"> </span><span class="s1">'Unauthorized'</span><span class="w"> </span><span class="p">});</span>
-</span><span id="__span-11-6"><a id="__codelineno-11-6" name="__codelineno-11-6" href="#__codelineno-11-6"></a><span class="w">    </span><span class="p">}</span>
-</span><span id="__span-11-7"><a id="__codelineno-11-7" name="__codelineno-11-7" href="#__codelineno-11-7"></a><span class="w">    </span><span class="nx">next</span><span class="p">();</span>
-</span><span id="__span-11-8"><a id="__codelineno-11-8" name="__codelineno-11-8" href="#__codelineno-11-8"></a><span class="p">});</span>
+<div class="language-javascript highlight"><pre><span></span><code><span id="__span-12-1"><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a><span class="c1">// Express middleware example</span>
+</span><span id="__span-12-2"><a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a><span class="nx">app</span><span class="p">.</span><span class="nx">use</span><span class="p">((</span><span class="nx">req</span><span class="p">,</span><span class="w"> </span><span class="nx">res</span><span class="p">,</span><span class="w"> </span><span class="nx">next</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-12-3"><a id="__codelineno-12-3" name="__codelineno-12-3" href="#__codelineno-12-3"></a><span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">token</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">req</span><span class="p">.</span><span class="nx">headers</span><span class="p">[</span><span class="s1">'x-dev-token'</span><span class="p">];</span>
+</span><span id="__span-12-4"><a id="__codelineno-12-4" name="__codelineno-12-4" href="#__codelineno-12-4"></a><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">token</span><span class="w"> </span><span class="o">!==</span><span class="w"> </span><span class="nx">process</span><span class="p">.</span><span class="nx">env</span><span class="p">.</span><span class="nx">DEV_TOKEN</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-12-5"><a id="__codelineno-12-5" name="__codelineno-12-5" href="#__codelineno-12-5"></a><span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="nx">res</span><span class="p">.</span><span class="nx">status</span><span class="p">(</span><span class="mf">401</span><span class="p">).</span><span class="nx">json</span><span class="p">({</span><span class="w"> </span><span class="nx">error</span><span class="o">:</span><span class="w"> </span><span class="s1">'Unauthorized'</span><span class="w"> </span><span class="p">});</span>
+</span><span id="__span-12-6"><a id="__codelineno-12-6" name="__codelineno-12-6" href="#__codelineno-12-6"></a><span class="w">    </span><span class="p">}</span>
+</span><span id="__span-12-7"><a id="__codelineno-12-7" name="__codelineno-12-7" href="#__codelineno-12-7"></a><span class="w">    </span><span class="nx">next</span><span class="p">();</span>
+</span><span id="__span-12-8"><a id="__codelineno-12-8" name="__codelineno-12-8" href="#__codelineno-12-8"></a><span class="p">});</span>
 </span></code></pre></div>
 <h3 id="log-all-tunnel-traffic">Log all tunnel traffic<a class="headerlink" href="#log-all-tunnel-traffic" title="Permanent link">&para;</a></h3>
-<div class="language-javascript highlight"><pre><span></span><code><span id="__span-12-1"><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a><span class="nx">app</span><span class="p">.</span><span class="nx">use</span><span class="p">((</span><span class="nx">req</span><span class="p">,</span><span class="w"> </span><span class="nx">res</span><span class="p">,</span><span class="w"> </span><span class="nx">next</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__span-12-2"><a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a><span class="w">    </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="sb">`[</span><span class="si">${</span><span class="ow">new</span><span class="w"> </span><span class="nb">Date</span><span class="p">().</span><span class="nx">toISOString</span><span class="p">()</span><span class="si">}</span><span class="sb">] </span><span class="si">${</span><span class="nx">req</span><span class="p">.</span><span class="nx">method</span><span class="si">}</span><span class="sb"> </span><span class="si">${</span><span class="nx">req</span><span class="p">.</span><span class="nx">url</span><span class="si">}</span><span class="sb"> — </span><span class="si">${</span><span class="nx">req</span><span class="p">.</span><span class="nx">ip</span><span class="si">}</span><span class="sb">`</span><span class="p">);</span>
-</span><span id="__span-12-3"><a id="__codelineno-12-3" name="__codelineno-12-3" href="#__codelineno-12-3"></a><span class="w">    </span><span class="nx">next</span><span class="p">();</span>
-</span><span id="__span-12-4"><a id="__codelineno-12-4" name="__codelineno-12-4" href="#__codelineno-12-4"></a><span class="p">});</span>
+<div class="language-javascript highlight"><pre><span></span><code><span id="__span-13-1"><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a><span class="nx">app</span><span class="p">.</span><span class="nx">use</span><span class="p">((</span><span class="nx">req</span><span class="p">,</span><span class="w"> </span><span class="nx">res</span><span class="p">,</span><span class="w"> </span><span class="nx">next</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-13-2"><a id="__codelineno-13-2" name="__codelineno-13-2" href="#__codelineno-13-2"></a><span class="w">    </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="sb">`[</span><span class="si">${</span><span class="ow">new</span><span class="w"> </span><span class="nb">Date</span><span class="p">().</span><span class="nx">toISOString</span><span class="p">()</span><span class="si">}</span><span class="sb">] </span><span class="si">${</span><span class="nx">req</span><span class="p">.</span><span class="nx">method</span><span class="si">}</span><span class="sb"> </span><span class="si">${</span><span class="nx">req</span><span class="p">.</span><span class="nx">url</span><span class="si">}</span><span class="sb"> — </span><span class="si">${</span><span class="nx">req</span><span class="p">.</span><span class="nx">ip</span><span class="si">}</span><span class="sb">`</span><span class="p">);</span>
+</span><span id="__span-13-3"><a id="__codelineno-13-3" name="__codelineno-13-3" href="#__codelineno-13-3"></a><span class="w">    </span><span class="nx">next</span><span class="p">();</span>
+</span><span id="__span-13-4"><a id="__codelineno-13-4" name="__codelineno-13-4" href="#__codelineno-13-4"></a><span class="p">});</span>
 </span></code></pre></div>
 <h3 id="stop-tunnels-when-done">Stop tunnels when done<a class="headerlink" href="#stop-tunnels-when-done" title="Permanent link">&para;</a></h3>
 <p>Always press <span class="keys"><kbd class="key-control">Ctrl</kbd><span>+</span><kbd class="key-c">C</kbd></span> when you're finished. Don't leave tunnels running overnight or over the weekend.</p>
@@ -1977,22 +2011,22 @@
 <h2 id="troubleshooting">Troubleshooting<a class="headerlink" href="#troubleshooting" title="Permanent link">&para;</a></h2>
 <h3 id="connection-refused"><code>Connection refused</code><a class="headerlink" href="#connection-refused" title="Permanent link">&para;</a></h3>
 <p>Your local server isn't running.</p>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-13-1"><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a><span class="c1"># Start your server first, then run expose tunnel</span>
-</span><span id="__span-13-2"><a id="__codelineno-13-2" name="__codelineno-13-2" href="#__codelineno-13-2"></a>npm<span class="w"> </span>start
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-14-1"><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a><span class="c1"># Start your server first, then run expose tunnel</span>
+</span><span id="__span-14-2"><a id="__codelineno-14-2" name="__codelineno-14-2" href="#__codelineno-14-2"></a>npm<span class="w"> </span>start
 </span></code></pre></div>
 <h3 id="port-already-in-use"><code>Port already in use</code><a class="headerlink" href="#port-already-in-use" title="Permanent link">&para;</a></h3>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-14-1"><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a><span class="c1"># Find the process</span>
-</span><span id="__span-14-2"><a id="__codelineno-14-2" name="__codelineno-14-2" href="#__codelineno-14-2"></a>lsof<span class="w"> </span>-i<span class="w"> </span>:3000
-</span><span id="__span-14-3"><a id="__codelineno-14-3" name="__codelineno-14-3" href="#__codelineno-14-3"></a><span class="c1"># or</span>
-</span><span id="__span-14-4"><a id="__codelineno-14-4" name="__codelineno-14-4" href="#__codelineno-14-4"></a>netstat<span class="w"> </span>-tuln<span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span><span class="m">3000</span>
-</span><span id="__span-14-5"><a id="__codelineno-14-5" name="__codelineno-14-5" href="#__codelineno-14-5"></a>
-</span><span id="__span-14-6"><a id="__codelineno-14-6" name="__codelineno-14-6" href="#__codelineno-14-6"></a><span class="c1"># Kill it or switch ports</span>
-</span><span id="__span-14-7"><a id="__codelineno-14-7" name="__codelineno-14-7" href="#__codelineno-14-7"></a><span class="nb">kill</span><span class="w"> </span>-9<span class="w"> </span>&lt;PID&gt;
-</span><span id="__span-14-8"><a id="__codelineno-14-8" name="__codelineno-14-8" href="#__codelineno-14-8"></a>expose<span class="w"> </span>tunnel<span class="w"> </span>-p<span class="w"> </span><span class="m">8080</span>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-15-1"><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a><span class="c1"># Find the process</span>
+</span><span id="__span-15-2"><a id="__codelineno-15-2" name="__codelineno-15-2" href="#__codelineno-15-2"></a>lsof<span class="w"> </span>-i<span class="w"> </span>:3000
+</span><span id="__span-15-3"><a id="__codelineno-15-3" name="__codelineno-15-3" href="#__codelineno-15-3"></a><span class="c1"># or</span>
+</span><span id="__span-15-4"><a id="__codelineno-15-4" name="__codelineno-15-4" href="#__codelineno-15-4"></a>netstat<span class="w"> </span>-tuln<span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span><span class="m">3000</span>
+</span><span id="__span-15-5"><a id="__codelineno-15-5" name="__codelineno-15-5" href="#__codelineno-15-5"></a>
+</span><span id="__span-15-6"><a id="__codelineno-15-6" name="__codelineno-15-6" href="#__codelineno-15-6"></a><span class="c1"># Kill it or switch ports</span>
+</span><span id="__span-15-7"><a id="__codelineno-15-7" name="__codelineno-15-7" href="#__codelineno-15-7"></a><span class="nb">kill</span><span class="w"> </span>-9<span class="w"> </span>&lt;PID&gt;
+</span><span id="__span-15-8"><a id="__codelineno-15-8" name="__codelineno-15-8" href="#__codelineno-15-8"></a>expose<span class="w"> </span>tunnel<span class="w"> </span>-p<span class="w"> </span><span class="m">8080</span>
 </span></code></pre></div>
 <h3 id="tunnel-disconnects-frequently">Tunnel disconnects frequently<a class="headerlink" href="#tunnel-disconnects-frequently" title="Permanent link">&para;</a></h3>
 <p>LocalTunnel can be unstable. Switch to Cloudflare:</p>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-15-1"><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a>expose<span class="w"> </span>tunnel<span class="w"> </span>-P<span class="w"> </span>cloudflare
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-16-1"><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a>expose<span class="w"> </span>tunnel<span class="w"> </span>-P<span class="w"> </span>cloudflare
 </span></code></pre></div>
 <h3 id="cloudflared-command-not-found"><code>cloudflared: command not found</code><a class="headerlink" href="#cloudflared-command-not-found" title="Permanent link">&para;</a></h3>
 <p>See <a href="#cloudflare-tunnel">Cloudflare Tunnel</a> installation above.</p>
@@ -2005,51 +2039,51 @@
 <hr />
 <h2 id="integration-examples">Integration Examples<a class="headerlink" href="#integration-examples" title="Permanent link">&para;</a></h2>
 <h3 id="github-webhooks">GitHub Webhooks<a class="headerlink" href="#github-webhooks" title="Permanent link">&para;</a></h3>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-16-1"><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a><span class="c1"># 1. Start your handler</span>
-</span><span id="__span-16-2"><a id="__codelineno-16-2" name="__codelineno-16-2" href="#__codelineno-16-2"></a>node<span class="w"> </span>webhook-server.js<span class="w">    </span><span class="c1"># listens on port 4000</span>
-</span><span id="__span-16-3"><a id="__codelineno-16-3" name="__codelineno-16-3" href="#__codelineno-16-3"></a>
-</span><span id="__span-16-4"><a id="__codelineno-16-4" name="__codelineno-16-4" href="#__codelineno-16-4"></a><span class="c1"># 2. Start tunnel</span>
-</span><span id="__span-16-5"><a id="__codelineno-16-5" name="__codelineno-16-5" href="#__codelineno-16-5"></a>expose<span class="w"> </span>tunnel<span class="w"> </span>-p<span class="w"> </span><span class="m">4000</span>
-</span><span id="__span-16-6"><a id="__codelineno-16-6" name="__codelineno-16-6" href="#__codelineno-16-6"></a>
-</span><span id="__span-16-7"><a id="__codelineno-16-7" name="__codelineno-16-7" href="#__codelineno-16-7"></a><span class="c1"># 3. Add the public URL in GitHub:</span>
-</span><span id="__span-16-8"><a id="__codelineno-16-8" name="__codelineno-16-8" href="#__codelineno-16-8"></a><span class="c1"># Settings → Webhooks → Add webhook</span>
-</span><span id="__span-16-9"><a id="__codelineno-16-9" name="__codelineno-16-9" href="#__codelineno-16-9"></a><span class="c1"># URL: https://brave-lions-jump.loca.lt/webhook</span>
-</span><span id="__span-16-10"><a id="__codelineno-16-10" name="__codelineno-16-10" href="#__codelineno-16-10"></a><span class="c1"># Content type: application/json</span>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-17-1"><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a><span class="c1"># 1. Start your handler</span>
+</span><span id="__span-17-2"><a id="__codelineno-17-2" name="__codelineno-17-2" href="#__codelineno-17-2"></a>node<span class="w"> </span>webhook-server.js<span class="w">    </span><span class="c1"># listens on port 4000</span>
+</span><span id="__span-17-3"><a id="__codelineno-17-3" name="__codelineno-17-3" href="#__codelineno-17-3"></a>
+</span><span id="__span-17-4"><a id="__codelineno-17-4" name="__codelineno-17-4" href="#__codelineno-17-4"></a><span class="c1"># 2. Start tunnel</span>
+</span><span id="__span-17-5"><a id="__codelineno-17-5" name="__codelineno-17-5" href="#__codelineno-17-5"></a>expose<span class="w"> </span>tunnel<span class="w"> </span>-p<span class="w"> </span><span class="m">4000</span>
+</span><span id="__span-17-6"><a id="__codelineno-17-6" name="__codelineno-17-6" href="#__codelineno-17-6"></a>
+</span><span id="__span-17-7"><a id="__codelineno-17-7" name="__codelineno-17-7" href="#__codelineno-17-7"></a><span class="c1"># 3. Add the public URL in GitHub:</span>
+</span><span id="__span-17-8"><a id="__codelineno-17-8" name="__codelineno-17-8" href="#__codelineno-17-8"></a><span class="c1"># Settings → Webhooks → Add webhook</span>
+</span><span id="__span-17-9"><a id="__codelineno-17-9" name="__codelineno-17-9" href="#__codelineno-17-9"></a><span class="c1"># URL: https://brave-lions-jump.loca.lt/webhook</span>
+</span><span id="__span-17-10"><a id="__codelineno-17-10" name="__codelineno-17-10" href="#__codelineno-17-10"></a><span class="c1"># Content type: application/json</span>
 </span></code></pre></div>
 <h3 id="stripe-webhooks">Stripe Webhooks<a class="headerlink" href="#stripe-webhooks" title="Permanent link">&para;</a></h3>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-17-1"><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a>expose<span class="w"> </span>tunnel<span class="w"> </span>-p<span class="w"> </span><span class="m">3000</span>
-</span><span id="__span-17-2"><a id="__codelineno-17-2" name="__codelineno-17-2" href="#__codelineno-17-2"></a>
-</span><span id="__span-17-3"><a id="__codelineno-17-3" name="__codelineno-17-3" href="#__codelineno-17-3"></a><span class="c1"># Stripe Dashboard → Developers → Webhooks → Add endpoint</span>
-</span><span id="__span-17-4"><a id="__codelineno-17-4" name="__codelineno-17-4" href="#__codelineno-17-4"></a><span class="c1"># URL: https://quick-birds-sing.loca.lt/stripe/webhook</span>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-18-1"><a id="__codelineno-18-1" name="__codelineno-18-1" href="#__codelineno-18-1"></a>expose<span class="w"> </span>tunnel<span class="w"> </span>-p<span class="w"> </span><span class="m">3000</span>
+</span><span id="__span-18-2"><a id="__codelineno-18-2" name="__codelineno-18-2" href="#__codelineno-18-2"></a>
+</span><span id="__span-18-3"><a id="__codelineno-18-3" name="__codelineno-18-3" href="#__codelineno-18-3"></a><span class="c1"># Stripe Dashboard → Developers → Webhooks → Add endpoint</span>
+</span><span id="__span-18-4"><a id="__codelineno-18-4" name="__codelineno-18-4" href="#__codelineno-18-4"></a><span class="c1"># URL: https://quick-birds-sing.loca.lt/stripe/webhook</span>
 </span></code></pre></div>
 <h3 id="slack-app-development">Slack App Development<a class="headerlink" href="#slack-app-development" title="Permanent link">&para;</a></h3>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-18-1"><a id="__codelineno-18-1" name="__codelineno-18-1" href="#__codelineno-18-1"></a>python<span class="w"> </span>bot.py<span class="w">             </span><span class="c1"># start your bot on port 5000</span>
-</span><span id="__span-18-2"><a id="__codelineno-18-2" name="__codelineno-18-2" href="#__codelineno-18-2"></a>expose<span class="w"> </span>tunnel<span class="w"> </span>-p<span class="w"> </span><span class="m">5000</span>
-</span><span id="__span-18-3"><a id="__codelineno-18-3" name="__codelineno-18-3" href="#__codelineno-18-3"></a>
-</span><span id="__span-18-4"><a id="__codelineno-18-4" name="__codelineno-18-4" href="#__codelineno-18-4"></a><span class="c1"># Slack App config → Event Subscriptions → Request URL:</span>
-</span><span id="__span-18-5"><a id="__codelineno-18-5" name="__codelineno-18-5" href="#__codelineno-18-5"></a><span class="c1"># https://smart-dogs-play.loca.lt/slack/events</span>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-19-1"><a id="__codelineno-19-1" name="__codelineno-19-1" href="#__codelineno-19-1"></a>python<span class="w"> </span>bot.py<span class="w">             </span><span class="c1"># start your bot on port 5000</span>
+</span><span id="__span-19-2"><a id="__codelineno-19-2" name="__codelineno-19-2" href="#__codelineno-19-2"></a>expose<span class="w"> </span>tunnel<span class="w"> </span>-p<span class="w"> </span><span class="m">5000</span>
+</span><span id="__span-19-3"><a id="__codelineno-19-3" name="__codelineno-19-3" href="#__codelineno-19-3"></a>
+</span><span id="__span-19-4"><a id="__codelineno-19-4" name="__codelineno-19-4" href="#__codelineno-19-4"></a><span class="c1"># Slack App config → Event Subscriptions → Request URL:</span>
+</span><span id="__span-19-5"><a id="__codelineno-19-5" name="__codelineno-19-5" href="#__codelineno-19-5"></a><span class="c1"># https://smart-dogs-play.loca.lt/slack/events</span>
 </span></code></pre></div>
 <h3 id="docker-containers">Docker Containers<a class="headerlink" href="#docker-containers" title="Permanent link">&para;</a></h3>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-19-1"><a id="__codelineno-19-1" name="__codelineno-19-1" href="#__codelineno-19-1"></a>docker<span class="w"> </span>run<span class="w"> </span>-p<span class="w"> </span><span class="m">3000</span>:80<span class="w"> </span>my-app
-</span><span id="__span-19-2"><a id="__codelineno-19-2" name="__codelineno-19-2" href="#__codelineno-19-2"></a>expose<span class="w"> </span>tunnel<span class="w"> </span>-p<span class="w"> </span><span class="m">3000</span>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-20-1"><a id="__codelineno-20-1" name="__codelineno-20-1" href="#__codelineno-20-1"></a>docker<span class="w"> </span>run<span class="w"> </span>-p<span class="w"> </span><span class="m">3000</span>:80<span class="w"> </span>my-app
+</span><span id="__span-20-2"><a id="__codelineno-20-2" name="__codelineno-20-2" href="#__codelineno-20-2"></a>expose<span class="w"> </span>tunnel<span class="w"> </span>-p<span class="w"> </span><span class="m">3000</span>
 </span></code></pre></div>
 <h3 id="automation-script">Automation Script<a class="headerlink" href="#automation-script" title="Permanent link">&para;</a></h3>
-<div class="language-bash highlight"><span class="filename">start-dev.sh</span><pre><span></span><code><span id="__span-20-1"><a id="__codelineno-20-1" name="__codelineno-20-1" href="#__codelineno-20-1"></a><span class="ch">#!/usr/bin/env bash</span>
-</span><span id="__span-20-2"><a id="__codelineno-20-2" name="__codelineno-20-2" href="#__codelineno-20-2"></a><span class="nb">set</span><span class="w"> </span>-e
-</span><span id="__span-20-3"><a id="__codelineno-20-3" name="__codelineno-20-3" href="#__codelineno-20-3"></a>npm<span class="w"> </span>start<span class="w"> </span><span class="p">&amp;</span>
-</span><span id="__span-20-4"><a id="__codelineno-20-4" name="__codelineno-20-4" href="#__codelineno-20-4"></a>sleep<span class="w"> </span><span class="m">2</span>
-</span><span id="__span-20-5"><a id="__codelineno-20-5" name="__codelineno-20-5" href="#__codelineno-20-5"></a>expose<span class="w"> </span>tunnel<span class="w"> </span>-p<span class="w"> </span><span class="m">3000</span>
+<div class="language-bash highlight"><span class="filename">start-dev.sh</span><pre><span></span><code><span id="__span-21-1"><a id="__codelineno-21-1" name="__codelineno-21-1" href="#__codelineno-21-1"></a><span class="ch">#!/usr/bin/env bash</span>
+</span><span id="__span-21-2"><a id="__codelineno-21-2" name="__codelineno-21-2" href="#__codelineno-21-2"></a><span class="nb">set</span><span class="w"> </span>-e
+</span><span id="__span-21-3"><a id="__codelineno-21-3" name="__codelineno-21-3" href="#__codelineno-21-3"></a>npm<span class="w"> </span>start<span class="w"> </span><span class="p">&amp;</span>
+</span><span id="__span-21-4"><a id="__codelineno-21-4" name="__codelineno-21-4" href="#__codelineno-21-4"></a>sleep<span class="w"> </span><span class="m">2</span>
+</span><span id="__span-21-5"><a id="__codelineno-21-5" name="__codelineno-21-5" href="#__codelineno-21-5"></a>expose<span class="w"> </span>tunnel<span class="w"> </span>-p<span class="w"> </span><span class="m">3000</span>
 </span></code></pre></div>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-21-1"><a id="__codelineno-21-1" name="__codelineno-21-1" href="#__codelineno-21-1"></a>chmod<span class="w"> </span>+x<span class="w"> </span>start-dev.sh
-</span><span id="__span-21-2"><a id="__codelineno-21-2" name="__codelineno-21-2" href="#__codelineno-21-2"></a>./start-dev.sh
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-22-1"><a id="__codelineno-22-1" name="__codelineno-22-1" href="#__codelineno-22-1"></a>chmod<span class="w"> </span>+x<span class="w"> </span>start-dev.sh
+</span><span id="__span-22-2"><a id="__codelineno-22-2" name="__codelineno-22-2" href="#__codelineno-22-2"></a>./start-dev.sh
 </span></code></pre></div>
 <h3 id="multiple-tunnels-at-once">Multiple Tunnels at Once<a class="headerlink" href="#multiple-tunnels-at-once" title="Permanent link">&para;</a></h3>
 <p>Run multiple terminal sessions:</p>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-22-1"><a id="__codelineno-22-1" name="__codelineno-22-1" href="#__codelineno-22-1"></a><span class="c1"># Terminal 1</span>
-</span><span id="__span-22-2"><a id="__codelineno-22-2" name="__codelineno-22-2" href="#__codelineno-22-2"></a><span class="nb">cd</span><span class="w"> </span>~/projects/frontend<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>expose<span class="w"> </span>tunnel<span class="w">   </span><span class="c1"># port 3000</span>
-</span><span id="__span-22-3"><a id="__codelineno-22-3" name="__codelineno-22-3" href="#__codelineno-22-3"></a>
-</span><span id="__span-22-4"><a id="__codelineno-22-4" name="__codelineno-22-4" href="#__codelineno-22-4"></a><span class="c1"># Terminal 2</span>
-</span><span id="__span-22-5"><a id="__codelineno-22-5" name="__codelineno-22-5" href="#__codelineno-22-5"></a><span class="nb">cd</span><span class="w"> </span>~/projects/api<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>expose<span class="w"> </span>tunnel<span class="w">        </span><span class="c1"># port 4000</span>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-23-1"><a id="__codelineno-23-1" name="__codelineno-23-1" href="#__codelineno-23-1"></a><span class="c1"># Terminal 1</span>
+</span><span id="__span-23-2"><a id="__codelineno-23-2" name="__codelineno-23-2" href="#__codelineno-23-2"></a><span class="nb">cd</span><span class="w"> </span>~/projects/frontend<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>expose<span class="w"> </span>tunnel<span class="w">   </span><span class="c1"># port 3000</span>
+</span><span id="__span-23-3"><a id="__codelineno-23-3" name="__codelineno-23-3" href="#__codelineno-23-3"></a>
+</span><span id="__span-23-4"><a id="__codelineno-23-4" name="__codelineno-23-4" href="#__codelineno-23-4"></a><span class="c1"># Terminal 2</span>
+</span><span id="__span-23-5"><a id="__codelineno-23-5" name="__codelineno-23-5" href="#__codelineno-23-5"></a><span class="nb">cd</span><span class="w"> </span>~/projects/api<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>expose<span class="w"> </span>tunnel<span class="w">        </span><span class="c1"># port 4000</span>
 </span></code></pre></div>
 <hr />
 <h2 id="best-practices">Best Practices<a class="headerlink" href="#best-practices" title="Permanent link">&para;</a></h2>
