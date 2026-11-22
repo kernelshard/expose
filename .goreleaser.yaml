@@ -35,6 +35,11 @@ archives:
     format_overrides:
     - goos: windows
       format: zip
+    files:
+      - README*
+      - LICENSE*
+      - CHANGELOG*
+      - man/*
 
 checksum:
   name_template: 'checksums.txt'
