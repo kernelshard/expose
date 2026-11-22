@@ -45,16 +45,26 @@ expose tunnel -P cloudflare      # different provider
 
 | Provider | Best For | Requires |
 |----------|----------|----------|
-| **LocalTunnel** | Quick webhook tests, short sessions | Nothing |
+| **Localhost.run** (default) | Fast zero-config tunnels, webhooks | Nothing (pure Go SSH) |
 | **Cloudflare** | Client demos, longer sessions | `cloudflared` binary |
 | **Self-Hosted** | Full control, no rate limits | Your own VPS |
+| **LocalTunnel** | Legacy fallback | Nothing (subject to upstream outages) |
+
+### Localhost.run
+
+```bash
+expose tunnel               # default
+expose tunnel -P localhostrun  # explicit (or -P lhr)
+```
 
 ### LocalTunnel
 
 ```bash
-expose tunnel               # default
-expose tunnel -P localtunnel  # explicit
+expose tunnel -P localtunnel  # explicit (or -P lt)
 ```
+
+!!! warning "Upstream Availability"
+    The public `localtunnel.me` infrastructure frequently suffers upstream outages, 504 gateway timeouts, and dropped connections. Use `localhostrun` (default) or `cloudflare` for active development.
 
 !!! warning "Stability"
     LocalTunnel's shared infrastructure can drop connections during long sessions. If you need reliability, use Cloudflare.

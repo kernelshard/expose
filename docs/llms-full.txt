@@ -77,12 +77,12 @@ When starting a tunnel, Expose determines the target port in the following prior
 
 ### Supported Flags
 - `-p, --port <int>`: Local port to expose (e.g., `-p 8080`).
-- `-P, --provider <string>`: Tunnel provider backend: `localtunnel`, `cloudflare`, or `selfhosted` (default: `localtunnel`).
+- `-P, --provider <string>`: Tunnel provider backend: `localhostrun`, `localtunnel`, `cloudflare`, or `selfhosted` (default: `localhostrun`).
 - `-s, --server <string>`: Self-hosted server address (e.g., `tunnel.mysite.com:7890`). Specifying `--server` automatically selects the `selfhosted` provider.
 
 ### Common Examples
 ```bash
-# Expose default localhost:3000 via LocalTunnel
+# Expose default localhost:3000 via localhost.run (default)
 expose tunnel
 
 # Expose custom port 8080
@@ -92,6 +92,9 @@ expose tunnel -p 8080
 # Expose port 3000 through Cloudflare Quick Tunnels
 expose tunnel -P cloudflare -p 3000
 
+# Expose port 3000 through LocalTunnel
+expose tunnel -P localtunnel -p 3000
+
 # Expose port 5000 through your self-hosted VPS server
 expose tunnel --server=tunnel.yourdomain.com:7890 -p 5000
 ```
@@ -100,19 +103,23 @@ expose tunnel --server=tunnel.yourdomain.com:7890 -p 5000
 
 ## 4. Providers
 
-### A. LocalTunnel (`-P localtunnel`)
+### A. Localhost.run (`-P localhostrun` or `-P lhr`)
 - **Default provider**.
-- Uses the free community-run `localtunnel.me` network.
-- No account or local dependencies required.
-- Opens a pool of 10 standby TCP connections to the tunnel host to handle concurrent incoming requests with zero delay.
-- Automatically handles connection replenishment and socket cross-close on EOF.
+- Uses `localhost.run` zero-signup public SSH reverse port forwarding.
+- Pure Go SSH implementation with ephemeral in-memory Ed25519 key generation (no system SSH client, disk writes, or accounts required).
+- Instant TLS termination with `https://*.app.lhr.life` URLs.
 
-### B. Cloudflare Quick Tunnels (`-P cloudflare`)
+### B. LocalTunnel (`-P localtunnel` or `-P lt`)
+- Legacy community-run `localtunnel.me` network fallback.
+- **Note**: The public `localtunnel.me` upstream infrastructure frequently experiences 504 gateway timeouts, outages, and connection drops. Use `localhostrun` (default) for reliable zero-config tunneling.
+- Opens a pool of standby TCP connections to the tunnel host to handle concurrent incoming requests.
+
+### C. Cloudflare Quick Tunnels (`-P cloudflare`)
 - Leverages Cloudflare's global edge network.
 - Requires the `cloudflared` CLI binary to be installed on your machine (`brew install cloudflared` or `apt install cloudflared`).
 - Generates a free `*.trycloudflare.com` URL with automatic TLS.
 
-### C. Self-Hosted Server (`-P selfhosted` or `--server`)
+### D. Self-Hosted Server (`-P selfhosted` or `--server`)
 - Connects directly to an `expose server` instance running on your own VPS.
 - Traffic stays within your personal infrastructure.
 - Zero rate limits, zero third-party dependencies, and customizable domain routing.
