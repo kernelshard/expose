@@ -138,6 +138,11 @@ func (l *LocalhostRun) Connect(ctx context.Context, localPort int) (string, erro
 	l.connected = true
 	l.mu.Unlock()
 
+	// Drain remaining banner output in the background so the SSH channel receive window does not stall
+	go func() {
+		_, _ = io.Copy(io.Discard, channel)
+	}()
+
 	// 6. Start forwarding visitor traffic to the local port
 	go l.forwardTraffic(ctx, listener, localPort)
 
@@ -160,22 +165,35 @@ func (l *LocalhostRun) proxyConnection(ctx context.Context, remoteConn net.Conn,
 	defer remoteConn.Close()
 
 	var dialer net.Dialer
-	localConn, err := dialer.DialContext(ctx, "tcp", fmt.Sprintf("127.0.0.1:%d", localPort))
+	localConn, err := dialer.DialContext(ctx, "tcp", fmt.Sprintf("localhost:%d", localPort))
 	if err != nil {
+		if ctx.Err() == nil {
+			resp := fmt.Sprintf(
+				"HTTP/1.1 502 Bad Gateway\r\n"+
+					"Content-Type: text/html\r\n"+
+					"Connection: close\r\n\r\n"+
+					"<html><body><h2>502 Bad Gateway</h2><p>Failed to connect to localhost:%d - is your server running?</p></body></html>\n",
+				localPort,
+			)
+			_, _ = remoteConn.Write([]byte(resp))
+		}
 		return
 	}
 	defer localConn.Close()
 
-	done := make(chan struct{}, 2)
-	go func() {
+	var wg sync.WaitGroup
+
+	wg.Go(func() {
 		_, _ = pool.Copy(localConn, remoteConn)
-		done <- struct{}{}
-	}()
-	go func() {
+		localConn.Close()
+	})
+
+	wg.Go(func() {
 		_, _ = pool.Copy(remoteConn, localConn)
-		done <- struct{}{}
-	}()
-	<-done
+		remoteConn.Close()
+	})
+
+	wg.Wait()
 }
 
 func (l *LocalhostRun) Close() error {

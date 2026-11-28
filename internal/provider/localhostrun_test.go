@@ -8,6 +8,7 @@ import (
 	"net"
 	"net/http"
 	"os"
+	"strings"
 	"testing"
 	"time"
 
@@ -166,4 +167,83 @@ func TestLiveConnect(t *testing.T) {
 		t.Fatalf("unexpected body: %q", string(body))
 	}
 }
+
+func TestProxyConnection_BadGateway(t *testing.T) {
+	p := NewLocalhostRun()
+	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+	defer cancel()
+
+	clientConn, remoteConn := net.Pipe()
+	defer clientConn.Close()
+
+	// Use an unused port (closed local server)
+	l, err := net.Listen("tcp", "127.0.0.1:0")
+	if err != nil {
+		t.Fatalf("listen error: %v", err)
+	}
+	unusedPort := l.Addr().(*net.TCPAddr).Port
+	_ = l.Close() // immediately close to guarantee connection refused
+
+	go p.proxyConnection(ctx, remoteConn, unusedPort)
+
+	buf := make([]byte, 1024)
+	n, err := clientConn.Read(buf)
+	if err != nil && err != io.EOF {
+		t.Fatalf("unexpected read error: %v", err)
+	}
+
+	response := string(buf[:n])
+	if !strings.Contains(response, "502 Bad Gateway") {
+		t.Fatalf("expected 502 Bad Gateway response, got: %q", response)
+	}
+}
+
+func TestProxyConnection_Success(t *testing.T) {
+	mux := http.NewServeMux()
+	mux.HandleFunc("/echo", func(w http.ResponseWriter, r *http.Request) {
+		body, _ := io.ReadAll(r.Body)
+		w.Header().Set("Content-Type", "text/plain")
+		_, _ = w.Write([]byte("ECHO: " + string(body)))
+	})
+
+	l, err := net.Listen("tcp", "127.0.0.1:0")
+	if err != nil {
+		t.Fatalf("failed to listen: %v", err)
+	}
+	defer l.Close()
+
+	server := &http.Server{Handler: mux}
+	go func() {
+		_ = server.Serve(l)
+	}()
+	defer server.Close()
+
+	localPort := l.Addr().(*net.TCPAddr).Port
+
+	p := NewLocalhostRun()
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+
+	clientConn, remoteConn := net.Pipe()
+	defer clientConn.Close()
+
+	go p.proxyConnection(ctx, remoteConn, localPort)
+
+	// Send HTTP POST request over clientConn
+	req := "POST /echo HTTP/1.1\r\nHost: localhost\r\nContent-Length: 11\r\nConnection: close\r\n\r\nhello world"
+	go func() {
+		_, _ = clientConn.Write([]byte(req))
+	}()
+
+	respBytes, err := io.ReadAll(clientConn)
+	if err != nil {
+		t.Fatalf("failed to read response: %v", err)
+	}
+
+	respStr := string(respBytes)
+	if !strings.Contains(respStr, "200 OK") || !strings.Contains(respStr, "ECHO: hello world") {
+		t.Fatalf("expected full response with echo body, got:\n%s", respStr)
+	}
+}
+
 
